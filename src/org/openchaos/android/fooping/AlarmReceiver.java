@@ -13,9 +13,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d(tag, "alarm received");
 		// TODO: verify received intent?
-		Intent serviceIntent = new Intent(context, FooPingService.class);
-		context.startService(serviceIntent);
+		Log.d(tag, "alarm received");
+		context.startService(new Intent(context, FooPingService.class));
 	}
 }

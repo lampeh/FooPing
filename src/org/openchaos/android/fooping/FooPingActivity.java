@@ -81,8 +81,6 @@ public class FooPingActivity extends Activity {
 		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
 		seekBarWidget.setMax(intervals.length-1);
 		seekBarWidget.setProgress(prefs.getInt("updateIntervalID", 6));
-		// TODO: problem: new seek bar starts at 0.
-		// if updateIntervalID == 0, no progress update is triggered byt setProgress()
 		seekBarChangeListener.onProgressChanged(seekBarWidget, prefs.getInt("updateIntervalID", 6), false);
 		seekBarWidget.setOnSeekBarChangeListener(seekBarChangeListener);
 	}
@@ -114,6 +112,7 @@ public class FooPingActivity extends Activity {
 		public void onClick(View v) {
 			boolean currentState;
 			SharedPreferences.Editor editor = prefs.edit();
+			// TODO: make generic, get pref name from ID
 			switch (v.getId()) {
 				case R.id.UseBattery:
 					currentState = prefs.getBoolean("UseBattery", true);
