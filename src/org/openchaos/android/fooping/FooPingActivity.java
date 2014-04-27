@@ -79,9 +79,12 @@ public class FooPingActivity extends Activity {
 		switchWidget.setOnClickListener(ToggleListener);
 
 		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
-		seekBarWidget.setMax(intervals.length);
-		seekBarWidget.setOnSeekBarChangeListener(seekBarChangeListener);
+		seekBarWidget.setMax(intervals.length-1);
 		seekBarWidget.setProgress(prefs.getInt("updateIntervalID", 6));
+		// TODO: problem: new seek bar starts at 0.
+		// if updateIntervalID == 0, no progress update is triggered byt setProgress()
+		seekBarChangeListener.onProgressChanged(seekBarWidget, prefs.getInt("updateIntervalID", 6), false);
+		seekBarWidget.setOnSeekBarChangeListener(seekBarChangeListener);
 	}
 
 	private OnClickListener StartStopListener = new OnClickListener() {
@@ -170,18 +173,18 @@ public class FooPingActivity extends Activity {
 		@Override
 		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 			Log.d(tag, "onProgressChanged(): " + progress);
-//			if (fromUser) {
-				if (progress >= 0 && progress < intervals.length) {
-					alarmInterval = intervals[progress];
-					((TextView)findViewById(R.id.updateInterval)).setText(alarmInterval.name);
+			if (progress >= 0 && progress < intervals.length) {
+				alarmInterval = intervals[progress];
+				((TextView)findViewById(R.id.updateInterval)).setText(alarmInterval.name);
+				if (fromUser) {
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putInt("updateIntervalID", progress);
 					editor.apply();
-				} else {
-					Log.w(tag, "Invalid update interval ID: " + progress);
 				}
-//			}
-		}	
+			} else {
+				Log.w(tag, "Invalid update interval ID: " + progress);
+			}
+		}
 	};
 
 	private static final class IntervalInfo {
