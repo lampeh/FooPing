@@ -42,7 +42,7 @@ public class FooPingActivity extends Activity {
 		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmRunning) {
-			Toast.makeText(getBaseContext(), R.string.local_service_running, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
 		}
 
 		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
@@ -95,14 +95,14 @@ public class FooPingActivity extends Activity {
 
 				if (alarmMgr != null && alarmIntent != null) {
 					alarmMgr.cancel(alarmIntent);
-					Toast.makeText(getBaseContext(), R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
 				}
 			} else {
 				Log.d(tag, "onClick(): start");
 
 				if (alarmMgr != null && alarmIntent != null) {
 					alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, alarmInterval.interval * 1000, alarmIntent);
-					Toast.makeText(getBaseContext(), R.string.local_service_started, Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, R.string.local_service_started, Toast.LENGTH_SHORT).show();
 				}
 			}
 			alarmRunning = !alarmRunning;
