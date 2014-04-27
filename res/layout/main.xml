@@ -7,6 +7,27 @@
 	<LinearLayout android:orientation="vertical"
 		android:layout_height="wrap_content" android:layout_width="fill_parent">
 
+<!--
+		<TextView
+			android:id="@+id/ClientSettings"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/ClientSettings"
+			style="?android:attr/listSeparatorTextViewStyle" />
+
+		<TextView
+			android:id="@+id/ClientIDLabel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="ID" />
+
+		<EditText
+			android:id="@+id/ClientID"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="client1" />
+-->
+
 		<TextView
 			android:id="@+id/DataSettings"
 			android:layout_width="match_parent"

@@ -12,6 +12,7 @@
 	<string name="UseBattery">Battery status</string>
 	<string name="UseSensors">Sensor readings</string>
 	<string name="DataSettings">Data sources</string>
+	<string name="ClientSettings">Client info</string>
 	<string name="IntervalSettings">Update interval</string>
 	<string name="SendAES">Encrypt</string>
 	<string name="SendGZIP">Compress</string>
