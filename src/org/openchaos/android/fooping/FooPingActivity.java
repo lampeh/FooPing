@@ -36,9 +36,9 @@ public class FooPingActivity extends Activity {
 
 		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
 
-		Intent intent = new Intent(context, AlarmReceiver.class);
-		alarmRunning = (PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
-		alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+		Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+		alarmRunning = (PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
+		alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmRunning) {
