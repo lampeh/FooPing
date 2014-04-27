@@ -28,6 +28,8 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.util.Log;
+import android.net.wifi.WifiManager;
+import android.net.wifi.ScanResult;
 
 
 public class FooPingService extends IntentService {
@@ -44,6 +46,7 @@ public class FooPingService extends IntentService {
 	private SharedPreferences prefs;
 	private LocationManager lm;
 	private SensorManager sm;
+	private WifiManager wm;
 
 	private SecretKeySpec skeySpec;
 	private Cipher cipher;
@@ -60,6 +63,7 @@ public class FooPingService extends IntentService {
 		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
 		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
 		try {
 			skeySpec = new SecretKeySpec(EXCHANGE_KEY.getBytes("US-ASCII"), "AES");
@@ -97,6 +101,22 @@ public class FooPingService extends IntentService {
 //						bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
 					json.put("battery",  bat_data);
 				}
+			}
+
+			if (prefs.getBoolean("UseWIFI", true)) {
+				List<ScanResult> wifiScan = wm.getScanResults();
+				JSONArray wifi_list = new JSONArray();
+				for (ScanResult wifi : wifiScan) {
+					JSONObject wifi_data = new JSONObject();
+					wifi_data.put("BSSID", wifi.BSSID);
+					wifi_data.put("SSID", wifi.SSID);
+					wifi_data.put("freq", wifi.frequency);
+					wifi_data.put("level", wifi.level);
+//					wifi_data.put("cap", wifi.capabilities);
+//					wifi_data.put("ts", wifi.timestamp);
+					wifi_list.put(wifi_data);
+				}
+				json.put("wifi", wifi_list);
 			}
 
 			if (prefs.getBoolean("UseGPS", true)) {
@@ -142,6 +162,7 @@ public class FooPingService extends IntentService {
 				json.put("sensors", sensor_list);
 			}
 
+			// TODO: maybe use SCTP instead of UDP - http://openjdk.java.net/projects/sctp/javadoc/
 			new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
@@ -204,7 +225,7 @@ public class FooPingService extends IntentService {
 					DatagramSocket socket = new DatagramSocket();
 					socket.send(packet);
 					socket.close();
-					Log.d(tag, "message sent: " + message.length + " bytes");
+					Log.d(tag, "message sent: " + message.length + " bytes (raw: " + logBuf[i].length + " bytes)");
 				} catch (Exception e) {
 					Log.e(tag, e.toString());
 					e.printStackTrace();
