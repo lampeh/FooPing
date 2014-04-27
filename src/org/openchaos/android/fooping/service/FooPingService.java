@@ -196,7 +196,7 @@ public class FooPingService extends IntentService {
 					// Actually, if message length > path MTU, the packet won't arrive 
 					// TODO: make protocol fragmentable or handle ICMP errors
 					if (message.length > 1500) {
-						Log.w(tag, "Message probably too long: " + message.length);
+						Log.w(tag, "Message probably too long: " + message.length + " bytes");
 					}
 
 					DatagramPacket packet = new DatagramPacket(message, message.length,
@@ -204,7 +204,7 @@ public class FooPingService extends IntentService {
 					DatagramSocket socket = new DatagramSocket();
 					socket.send(packet);
 					socket.close();
-					Log.d(tag, "message sent");
+					Log.d(tag, "message sent: " + message.length + " bytes");
 				} catch (Exception e) {
 					Log.e(tag, e.toString());
 					e.printStackTrace();
