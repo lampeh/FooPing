@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">FooPing</string>
+	<string name="start">Start</string>
+	<string name="stop">Stop</string>
+	<string name="service_name">FooPingService</string>
+	<string name="local_service_started">FooPing started</string>
+	<string name="local_service_stopped">FooPing cancelled</string>
+	<string name="UseGPS">Cached GPS location</string>
+	<string name="UseNetwork">Cached Network location</string>
+	<string name="UseWIFI">Cached WIFI scan</string>
+	<string name="UseBattery">Battery status</string>
+	<string name="UseSensors">Sensor readings</string>
+	<string name="DataSettings">Data sources</string>
+	<string name="IntervalSettings">Update interval</string>
+	<string name="SendAES">Encrypt</string>
+	<string name="SendGZIP">Compress</string>
+	<string name="local_service_running">FooPing running</string>
+	<string name="interval_1s">1s</string>
+	<string name="interval_10s">10s</string>
+	<string name="interval_60s">1 minute</string>
+	<string name="interval_300s">5 minutes</string>
+	<string name="interval_900s">15 minutes</string>
+	<string name="interval_1800s">30 minutes</string>
+	<string name="interval_3600s">hour</string>
+	<string name="interval_86400s">day</string>
+</resources>

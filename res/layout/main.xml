@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView android:id="@+id/ScrollView01"
+	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent">
+
+	<LinearLayout android:orientation="vertical"
+		android:layout_height="wrap_content" android:layout_width="fill_parent">
+
+		<TextView
+			android:id="@+id/textView1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/DataSettings"
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+
+		<Switch
+			android:id="@+id/UseBattery"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/UseBattery" />
+
+		<Switch
+			android:id="@+id/UseGPS"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/UseGPS" />
+
+		<Switch
+			android:id="@+id/UseNetwork"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/UseNetwork" />
+
+		<Switch
+			android:id="@+id/UseWIFI"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/UseWIFI" />
+
+		<Switch
+			android:id="@+id/UseSensors"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/UseSensors" />
+
+		<TextView
+			android:id="@+id/TextView2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/IntervalSettings"
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+
+		<TextView
+			android:id="@+id/updateInterval"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="right"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="Fnord" />
+
+		<SeekBar
+			android:id="@+id/updateIntervalSeekBar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+
+		<Switch
+			android:id="@+id/SendGZIP"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/SendGZIP" />
+
+		<Switch
+			android:id="@+id/SendAES"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/SendAES" />
+
+		<ToggleButton
+			android:id="@+id/ButtonStartStop"
+			android:layout_width="match_parent"
+			android:layout_height="90dp"
+			android:textOn="@string/stop"
+			android:textOff="@string/start" />
+
+	</LinearLayout>
+
+</ScrollView>
