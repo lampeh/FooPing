@@ -8,17 +8,23 @@
 		android:layout_height="wrap_content" android:layout_width="fill_parent">
 
 		<TextView
-			android:id="@+id/textView1"
-			android:layout_width="wrap_content"
+			android:id="@+id/DataSettings"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/DataSettings"
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			style="?android:attr/listSeparatorTextViewStyle" />
 
 		<Switch
 			android:id="@+id/UseBattery"
 			android:layout_width="match_parent"
 			android:layout_height="50dp"
 			android:text="@string/UseBattery" />
+
+		<Switch
+			android:id="@+id/UseWIFI"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="@string/UseWIFI" />
 
 		<Switch
 			android:id="@+id/UseGPS"
@@ -33,23 +39,17 @@
 			android:text="@string/UseNetwork" />
 
 		<Switch
-			android:id="@+id/UseWIFI"
-			android:layout_width="match_parent"
-			android:layout_height="50dp"
-			android:text="@string/UseWIFI" />
-
-		<Switch
 			android:id="@+id/UseSensors"
 			android:layout_width="match_parent"
 			android:layout_height="50dp"
 			android:text="@string/UseSensors" />
 
 		<TextView
-			android:id="@+id/TextView2"
-			android:layout_width="wrap_content"
+			android:id="@+id/IntervalSettings"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/IntervalSettings"
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			style="?android:attr/listSeparatorTextViewStyle" />
 
 		<TextView
 			android:id="@+id/updateInterval"
