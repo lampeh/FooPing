@@ -157,8 +157,8 @@ public class FooPingService extends IntentService {
 					sensor_info.put("vendor", sensor.getVendor());
 					sensor_info.put("version", sensor.getVersion());
 					sensor_info.put("power", truncValue(sensor.getPower(), 2));
-//						sensor_info.put("resolution", sensor.getResolution());
-//						sensor_info.put("range", sensor.getMaximumRange());
+//					sensor_info.put("resolution", sensor.getResolution());
+//					sensor_info.put("range", sensor.getMaximumRange());
 					sensor_list.put(sensor_info);
 				}
 				json.put("sensors", sensor_list);
@@ -225,7 +225,7 @@ public class FooPingService extends IntentService {
 					baos.close();
 
 					// path MTU is the actual limit here, not only local MTU
-					// TODO: make protocol fragmentable (clear DF flag) or handle ICMP errors
+					// TODO: make packet fragmentable (clear DF flag) or handle ICMP errors
 					if (message.length > 1500) {
 						Log.w(tag, "Message probably too long: " + message.length + " bytes");
 					}
