@@ -54,13 +54,25 @@ public class FooPingActivity extends Activity {
 		button.setChecked(alarmRunning);
 		button.setOnClickListener(StartStopListener);
 		
+		// set default preferences here
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean("UseBattery", prefs.getBoolean("UseBattery", true));
+		editor.putBoolean("UseGPS", prefs.getBoolean("UseGPS", true));
+		editor.putBoolean("UseNetwork", prefs.getBoolean("UseNetwork", false));
+		editor.putBoolean("UseWIFI", prefs.getBoolean("UseWIFI", true));
+		editor.putBoolean("UseSensors", prefs.getBoolean("UseSensors", false));
+		editor.putBoolean("SendAES", prefs.getBoolean("SendAES", true));
+		editor.putBoolean("SendGZIP", prefs.getBoolean("SendGZIP", true));
+		editor.putInt("updateIntervalID", prefs.getInt("updateIntervalID", 6));
+		editor.apply();
+
 		Switch switchWidget;
 		switchWidget = (Switch)findViewById(R.id.UseBattery);
-		switchWidget.setChecked(prefs.getBoolean("UseBattery", true));
+		switchWidget.setChecked(prefs.getBoolean("UseBattery", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseGPS);
-		switchWidget.setChecked(prefs.getBoolean("UseGPS", true));
+		switchWidget.setChecked(prefs.getBoolean("UseGPS", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseNetwork);
@@ -68,7 +80,7 @@ public class FooPingActivity extends Activity {
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseWIFI);
-		switchWidget.setChecked(prefs.getBoolean("UseWIFI", true));
+		switchWidget.setChecked(prefs.getBoolean("UseWIFI", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseSensors);
@@ -76,11 +88,11 @@ public class FooPingActivity extends Activity {
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.SendAES);
-		switchWidget.setChecked(prefs.getBoolean("SendAES", true));
+		switchWidget.setChecked(prefs.getBoolean("SendAES", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.SendGZIP);
-		switchWidget.setChecked(prefs.getBoolean("SendGZIP", true));
+		switchWidget.setChecked(prefs.getBoolean("SendGZIP", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
@@ -114,25 +126,23 @@ public class FooPingActivity extends Activity {
 
 	private OnClickListener ToggleListener = new OnClickListener() {
 		@Override
-		public void onClick(View v) {
-			String resName = null;
-			boolean currentState;
-			SharedPreferences.Editor editor = prefs.edit();
-
+		public void onClick(View v) {			
 			try {
-				String[] resTokens = res.getResourceName(v.getId()).split("/");
-				if (resTokens.length > 0) {
-					resName = resTokens[resTokens.length-1];
-					Log.d(tag, "ToggleListener for element: " + resName);
+				assert v instanceof Switch;
+
+				String resName = res.getResourceEntryName(v.getId());
+				Log.d(tag, "ToggleListener for element: " + resName);
+
+				if (prefs.contains(resName)) {
+					boolean currentState = prefs.getBoolean(resName, false);
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putBoolean(resName, !currentState);
+					editor.apply();
+					((Switch)v).setChecked(!currentState);
+					Log.d(tag, "set " + resName + ": " + (!currentState));
 				} else {
-					Log.w(tag, "ToggleListener couldn't determine element name for ID " + v.getId());
-					return;
+					Log.w(tag, "no preference with name " + resName);
 				}
-				currentState = prefs.getBoolean(resName, false);
-				editor.putBoolean(resName, !currentState);
-				editor.apply();
-				((Switch)v).setChecked(!currentState);
-				Log.d(tag, "set " + resName + ": " + (!currentState));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
