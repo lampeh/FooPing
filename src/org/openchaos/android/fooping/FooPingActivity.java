@@ -51,6 +51,7 @@ public class FooPingActivity extends Activity {
 		editor.putInt("updateIntervalID", prefs.getInt("updateIntervalID", 6));
 		editor.apply();
 
+		// alarm intent might live longer than this activity
 		Context app = getApplicationContext();
 		Intent intent = new Intent(app, AlarmReceiver.class);
 		alarmRunning = (PendingIntent.getBroadcast(app, 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
@@ -61,41 +62,46 @@ public class FooPingActivity extends Activity {
 			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
 		}
 
-		// TODO: generic loop through all switches, use getResourceEntryName()
+		// TODO: generic loop through all switches, use getResourceEntryName(). see SwitchListener
 		Switch switchWidget;
 		switchWidget = (Switch)findViewById(R.id.UseBattery);
 		switchWidget.setChecked(prefs.getBoolean("UseBattery", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseWIFI);
 		switchWidget.setChecked(prefs.getBoolean("UseWIFI", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseGPS);
 		switchWidget.setChecked(prefs.getBoolean("UseGPS", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseNetwork);
 		switchWidget.setChecked(prefs.getBoolean("UseNetwork", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseSensors);
 		switchWidget.setChecked(prefs.getBoolean("UseSensors", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
 		switchWidget = (Switch)findViewById(R.id.SendGZIP);
 		switchWidget.setChecked(prefs.getBoolean("SendGZIP", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
 		switchWidget = (Switch)findViewById(R.id.SendAES);
 		switchWidget.setChecked(prefs.getBoolean("SendAES", false));
-		switchWidget.setOnClickListener(ToggleListener);
+		switchWidget.setOnClickListener(SwitchListener);
 
+		int updateIntervalID = prefs.getInt("updateIntervalID", 0);
+		if (updateIntervalID >= intervals.length) {
+			Log.w(tag, "saved updateIntervalID >= intervals.length");
+			updateIntervalID = intervals.length-1;
+		}
 		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
 		seekBarWidget.setMax(intervals.length-1);
-		seekBarWidget.setProgress(prefs.getInt("updateIntervalID", 0));
-		seekBarChangeListener.onProgressChanged(seekBarWidget, prefs.getInt("updateIntervalID", 0), false);
-		seekBarWidget.setOnSeekBarChangeListener(seekBarChangeListener);
+		seekBarWidget.setProgress(updateIntervalID);
+		SeekBarChangeListener.onProgressChanged(seekBarWidget, updateIntervalID, false);
+		seekBarWidget.setOnSeekBarChangeListener(SeekBarChangeListener);
 
 		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
 		button.setChecked(alarmRunning);
@@ -122,12 +128,12 @@ public class FooPingActivity extends Activity {
 		}
 	};
 
-	private OnClickListener ToggleListener = new OnClickListener() {
+	private OnClickListener SwitchListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			try {
 				String resName = res.getResourceEntryName(v.getId());
-				Log.d(tag, "ToggleListener for element: " + resName);
+				Log.d(tag, "SwitchListener for element: " + resName);
 
 				if (prefs.contains(resName)) {
 					boolean currentState = prefs.getBoolean(resName, false);
@@ -145,7 +151,7 @@ public class FooPingActivity extends Activity {
 		}
 	};
 
-	private OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
+	private OnSeekBarChangeListener SeekBarChangeListener = new OnSeekBarChangeListener() {
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
 
