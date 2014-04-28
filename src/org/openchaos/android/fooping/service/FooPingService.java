@@ -36,12 +36,6 @@ public class FooPingService extends IntentService {
 	private static final String tag = "FooPingService";
 
 	// TODO: move configuration into shared preferences
-	private static final String CLIENT_ID = "client1";
-	private static final String EXCHANGE_HOST = "85.10.240.255";
-//	private static final String EXCHANGE_HOST = "2a01:4f8:141:282::3";
-//	private static final String EXCHANGE_HOST = "alberich.openchaos.org";
-	private static final int EXCHANGE_PORT = 4445;
-	private static final String EXCHANGE_KEY = "B|X!R*y0g~BL#(b.";
 
 	private SharedPreferences prefs;
 	private LocationManager lm;
@@ -66,7 +60,7 @@ public class FooPingService extends IntentService {
 		wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
 
 		try {
-			skeySpec = new SecretKeySpec(EXCHANGE_KEY.getBytes("US-ASCII"), "AES");
+			skeySpec = new SecretKeySpec(prefs.getString("ExchangeKey", null).getBytes("US-ASCII"), "AES");
 			cipher = Cipher.getInstance("AES/CFB8/NoPadding");
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
@@ -85,9 +79,9 @@ public class FooPingService extends IntentService {
 
 			JSONObject json = new JSONObject();
 			json.put("ts", System.currentTimeMillis());
-			json.put("client", CLIENT_ID);
+			json.put("client", prefs.getString("ClientID", "unknown"));
 
-			if (prefs.getBoolean("UseBattery", true)) {
+			if (prefs.getBoolean("UseBattery", false)) {
 				Intent batteryStatus = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 				if (batteryStatus != null) {
 					JSONObject bat_data = new JSONObject();
@@ -110,7 +104,7 @@ public class FooPingService extends IntentService {
 				}
 			}
 
-			if (prefs.getBoolean("UseWIFI", true)) {
+			if (prefs.getBoolean("UseWIFI", false)) {
 				List<ScanResult> wifiScan = wm.getScanResults();
 				JSONArray wifi_list = new JSONArray();
 				for (ScanResult wifi : wifiScan) {
@@ -126,7 +120,7 @@ public class FooPingService extends IntentService {
 				json.put("wifi", wifi_list);
 			}
 
-			if (prefs.getBoolean("UseGPS", true)) {
+			if (prefs.getBoolean("UseGPS", false)) {
 				Location last_GPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				JSONObject loc_data = new JSONObject();
 				loc_data.put("ts", last_GPS.getTime());
@@ -180,9 +174,13 @@ public class FooPingService extends IntentService {
 	private class _sendUDP extends AsyncTask <byte[], Void, Void> {
 		@Override
 		protected Void doInBackground(final byte[]... logBuf) {
-			boolean encrypt = prefs.getBoolean("SendAES", true);
-			boolean compress = prefs.getBoolean("SendGZIP", true);
+			boolean encrypt = prefs.getBoolean("SendAES", false);
+			boolean compress = prefs.getBoolean("SendGZIP", false);
+			String exchangeHost = prefs.getString("ExchangeHost", null);
+			int exchangePort = prefs.getInt("ExchangePort", -1);
+
 			assert !encrypt || (cipher != null && skeySpec != null);
+			assert exchangeHost != null && exchangePort > 0;
 
 			final int count = logBuf.length;
 			for (int i = 0; i < count; i++) {
@@ -233,7 +231,7 @@ public class FooPingService extends IntentService {
 					}
 
 					DatagramPacket packet = new DatagramPacket(message, message.length,
-							InetAddress.getByName(EXCHANGE_HOST), EXCHANGE_PORT);
+							InetAddress.getByName(exchangeHost), exchangePort);
 					DatagramSocket socket = new DatagramSocket();
 					socket.send(packet);
 					socket.close();
