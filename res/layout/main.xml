@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView android:id="@+id/ScrollView01"
+<ScrollView android:id="@+id/RootView"
 	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent">
 
@@ -73,14 +73,14 @@
 			style="?android:attr/listSeparatorTextViewStyle" />
 
 		<TextView
-			android:id="@+id/updateInterval"
+			android:id="@+id/UpdateInterval"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="right"
 			android:textAppearance="?android:attr/textAppearanceMedium" />
 
 		<SeekBar
-			android:id="@+id/updateIntervalSeekBar"
+			android:id="@+id/UpdateIntervalSeekBar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content" />
 
@@ -97,7 +97,7 @@
 			android:text="@string/SendAES" />
 
 		<ToggleButton
-			android:id="@+id/ButtonStartStop"
+			android:id="@+id/StartStopButton"
 			android:layout_width="match_parent"
 			android:layout_height="90dp"
 			android:textOn="@string/stop"

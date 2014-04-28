@@ -47,7 +47,7 @@ public class FooPingActivity extends Activity {
 
 		// set default preferences here
 		// crash with ClassCastException on incompatible preferences
-		// TODO: catch Exception, clear preferences and try again
+		// TODO: catch Exception, clear and overwrite old preferences
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean("UseBattery", prefs.getBoolean("UseBattery", true));
 		editor.putBoolean("UseWIFI", prefs.getBoolean("UseWIFI", true));
@@ -56,7 +56,7 @@ public class FooPingActivity extends Activity {
 		editor.putBoolean("UseSensors", prefs.getBoolean("UseSensors", false));
 		editor.putBoolean("SendGZIP", prefs.getBoolean("SendGZIP", true));
 		editor.putBoolean("SendAES", prefs.getBoolean("SendAES", true));
-		editor.putInt("updateIntervalID", prefs.getInt("updateIntervalID", 6));
+		editor.putInt("UpdateIntervalID", prefs.getInt("UpdateIntervalID", 6));
 		editor.apply();
 
 		// alarm intent might live longer than this activity
@@ -71,6 +71,7 @@ public class FooPingActivity extends Activity {
 			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
 		}
 
+		// initialize all switches from corresponding boolean preferences
 		List<Switch> switches = Views.find((ViewGroup)findViewById(R.id.RootView), Switch.class);
 		for (Switch switchWidget : switches) {
 			String resName = res.getResourceEntryName(switchWidget.getId());
@@ -89,19 +90,19 @@ public class FooPingActivity extends Activity {
 			}
 		}
 
-		int updateIntervalID = prefs.getInt("updateIntervalID", -1);
+		int updateIntervalID = prefs.getInt("UpdateIntervalID", -1);
 		if (updateIntervalID < 0 || updateIntervalID >= intervals.length) {
-			Log.w(tag, "Invalid updateIntervalID in preferences");
+			Log.w(tag, "Invalid UpdateIntervalID in preferences");
 			updateIntervalID = intervals.length-1;
 		}
 
-		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
+		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.UpdateIntervalSeekBar);
 		seekBarWidget.setMax(intervals.length-1);
 		seekBarWidget.setProgress(updateIntervalID);
 		IntervalChangeListener.onProgressChanged(seekBarWidget, updateIntervalID, false);
 		seekBarWidget.setOnSeekBarChangeListener(IntervalChangeListener);
 
-		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
+		ToggleButton button = (ToggleButton)findViewById(R.id.StartStopButton);
 		button.setChecked(alarmRunning);
 		button.setOnClickListener(StartStopListener);
 	}
@@ -158,11 +159,11 @@ public class FooPingActivity extends Activity {
 		public void onProgressChanged(SeekBar seekBar, int intervalID, boolean fromUser) {
 			if (intervalID >= 0 && intervalID < intervals.length) {
 				alarmInterval = intervals[intervalID];
-				((TextView)findViewById(R.id.updateInterval)).setText(alarmInterval.name);
+				((TextView)findViewById(R.id.UpdateInterval)).setText(alarmInterval.name);
 				if (fromUser) {
-					prefs.edit().putInt("updateIntervalID", intervalID).apply();
+					prefs.edit().putInt("UpdateIntervalID", intervalID).apply();
 				}
-				Log.d(tag, "Set updateIntervalID: " + intervalID);
+				Log.d(tag, "Set UpdateIntervalID: " + intervalID);
 			} else {
 				Log.w(tag, "Invalid update interval ID: " + intervalID);
 			}
