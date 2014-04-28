@@ -22,11 +22,10 @@ import android.widget.TextView;
 public class FooPingActivity extends Activity {
 	private static final String tag = "FooPingActivity";
 
+	private Context context = this;
 	private AlarmManager alarmMgr;
 	private PendingIntent alarmIntent;
 	private SharedPreferences prefs;
-
-	private Context context = this;
 	private Resources res;
 
 	private boolean alarmRunning;
@@ -43,12 +42,12 @@ public class FooPingActivity extends Activity {
 		// set default preferences here
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean("UseBattery", prefs.getBoolean("UseBattery", true));
+		editor.putBoolean("UseWIFI", prefs.getBoolean("UseWIFI", true));
 		editor.putBoolean("UseGPS", prefs.getBoolean("UseGPS", true));
 		editor.putBoolean("UseNetwork", prefs.getBoolean("UseNetwork", false));
-		editor.putBoolean("UseWIFI", prefs.getBoolean("UseWIFI", true));
 		editor.putBoolean("UseSensors", prefs.getBoolean("UseSensors", false));
-		editor.putBoolean("SendAES", prefs.getBoolean("SendAES", true));
 		editor.putBoolean("SendGZIP", prefs.getBoolean("SendGZIP", true));
+		editor.putBoolean("SendAES", prefs.getBoolean("SendAES", true));
 		editor.putInt("updateIntervalID", prefs.getInt("updateIntervalID", 6));
 		editor.apply();
 
@@ -62,10 +61,14 @@ public class FooPingActivity extends Activity {
 			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
 		}
 
-		// TODO: generic loop through all switches
+		// TODO: generic loop through all switches, use getResourceEntryName()
 		Switch switchWidget;
 		switchWidget = (Switch)findViewById(R.id.UseBattery);
 		switchWidget.setChecked(prefs.getBoolean("UseBattery", false));
+		switchWidget.setOnClickListener(ToggleListener);
+
+		switchWidget = (Switch)findViewById(R.id.UseWIFI);
+		switchWidget.setChecked(prefs.getBoolean("UseWIFI", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.UseGPS);
@@ -76,26 +79,22 @@ public class FooPingActivity extends Activity {
 		switchWidget.setChecked(prefs.getBoolean("UseNetwork", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
-		switchWidget = (Switch)findViewById(R.id.UseWIFI);
-		switchWidget.setChecked(prefs.getBoolean("UseWIFI", false));
-		switchWidget.setOnClickListener(ToggleListener);
-
 		switchWidget = (Switch)findViewById(R.id.UseSensors);
 		switchWidget.setChecked(prefs.getBoolean("UseSensors", false));
-		switchWidget.setOnClickListener(ToggleListener);
-
-		switchWidget = (Switch)findViewById(R.id.SendAES);
-		switchWidget.setChecked(prefs.getBoolean("SendAES", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
 		switchWidget = (Switch)findViewById(R.id.SendGZIP);
 		switchWidget.setChecked(prefs.getBoolean("SendGZIP", false));
 		switchWidget.setOnClickListener(ToggleListener);
 
+		switchWidget = (Switch)findViewById(R.id.SendAES);
+		switchWidget.setChecked(prefs.getBoolean("SendAES", false));
+		switchWidget.setOnClickListener(ToggleListener);
+
 		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
 		seekBarWidget.setMax(intervals.length-1);
-		seekBarWidget.setProgress(prefs.getInt("updateIntervalID", 6));
-		seekBarChangeListener.onProgressChanged(seekBarWidget, prefs.getInt("updateIntervalID", 6), false);
+		seekBarWidget.setProgress(prefs.getInt("updateIntervalID", 0));
+		seekBarChangeListener.onProgressChanged(seekBarWidget, prefs.getInt("updateIntervalID", 0), false);
 		seekBarWidget.setOnSeekBarChangeListener(seekBarChangeListener);
 
 		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
@@ -109,12 +108,12 @@ public class FooPingActivity extends Activity {
 			if (alarmMgr != null && alarmIntent != null) {
 				if (alarmRunning) {
 					Log.d(tag, "onClick(): stop");
-	
+
 					alarmMgr.cancel(alarmIntent);
 					Toast.makeText(context, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
 				} else {
 					Log.d(tag, "onClick(): start");
-	
+
 					alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, alarmInterval.interval * 1000, alarmIntent);
 					Toast.makeText(context, R.string.local_service_started, Toast.LENGTH_SHORT).show();
 				}
@@ -125,10 +124,8 @@ public class FooPingActivity extends Activity {
 
 	private OnClickListener ToggleListener = new OnClickListener() {
 		@Override
-		public void onClick(View v) {			
+		public void onClick(View v) {
 			try {
-				assert v instanceof Switch;
-
 				String resName = res.getResourceEntryName(v.getId());
 				Log.d(tag, "ToggleListener for element: " + resName);
 
@@ -137,7 +134,6 @@ public class FooPingActivity extends Activity {
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putBoolean(resName, !currentState);
 					editor.apply();
-					((Switch)v).setChecked(!currentState);
 					Log.d(tag, "set " + resName + ": " + (!currentState));
 				} else {
 					Log.w(tag, "no preference with name " + resName);
