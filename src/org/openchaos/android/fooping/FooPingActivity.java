@@ -40,20 +40,6 @@ public class FooPingActivity extends Activity {
 		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
 		res = getResources();
 
-		Context app = getApplicationContext();
-		Intent intent = new Intent(app, AlarmReceiver.class);
-		alarmRunning = (PendingIntent.getBroadcast(app, 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
-		alarmIntent = PendingIntent.getBroadcast(app, 0, intent, 0);
-		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-		if (alarmRunning) {
-			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
-		}
-
-		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
-		button.setChecked(alarmRunning);
-		button.setOnClickListener(StartStopListener);
-		
 		// set default preferences here
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean("UseBattery", prefs.getBoolean("UseBattery", true));
@@ -66,6 +52,17 @@ public class FooPingActivity extends Activity {
 		editor.putInt("updateIntervalID", prefs.getInt("updateIntervalID", 6));
 		editor.apply();
 
+		Context app = getApplicationContext();
+		Intent intent = new Intent(app, AlarmReceiver.class);
+		alarmRunning = (PendingIntent.getBroadcast(app, 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
+		alarmIntent = PendingIntent.getBroadcast(app, 0, intent, 0);
+		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+		if (alarmRunning) {
+			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
+		}
+
+		// TODO: generic loop through all switches
 		Switch switchWidget;
 		switchWidget = (Switch)findViewById(R.id.UseBattery);
 		switchWidget.setChecked(prefs.getBoolean("UseBattery", false));
@@ -100,27 +97,29 @@ public class FooPingActivity extends Activity {
 		seekBarWidget.setProgress(prefs.getInt("updateIntervalID", 6));
 		seekBarChangeListener.onProgressChanged(seekBarWidget, prefs.getInt("updateIntervalID", 6), false);
 		seekBarWidget.setOnSeekBarChangeListener(seekBarChangeListener);
+
+		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
+		button.setChecked(alarmRunning);
+		button.setOnClickListener(StartStopListener);
 	}
 
 	private OnClickListener StartStopListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (alarmRunning) {
-				Log.d(tag, "onClick(): stop");
-
-				if (alarmMgr != null && alarmIntent != null) {
+			if (alarmMgr != null && alarmIntent != null) {
+				if (alarmRunning) {
+					Log.d(tag, "onClick(): stop");
+	
 					alarmMgr.cancel(alarmIntent);
 					Toast.makeText(context, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
-				}
-			} else {
-				Log.d(tag, "onClick(): start");
-
-				if (alarmMgr != null && alarmIntent != null) {
+				} else {
+					Log.d(tag, "onClick(): start");
+	
 					alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, alarmInterval.interval * 1000, alarmIntent);
 					Toast.makeText(context, R.string.local_service_started, Toast.LENGTH_SHORT).show();
 				}
+				alarmRunning = !alarmRunning;
 			}
-			alarmRunning = !alarmRunning;
 		}
 	};
 
