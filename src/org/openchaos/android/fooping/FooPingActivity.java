@@ -56,10 +56,10 @@ public class FooPingActivity extends Activity {
 		editor.putBoolean("SendGZIP", prefs.getBoolean("SendGZIP", true));
 		editor.putBoolean("SendAES", prefs.getBoolean("SendAES", true));
 		editor.putInt("UpdateIntervalID", prefs.getInt("UpdateIntervalID", 6));
-		editor.putString("ClientID", "client1");
-		editor.putString("ExchangeHost", "85.10.240.255");
-		editor.putInt("ExchangePort", 23042);
-		editor.putString("ExchangeKey", "m!ToSC]vb=:<b&XL.|Yq#LYE{V+$Mc~y");
+		editor.putString("ClientID", prefs.getString("ClientID", "client1"));
+		editor.putString("ExchangeHost", prefs.getString("ExchangeHost", "85.10.240.255"));
+		editor.putInt("ExchangePort", prefs.getInt("ExchangePort", 23042));
+		editor.putString("ExchangeKey", prefs.getString("ExchangeKey", "m!ToSC]vb=:<b&XL.|Yq#LYE{V+$Mc~y"));
 		editor.apply();
 
 		// alarm intent might live longer than this activity
