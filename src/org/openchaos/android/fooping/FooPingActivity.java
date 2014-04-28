@@ -23,13 +23,14 @@ public class FooPingActivity extends Activity {
 	private static final String tag = "FooPingActivity";
 
 	private Context context = this;
-	private AlarmManager alarmMgr;
+	private AlarmManager alarmManager;
 	private PendingIntent alarmIntent;
 	private SharedPreferences prefs;
 	private Resources res;
 
 	private boolean alarmRunning;
 	private IntervalInfo alarmInterval;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,8 @@ public class FooPingActivity extends Activity {
 		res = getResources();
 
 		// set default preferences here
+		// crash with ClassCastException on incompatible preferences
+		// TODO: catch Exception, clear preferences and try again
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean("UseBattery", prefs.getBoolean("UseBattery", true));
 		editor.putBoolean("UseWIFI", prefs.getBoolean("UseWIFI", true));
@@ -56,9 +59,10 @@ public class FooPingActivity extends Activity {
 		Intent intent = new Intent(app, AlarmReceiver.class);
 		alarmRunning = (PendingIntent.getBroadcast(app, 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
 		alarmIntent = PendingIntent.getBroadcast(app, 0, intent, 0);
-		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmRunning) {
+			Log.d(tag, "Found pending alarm intent");
 			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
 		}
 
@@ -92,16 +96,17 @@ public class FooPingActivity extends Activity {
 		switchWidget.setChecked(prefs.getBoolean("SendAES", false));
 		switchWidget.setOnClickListener(SwitchListener);
 
-		int updateIntervalID = prefs.getInt("updateIntervalID", 0);
-		if (updateIntervalID >= intervals.length) {
-			Log.w(tag, "saved updateIntervalID >= intervals.length");
+		int updateIntervalID = prefs.getInt("updateIntervalID", -1);
+		if (updateIntervalID < 0 || updateIntervalID >= intervals.length) {
+			Log.w(tag, "Invalid updateIntervalID in preferences");
 			updateIntervalID = intervals.length-1;
 		}
+
 		SeekBar seekBarWidget = (SeekBar)findViewById(R.id.updateIntervalSeekBar);
 		seekBarWidget.setMax(intervals.length-1);
 		seekBarWidget.setProgress(updateIntervalID);
-		SeekBarChangeListener.onProgressChanged(seekBarWidget, updateIntervalID, false);
-		seekBarWidget.setOnSeekBarChangeListener(SeekBarChangeListener);
+		IntervalChangeListener.onProgressChanged(seekBarWidget, updateIntervalID, false);
+		seekBarWidget.setOnSeekBarChangeListener(IntervalChangeListener);
 
 		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
 		button.setChecked(alarmRunning);
@@ -111,47 +116,41 @@ public class FooPingActivity extends Activity {
 	private OnClickListener StartStopListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (alarmMgr != null && alarmIntent != null) {
-				if (alarmRunning) {
-					Log.d(tag, "onClick(): stop");
-
-					alarmMgr.cancel(alarmIntent);
-					Toast.makeText(context, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
-				} else {
-					Log.d(tag, "onClick(): start");
-
-					alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, alarmInterval.interval * 1000, alarmIntent);
-					Toast.makeText(context, R.string.local_service_started, Toast.LENGTH_SHORT).show();
-				}
-				alarmRunning = !alarmRunning;
+			if (alarmRunning) {
+				Log.d(tag, "onClick(): stop");
+				alarmManager.cancel(alarmIntent);
+				Toast.makeText(context, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
+			} else {
+				Log.d(tag, "onClick(): start");
+				alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, alarmInterval.interval * 1000, alarmIntent);
+				Toast.makeText(context, R.string.local_service_started, Toast.LENGTH_SHORT).show();
 			}
+			alarmRunning = !alarmRunning;
 		}
 	};
 
 	private OnClickListener SwitchListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			try {
-				String resName = res.getResourceEntryName(v.getId());
-				Log.d(tag, "SwitchListener for element: " + resName);
+			String resName = res.getResourceEntryName(v.getId());
+			Log.d(tag, "SwitchListener for element: " + resName);
 
-				if (prefs.contains(resName)) {
+			if (prefs.contains(resName)) {
+				try {
 					boolean currentState = prefs.getBoolean(resName, false);
-					SharedPreferences.Editor editor = prefs.edit();
-					editor.putBoolean(resName, !currentState);
-					editor.apply();
-					Log.d(tag, "set " + resName + ": " + (!currentState));
-				} else {
-					Log.w(tag, "no preference with name " + resName);
+					prefs.edit().putBoolean(resName, !currentState).apply();
+					Log.d(tag, "Set " + resName + ": " + (!currentState));
+				} catch (Exception e) {
+					Log.e(tag, "Failed to set " + resName);
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+			} else {
+				Log.w(tag, "No preference with name " + resName);
 			}
 		}
 	};
 
-	private OnSeekBarChangeListener SeekBarChangeListener = new OnSeekBarChangeListener() {
+	private OnSeekBarChangeListener IntervalChangeListener = new OnSeekBarChangeListener() {
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
 
@@ -163,18 +162,16 @@ public class FooPingActivity extends Activity {
 		}
 
 		@Override
-		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-			Log.d(tag, "onProgressChanged(): " + progress);
-			if (progress >= 0 && progress < intervals.length) {
-				alarmInterval = intervals[progress];
+		public void onProgressChanged(SeekBar seekBar, int intervalID, boolean fromUser) {
+			if (intervalID >= 0 && intervalID < intervals.length) {
+				alarmInterval = intervals[intervalID];
 				((TextView)findViewById(R.id.updateInterval)).setText(alarmInterval.name);
 				if (fromUser) {
-					SharedPreferences.Editor editor = prefs.edit();
-					editor.putInt("updateIntervalID", progress);
-					editor.apply();
+					prefs.edit().putInt("updateIntervalID", intervalID).apply();
 				}
+				Log.d(tag, "Set updateIntervalID: " + intervalID);
 			} else {
-				Log.w(tag, "Invalid update interval ID: " + progress);
+				Log.w(tag, "Invalid update interval ID: " + intervalID);
 			}
 		}
 	};
