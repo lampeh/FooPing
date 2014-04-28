@@ -72,7 +72,7 @@ public class FooPingActivity extends Activity {
 
 		if (alarmRunning) {
 			Log.d(tag, "Found pending alarm intent");
-			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, R.string.service_running, Toast.LENGTH_SHORT).show();
 		}
 
 		// initialize all switches from corresponding boolean preferences
@@ -117,11 +117,11 @@ public class FooPingActivity extends Activity {
 			if (alarmRunning) {
 				Log.d(tag, "onClick(): stop");
 				alarmManager.cancel(alarmIntent);
-				Toast.makeText(context, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, R.string.service_stopped, Toast.LENGTH_SHORT).show();
 			} else {
 				Log.d(tag, "onClick(): start");
 				alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, alarmInterval.interval * 1000, alarmIntent);
-				Toast.makeText(context, R.string.local_service_started, Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, R.string.service_started, Toast.LENGTH_SHORT).show();
 			}
 			alarmRunning = !alarmRunning;
 		}
