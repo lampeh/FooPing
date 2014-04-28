@@ -1,11 +1,11 @@
 package org.openchaos.android.fooping;
 
+import org.openchaos.android.fooping.service.FooPingService;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-
-import org.openchaos.android.fooping.service.FooPingService;
 
 
 public class AlarmReceiver extends BroadcastReceiver {

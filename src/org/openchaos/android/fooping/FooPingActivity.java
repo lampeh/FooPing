@@ -14,12 +14,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ToggleButton;
-import android.widget.Toast;
-import android.widget.Switch;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.androidwtf.android.Views;
 
@@ -40,7 +40,6 @@ public class FooPingActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
 
 		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
 		res = getResources();
@@ -74,6 +73,9 @@ public class FooPingActivity extends Activity {
 			Log.d(tag, "Found pending alarm intent");
 			Toast.makeText(context, R.string.service_running, Toast.LENGTH_SHORT).show();
 		}
+
+		// set up view elements
+		setContentView(R.layout.main);
 
 		// initialize all switches from corresponding boolean preferences
 		List<Switch> switches = Views.find((ViewGroup)findViewById(R.id.RootView), Switch.class);

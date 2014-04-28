@@ -1,12 +1,12 @@
 package org.openchaos.android.fooping.service;
 
 import java.io.ByteArrayOutputStream;
-import java.util.zip.GZIPOutputStream;
+import java.math.BigDecimal;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.List;
-import java.math.BigDecimal;
+import java.util.zip.GZIPOutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -25,17 +25,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.util.Log;
-import android.net.wifi.WifiManager;
-import android.net.wifi.ScanResult;
 
 
 public class FooPingService extends IntentService {
 	private static final String tag = "FooPingService";
-
-	// TODO: move configuration into shared preferences
 
 	private SharedPreferences prefs;
 	private LocationManager lm;
