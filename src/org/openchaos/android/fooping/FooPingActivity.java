@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,10 +22,12 @@ import android.widget.TextView;
 public class FooPingActivity extends Activity {
 	private static final String tag = "FooPingActivity";
 
-	private Context context = this;
 	private AlarmManager alarmMgr;
 	private PendingIntent alarmIntent;
 	private SharedPreferences prefs;
+
+	private Context context = this;
+	private Resources res;
 
 	private boolean alarmRunning;
 	private IntervalInfo alarmInterval;
@@ -35,10 +38,12 @@ public class FooPingActivity extends Activity {
 		setContentView(R.layout.main);
 
 		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+		res = getResources();
 
-		Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-		alarmRunning = (PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
-		alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
+		Context app = getApplicationContext();
+		Intent intent = new Intent(app, AlarmReceiver.class);
+		alarmRunning = (PendingIntent.getBroadcast(app, 0, intent, PendingIntent.FLAG_NO_CREATE) != null);
+		alarmIntent = PendingIntent.getBroadcast(app, 0, intent, 0);
 		alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmRunning) {
@@ -48,7 +53,7 @@ public class FooPingActivity extends Activity {
 		ToggleButton button = (ToggleButton)findViewById(R.id.ButtonStartStop);
 		button.setChecked(alarmRunning);
 		button.setOnClickListener(StartStopListener);
-
+		
 		Switch switchWidget;
 		switchWidget = (Switch)findViewById(R.id.UseBattery);
 		switchWidget.setChecked(prefs.getBoolean("UseBattery", true));
@@ -110,51 +115,28 @@ public class FooPingActivity extends Activity {
 	private OnClickListener ToggleListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+			String resName = null;
 			boolean currentState;
 			SharedPreferences.Editor editor = prefs.edit();
-			// TODO: make generic, get pref name from ID
-			switch (v.getId()) {
-				case R.id.UseBattery:
-					currentState = prefs.getBoolean("UseBattery", true);
-					editor.putBoolean("UseBattery", !currentState);
-					Log.d(tag, "setUseBattery: " + (!currentState));
-					break;
-				case R.id.UseGPS:
-					currentState = prefs.getBoolean("UseGPS", true);
-					editor.putBoolean("UseGPS", !currentState);
-					Log.d(tag, "setUseGPS: " + (!currentState));
-					break;
-				case R.id.UseNetwork:
-					currentState = prefs.getBoolean("UseNetwork", false);
-					editor.putBoolean("UseNetwork", !currentState);
-					Log.d(tag, "setUseNetwork: " + (!currentState));
-					break;
-				case R.id.UseWIFI:
-					currentState = prefs.getBoolean("UseWIFI", true);
-					editor.putBoolean("UseWIFI", !currentState);
-					Log.d(tag, "setUseWIFI: " + (!currentState));
-					break;
-				case R.id.UseSensors:
-					currentState = prefs.getBoolean("UseSensors", false);
-					editor.putBoolean("UseSensors", !currentState);
-					Log.d(tag, "setUseSensors: " + (!currentState));
-					break;
-				case R.id.SendAES:
-					currentState = prefs.getBoolean("SendAES", true);
-					editor.putBoolean("SendAES", !currentState);
-					Log.d(tag, "setSendAES: " + (!currentState));
-					break;
-				case R.id.SendGZIP:
-					currentState = prefs.getBoolean("SendGZIP", true);
-					editor.putBoolean("SendGZIP", !currentState);
-					Log.d(tag, "setSendGZIP: " + (!currentState));
-					break;
-				default:
-					Log.w(tag, "Unknown switch ID: " + v.getId());
+
+			try {
+				String[] resTokens = res.getResourceName(v.getId()).split("/");
+				if (resTokens.length > 0) {
+					resName = resTokens[resTokens.length-1];
+					Log.d(tag, "ToggleListener for element: " + resName);
+				} else {
+					Log.w(tag, "ToggleListener couldn't determine element name for ID " + v.getId());
 					return;
+				}
+				currentState = prefs.getBoolean(resName, false);
+				editor.putBoolean(resName, !currentState);
+				editor.apply();
+				((Switch)v).setChecked(!currentState);
+				Log.d(tag, "set " + resName + ": " + (!currentState));
+			} catch (Exception e) {
+				Log.e(tag, e.toString());
+				e.printStackTrace();
 			}
-			((Switch)v).setChecked(!currentState);
-			editor.apply();
 		}
 	};
 
