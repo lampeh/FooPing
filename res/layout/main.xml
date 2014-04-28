@@ -67,13 +67,15 @@
 			android:id="@+id/SendGZIP"
 			android:layout_width="match_parent"
 			android:layout_height="50dp"
-			android:text="@string/SendGZIP" />
+			android:text="@string/SendGZIP"
+			android:enabled="false" />
 
 		<Switch
 			android:id="@+id/SendAES"
 			android:layout_width="match_parent"
 			android:layout_height="50dp"
-			android:text="@string/SendAES" />
+			android:text="@string/SendAES"
+			android:enabled="false" />
 
 		<ToggleButton
 			android:id="@+id/StartStopButton"

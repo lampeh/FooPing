@@ -59,7 +59,7 @@ public class FooPingActivity extends Activity {
 		editor.putString("ClientID", "client1");
 		editor.putString("ExchangeHost", "85.10.240.255");
 		editor.putInt("ExchangePort", 23042);
-		editor.putString("ExchangeKey", "B|X!R*y0g~BL#(b.");
+		editor.putString("ExchangeKey", "m!ToSC]vb=:<b&XL.|Yq#LYE{V+$Mc~y");
 		editor.apply();
 
 		// alarm intent might live longer than this activity

@@ -73,7 +73,8 @@ public class FooPingService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		try {
-			{
+			// always send ping
+			if (true) {
 				JSONObject json = new JSONObject();
 				json.put("client", prefs.getString("ClientID", "unknown"));
 				json.put("type", "ping");
@@ -103,7 +104,7 @@ public class FooPingService extends IntentService {
 					bat_data.put("plug", batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1));
 					bat_data.put("volt", batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1));
 					bat_data.put("temp", batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
-//					bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
+					bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
 //					bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
 
 					json.put("battery", bat_data);
@@ -189,9 +190,9 @@ public class FooPingService extends IntentService {
 					sensor_info.put("type", sensor.getType());
 					sensor_info.put("vendor", sensor.getVendor());
 					sensor_info.put("version", sensor.getVersion());
-					sensor_info.put("power", truncValue(sensor.getPower(), 2));
-//					sensor_info.put("resolution", sensor.getResolution());
-//					sensor_info.put("range", sensor.getMaximumRange());
+					sensor_info.put("power", truncValue(sensor.getPower(), 4));
+					sensor_info.put("resolution", truncValue(sensor.getResolution(), 4));
+					sensor_info.put("range", truncValue(sensor.getMaximumRange(), 4));
 					sensor_list.put(sensor_info);
 				}
 
@@ -258,14 +259,14 @@ public class FooPingService extends IntentService {
 					baos.close();
 
 					// path MTU is the actual limit here, not only local MTU
-					// TODO: make packet fragmentable (clear DF flag) or handle ICMP errors
+					// TODO: make packet fragmentable (clear DF flag) or handle ICMP errors and re-send packet
 					if (message.length > 1500) {
 						Log.w(tag, "Message probably too long: " + message.length + " bytes");
 					}
 
-					DatagramPacket packet = new DatagramPacket(message, message.length,
-							InetAddress.getByName(exchangeHost), exchangePort);
+					DatagramPacket packet = new DatagramPacket(message, message.length, InetAddress.getByName(exchangeHost), exchangePort);
 					DatagramSocket socket = new DatagramSocket();
+					// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
 					socket.send(packet);
 					socket.close();
 					Log.d(tag, "message sent: " + message.length + " bytes (raw: " + logBuf[i].length + " bytes)");
