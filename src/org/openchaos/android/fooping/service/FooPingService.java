@@ -96,9 +96,9 @@ public class FooPingService extends IntentService {
 					bat_data.put("plug", batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1));
 					bat_data.put("volt", batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1));
 					bat_data.put("temp", batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
-//						bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
-//						bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
-					json.put("battery",  bat_data);
+//					bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
+//					bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
+					json.put("battery", bat_data);
 				}
 			}
 
@@ -194,9 +194,9 @@ public class FooPingService extends IntentService {
 						final byte[] iv = cipher.getIV();
 
 						// iv.length == cipher block size
-						// first byte in stream: iv.length/16
+						// first byte in stream: (iv.length/16)-1
 						assert (iv.length & 0x0f) == 0;
-						baos.write(iv.length >> 4);
+						baos.write((iv.length >> 4)-1);
 						// write iv block
 						baos.write(iv);
 
