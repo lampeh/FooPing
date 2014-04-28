@@ -1,5 +1,7 @@
 package org.openchaos.android.fooping;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -11,12 +13,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ToggleButton;
 import android.widget.Toast;
 import android.widget.Switch;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+
+import com.androidwtf.android.Views;
 
 
 public class FooPingActivity extends Activity {
@@ -66,35 +71,23 @@ public class FooPingActivity extends Activity {
 			Toast.makeText(context, R.string.local_service_running, Toast.LENGTH_SHORT).show();
 		}
 
-		// TODO: generic loop through all switches, use getResourceEntryName(). see SwitchListener
-		Switch switchWidget;
-		switchWidget = (Switch)findViewById(R.id.UseBattery);
-		switchWidget.setChecked(prefs.getBoolean("UseBattery", false));
-		switchWidget.setOnClickListener(SwitchListener);
+		List<Switch> switches = Views.find((ViewGroup)findViewById(R.id.RootView), Switch.class);
+		for (Switch switchWidget : switches) {
+			String resName = res.getResourceEntryName(switchWidget.getId());
+			Log.d(tag, "Initalizing switch: " + resName);
 
-		switchWidget = (Switch)findViewById(R.id.UseWIFI);
-		switchWidget.setChecked(prefs.getBoolean("UseWIFI", false));
-		switchWidget.setOnClickListener(SwitchListener);
-
-		switchWidget = (Switch)findViewById(R.id.UseGPS);
-		switchWidget.setChecked(prefs.getBoolean("UseGPS", false));
-		switchWidget.setOnClickListener(SwitchListener);
-
-		switchWidget = (Switch)findViewById(R.id.UseNetwork);
-		switchWidget.setChecked(prefs.getBoolean("UseNetwork", false));
-		switchWidget.setOnClickListener(SwitchListener);
-
-		switchWidget = (Switch)findViewById(R.id.UseSensors);
-		switchWidget.setChecked(prefs.getBoolean("UseSensors", false));
-		switchWidget.setOnClickListener(SwitchListener);
-
-		switchWidget = (Switch)findViewById(R.id.SendGZIP);
-		switchWidget.setChecked(prefs.getBoolean("SendGZIP", false));
-		switchWidget.setOnClickListener(SwitchListener);
-
-		switchWidget = (Switch)findViewById(R.id.SendAES);
-		switchWidget.setChecked(prefs.getBoolean("SendAES", false));
-		switchWidget.setOnClickListener(SwitchListener);
+			if (prefs.contains(resName)) {
+				try {
+					switchWidget.setChecked(prefs.getBoolean(resName, false));
+					switchWidget.setOnClickListener(SwitchListener);
+				} catch (Exception e) {
+					Log.e(tag, "Failed to initialize switch: " + resName);
+					e.printStackTrace();
+				}
+			} else {
+				Log.w(tag, "No preference with name " + resName);
+			}
+		}
 
 		int updateIntervalID = prefs.getInt("updateIntervalID", -1);
 		if (updateIntervalID < 0 || updateIntervalID >= intervals.length) {
