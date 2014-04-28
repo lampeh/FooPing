@@ -61,9 +61,9 @@ public class FooPingService extends IntentService {
 		super.onCreate();
 
 		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+		wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
 
 		try {
 			skeySpec = new SecretKeySpec(EXCHANGE_KEY.getBytes("US-ASCII"), "AES");
@@ -81,6 +81,8 @@ public class FooPingService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		try {
+			// TODO: send each data source in its own packet together with ts and clientID
+
 			JSONObject json = new JSONObject();
 			json.put("ts", System.currentTimeMillis());
 			json.put("client", CLIENT_ID);
@@ -91,7 +93,12 @@ public class FooPingService extends IntentService {
 					JSONObject bat_data = new JSONObject();
 					int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 					int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-					bat_data.put("pct", truncValue(((double)level / (double)scale)*100, 2));
+					if (level > 0 && scale > 0) {
+						bat_data.put("pct", truncValue(((double)level / (double)scale)*100, 2));
+					} else {
+						Log.w(tag, "Battery level unknown");
+						bat_data.put("pct", -1);
+					}
 					bat_data.put("health", batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1));
 					bat_data.put("status", batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
 					bat_data.put("plug", batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1));
@@ -145,6 +152,7 @@ public class FooPingService extends IntentService {
 				json.put("loc_net", loc_data);
 			}
 
+			// TODO: cannot poll sensors. register receiver to cache sensor data
 			if (prefs.getBoolean("UseSensors", false)) {
 				List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ALL);
 				JSONArray sensor_list = new JSONArray();
@@ -154,7 +162,7 @@ public class FooPingService extends IntentService {
 					sensor_info.put("type", sensor.getType());
 					sensor_info.put("vendor", sensor.getVendor());
 					sensor_info.put("version", sensor.getVersion());
-					sensor_info.put("power", sensor.getPower());
+					sensor_info.put("power", truncValue(sensor.getPower(), 2));
 //						sensor_info.put("resolution", sensor.getResolution());
 //						sensor_info.put("range", sensor.getMaximumRange());
 					sensor_list.put(sensor_info);
@@ -162,7 +170,6 @@ public class FooPingService extends IntentService {
 				json.put("sensors", sensor_list);
 			}
 
-			// TODO: maybe use SCTP instead of UDP - http://openjdk.java.net/projects/sctp/javadoc/
 			new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
@@ -184,12 +191,17 @@ public class FooPingService extends IntentService {
 					CipherOutputStream cos = null;
 					GZIPOutputStream zos = null;
 
+					// TODO: send protocol header to signal compression & encryption
+
 					if (encrypt) {
 						cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
 						final byte[] iv = cipher.getIV();
 
+						// iv.length == cipher block size
+						// first byte in stream: iv.length/16
 						assert (iv.length & 0x0f) == 0;
 						baos.write(iv.length >> 4);
+						// write iv block
 						baos.write(iv);
 
 						cos = new CipherOutputStream(baos, cipher);
@@ -214,8 +226,8 @@ public class FooPingService extends IntentService {
 					final byte[] message = baos.toByteArray();
 					baos.close();
 
-					// Actually, if message length > path MTU, the packet won't arrive 
-					// TODO: make protocol fragmentable or handle ICMP errors
+					// path MTU is the actual limit here, not only local MTU
+					// TODO: make protocol fragmentable (clear DF flag) or handle ICMP errors
 					if (message.length > 1500) {
 						Log.w(tag, "Message probably too long: " + message.length + " bytes");
 					}
