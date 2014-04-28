@@ -73,13 +73,20 @@ public class FooPingService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		try {
-			// TODO: send each data source in its own packet together with ts and clientID
-
-			JSONObject json = new JSONObject();
-			json.put("ts", System.currentTimeMillis());
-			json.put("client", prefs.getString("ClientID", "unknown"));
+			{
+				JSONObject json = new JSONObject();
+				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("type", "ping");
+				json.put("ts", System.currentTimeMillis());
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+			}
 
 			if (prefs.getBoolean("UseBattery", false)) {
+				JSONObject json = new JSONObject();
+				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("type", "battery");
+				json.put("ts", System.currentTimeMillis());
+
 				Intent batteryStatus = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 				if (batteryStatus != null) {
 					JSONObject bat_data = new JSONObject();
@@ -98,13 +105,20 @@ public class FooPingService extends IntentService {
 					bat_data.put("temp", batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
 //					bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
 //					bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
+
 					json.put("battery", bat_data);
+					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 				}
 			}
 
 			if (prefs.getBoolean("UseWIFI", false)) {
-				List<ScanResult> wifiScan = wm.getScanResults();
+				JSONObject json = new JSONObject();
+				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("type", "wifi");
+				json.put("ts", System.currentTimeMillis());
+
 				JSONArray wifi_list = new JSONArray();
+				List<ScanResult> wifiScan = wm.getScanResults();
 				for (ScanResult wifi : wifiScan) {
 					JSONObject wifi_data = new JSONObject();
 					wifi_data.put("BSSID", wifi.BSSID);
@@ -115,10 +129,17 @@ public class FooPingService extends IntentService {
 //					wifi_data.put("ts", wifi.timestamp);
 					wifi_list.put(wifi_data);
 				}
+
 				json.put("wifi", wifi_list);
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			}
 
 			if (prefs.getBoolean("UseGPS", false)) {
+				JSONObject json = new JSONObject();
+				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("type", "loc_gps");
+				json.put("ts", System.currentTimeMillis());
+
 				Location last_GPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				JSONObject loc_data = new JSONObject();
 				loc_data.put("ts", last_GPS.getTime());
@@ -128,10 +149,17 @@ public class FooPingService extends IntentService {
 				if (last_GPS.hasAccuracy()) loc_data.put("acc", truncValue(last_GPS.getAccuracy(), 4));
 				if (last_GPS.hasSpeed()) loc_data.put("speed", truncValue(last_GPS.getSpeed(), 4));
 				if (last_GPS.hasBearing()) loc_data.put("bearing", truncValue(last_GPS.getBearing(), 4));
+
 				json.put("loc_gps", loc_data);
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			}
 
 			if (prefs.getBoolean("UseNetwork", false)) {
+				JSONObject json = new JSONObject();
+				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("type", "loc_net");
+				json.put("ts", System.currentTimeMillis());
+
 				Location last_NETWORK = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 				JSONObject loc_data = new JSONObject();
 				loc_data.put("ts", last_NETWORK.getTime());
@@ -141,13 +169,20 @@ public class FooPingService extends IntentService {
 				if (last_NETWORK.hasAccuracy()) loc_data.put("acc", truncValue(last_NETWORK.getAccuracy(), 4));
 				if (last_NETWORK.hasSpeed()) loc_data.put("speed", truncValue(last_NETWORK.getSpeed(), 4));
 				if (last_NETWORK.hasBearing()) loc_data.put("bearing", truncValue(last_NETWORK.getBearing(), 4));
+
 				json.put("loc_net", loc_data);
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			}
 
 			// TODO: cannot poll sensors. register receiver to cache sensor data
 			if (prefs.getBoolean("UseSensors", false)) {
-				List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ALL);
+				JSONObject json = new JSONObject();
+				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("type", "sensors");
+				json.put("ts", System.currentTimeMillis());
+
 				JSONArray sensor_list = new JSONArray();
+				List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ALL);
 				for (Sensor sensor : sensors) {
 					JSONObject sensor_info = new JSONObject();
 					sensor_info.put("name", sensor.getName());
@@ -159,10 +194,10 @@ public class FooPingService extends IntentService {
 //					sensor_info.put("range", sensor.getMaximumRange());
 					sensor_list.put(sensor_info);
 				}
-				json.put("sensors", sensor_list);
-			}
 
-			new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				json.put("sensors", sensor_list);
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+			}
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
 			e.printStackTrace();
