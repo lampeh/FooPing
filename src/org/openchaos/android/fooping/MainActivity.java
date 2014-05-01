@@ -24,8 +24,8 @@ import android.widget.ToggleButton;
 import com.androidwtf.android.Views;
 
 
-public class FooPingActivity extends Activity {
-	private static final String tag = "FooPingActivity";
+public class MainActivity extends Activity {
+	private static final String tag = "MainActivity";
 
 	private Context context = this;
 	private AlarmManager alarmManager;
