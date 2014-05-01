@@ -75,7 +75,7 @@ public class FooPingActivity extends Activity {
 		}
 
 		// set up view elements
-		setContentView(R.layout.main);
+		setContentView(R.layout.main_activity);
 
 		// initialize all switches from corresponding boolean preferences
 		List<Switch> switches = Views.find((ViewGroup)findViewById(R.id.RootView), Switch.class);
