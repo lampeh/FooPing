@@ -32,8 +32,8 @@ import android.os.BatteryManager;
 import android.util.Log;
 
 
-public class FooPingService extends IntentService {
-	private static final String tag = "FooPingService";
+public class PingService extends IntentService {
+	private static final String tag = "PingService";
 
 	private SharedPreferences prefs;
 	private LocationManager lm;
@@ -44,7 +44,7 @@ public class FooPingService extends IntentService {
 	private Cipher cipher;
 
 
-	public FooPingService() {
+	public PingService() {
 		super(tag);
 	}
 

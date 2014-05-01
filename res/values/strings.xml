@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">FooPing</string>
-	<string name="service_name">FooPingService</string>
+	<string name="service_name">PingService</string>
 	<string name="start">Start</string>
 	<string name="stop">Stop</string>
-	<string name="service_started">FooPing started</string>
-	<string name="service_stopped">FooPing cancelled</string>
-	<string name="service_running">FooPing running</string>
+	<string name="service_started">Ping started</string>
+	<string name="service_stopped">Ping cancelled</string>
+	<string name="service_running">Ping running</string>
 	<string name="interval_1s">1s</string>
 	<string name="interval_10s">10s</string>
 	<string name="interval_60s">1 minute</string>
