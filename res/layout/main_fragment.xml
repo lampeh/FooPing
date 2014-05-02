@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <ToggleButton
-            android:id="@+id/StartStopButton"
-            android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:textOff="@string/start"
-            android:textOn="@string/stop" />
-    </LinearLayout>
-
-</ScrollView>
+<ToggleButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/StartStopButton"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:layout_gravity="bottom"
+    android:textOff="@string/start"
+    android:textOn="@string/stop" />

@@ -15,9 +15,8 @@ public class MainActivity extends Activity {
 
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-		setContentView(R.layout.main_activity);
-		if (savedInstanceState == null && findViewById(R.id.fragment_container) != null) {
-			getFragmentManager().beginTransaction().add(R.id.fragment_container, new MainFragment()).commit();
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction().add(android.R.id.content, new MainFragment()).commit();
 		}
 	}
 
@@ -33,7 +32,7 @@ public class MainActivity extends Activity {
 			case R.id.Settings:
 				getFragmentManager().beginTransaction()
 					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-					.replace(R.id.fragment_container, new SettingsFragment())
+					.replace(android.R.id.content, new SettingsFragment())
 					.addToBackStack(null).commit();
 				return true;
 			default:
