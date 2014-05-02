@@ -60,7 +60,7 @@ public class MainFragment extends Fragment {
 				alarmRunning = !alarmRunning;
 				if (alarmRunning) {
 					Log.d(tag, "onClick(): start");
-					long updateInterval = prefs.getLong("UpdateInterval", -1);
+					long updateInterval = Long.valueOf(prefs.getString("UpdateInterval", "-1"));
 					if (updateInterval > 0) {
 						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000, alarmIntent); 
 						Toast.makeText(activity, R.string.service_started, Toast.LENGTH_SHORT).show();

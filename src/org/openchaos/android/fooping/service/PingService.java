@@ -211,7 +211,7 @@ public class PingService extends IntentService {
 			boolean encrypt = prefs.getBoolean("SendAES", false);
 			boolean compress = prefs.getBoolean("SendGZIP", false);
 			String exchangeHost = prefs.getString("ExchangeHost", null);
-			int exchangePort = prefs.getInt("ExchangePort", -1);
+			int exchangePort = Integer.valueOf(prefs.getString("ExchangePort", "-1"));
 
 			assert !encrypt || (cipher != null && skeySpec != null);
 			assert exchangeHost != null && exchangePort > 0;

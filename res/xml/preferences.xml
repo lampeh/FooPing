@@ -24,6 +24,12 @@
             android:title="@string/UseSensors" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/IntervalSettings" >
+        <EditTextPreference
+            android:defaultValue="3600"
+            android:inputType="number"
+            android:key="UpdateInterval"
+            android:title="@string/UpdateInterval" />
+
         <SwitchPreference
             android:defaultValue="true"
             android:enabled="false"
@@ -36,5 +42,27 @@
             android:title="@string/SendAES" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/ClientSettings" >
+        <EditTextPreference
+            android:defaultValue="client1"
+            android:key="ClientID"
+            android:singleLine="true"
+            android:title="@string/ClientID" />
+        <EditTextPreference
+            android:defaultValue="85.10.240.255"
+            android:key="ExchangeHost"
+            android:singleLine="true"
+            android:title="@string/ExchangeHost" />
+        <EditTextPreference
+            android:defaultValue="23042"
+            android:inputType="number"
+            android:key="ExchangePort"
+            android:maxLength="5"
+            android:title="@string/ExchangePort" />
+        <EditTextPreference
+            android:defaultValue="m!ToSC]vb=:&lt;b&amp;XL.|Yq#LYE{V+$Mc~y"
+            android:key="ExchangeKey"
+            android:singleLine="true"
+            android:title="@string/ExchangeKey" />
     </PreferenceCategory>
+
 </PreferenceScreen>

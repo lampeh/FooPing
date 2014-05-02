@@ -18,6 +18,7 @@
 	<string name="Settings">Settings</string>
 	<string name="DataSettings">Data sources</string>
 	<string name="IntervalSettings">Update interval</string>
+	<string name="UpdateInterval">Update interval</string>
 	<string name="ClientSettings">Client info</string>
 	<string name="UseBattery">Battery status</string>
 	<string name="UseWIFI">Cached WIFI scan</string>
@@ -26,4 +27,8 @@
 	<string name="UseSensors">Sensor readings</string>
 	<string name="SendGZIP">Compress</string>
 	<string name="SendAES">Encrypt</string>
+	<string name="ClientID">Client ID</string>
+	<string name="ExchangeHost">Server name</string>
+	<string name="ExchangePort">Port</string>
+	<string name="ExchangeKey">AES Key</string>
 </resources>
