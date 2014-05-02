@@ -1,70 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-
-    <PreferenceCategory android:title="@string/DataSettings" >
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="UseBattery"
-            android:title="@string/UseBattery" />
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="UseWIFI"
-            android:title="@string/UseWIFI" />
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="UseGPS"
-            android:title="@string/UseGPS" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="UseNetwork"
-            android:title="@string/UseNetwork" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="UseSensors"
-            android:title="@string/UseSensors" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="@string/ClientSettings" >
-        <EditTextPreference
-            android:defaultValue="client1"
-            android:key="ClientID"
-            android:singleLine="true"
-            android:title="@string/ClientID" />
-        <EditTextPreference
-            android:defaultValue="3600"
-            android:inputType="number"
-            android:key="UpdateInterval"
-            android:title="@string/UpdateInterval" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="@string/ServerSettings" >
-        <EditTextPreference
-            android:defaultValue="85.10.240.255"
-            android:key="ExchangeHost"
-            android:singleLine="true"
-            android:title="@string/ExchangeHost" />
-        <EditTextPreference
-            android:defaultValue="23042"
-            android:inputType="number"
-            android:key="ExchangePort"
-            android:maxLength="5"
-            android:title="@string/ExchangePort" />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:enabled="true"
-            android:key="SendGZIP"
-            android:title="@string/SendGZIP" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:enabled="true"
-            android:key="SendAES"
-            android:title="@string/SendAES" />
-
-        <EditTextPreference
-            android:defaultValue="m!ToSC]vb=:&lt;b&amp;XL.|Yq#LYE{V+$Mc~y"
-            android:dependency="SendAES"
-            android:key="ExchangeKey"
-            android:singleLine="true"
-            android:title="@string/ExchangeKey" />
-    </PreferenceCategory>
-
+	<PreferenceCategory android:title="@string/DataSettings" >
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseBattery"
+			android:title="@string/UseBattery" />
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseWIFI"
+			android:title="@string/UseWIFI" />
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseGPS"
+			android:title="@string/UseGPS" />
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="UseNetwork"
+			android:title="@string/UseNetwork" />
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="UseSensors"
+			android:title="@string/UseSensors" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/ClientSettings" >
+		<EditTextPreference
+			android:defaultValue="client1"
+			android:key="ClientID"
+			android:singleLine="true"
+			android:title="@string/ClientID" />
+		<EditTextPreference
+			android:defaultValue="3600"
+			android:inputType="number"
+			android:key="UpdateInterval"
+			android:title="@string/UpdateInterval" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/ServerSettings" >
+		<EditTextPreference
+			android:defaultValue="patras.openchaos.org"
+			android:key="ExchangeHost"
+			android:singleLine="true"
+			android:title="@string/ExchangeHost" />
+		<EditTextPreference
+			android:defaultValue="23042"
+			android:inputType="number"
+			android:key="ExchangePort"
+			android:maxLength="5"
+			android:title="@string/ExchangePort" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:enabled="true"
+			android:key="SendGZIP"
+			android:title="@string/SendGZIP" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:enabled="true"
+			android:key="SendAES"
+			android:title="@string/SendAES" />
+		<EditTextPreference
+			android:defaultValue="m!ToSC]vb=:&lt;b&amp;XL.|Yq#LYE{V+$Mc~y"
+			android:dependency="SendAES"
+			android:key="ExchangeKey"
+			android:singleLine="true"
+			android:title="@string/ExchangeKey" />
+	</PreferenceCategory>
 </PreferenceScreen>
