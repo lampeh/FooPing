@@ -43,6 +43,9 @@ public class MainFragment extends Fragment {
 
 		// alarm intent might live longer than this activity
 		appContext = activity.getApplicationContext();
+
+		// NB: a pending intent does not reliably indicate a running alarm
+		// always cancel the intent after stopping the alarm
 		alarmRunning = (PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), PendingIntent.FLAG_NO_CREATE)
 				!= null);
 
@@ -56,21 +59,18 @@ public class MainFragment extends Fragment {
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0);
 				alarmRunning = !alarmRunning;
 				if (alarmRunning) {
 					Log.d(tag, "onClick(): start");
 					long updateInterval = Long.valueOf(prefs.getString("UpdateInterval", "-1"));
 					if (updateInterval > 0) {
-						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000, alarmIntent); 
+						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000,
+								PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0)); 
 						Toast.makeText(activity, R.string.service_started, Toast.LENGTH_SHORT).show();
-					} else {
-						Log.e(tag, "Invalid UpdateInterval in preferences");
-						// didn't start alarm. clean up pending intent
-						alarmIntent.cancel();
 					}
 				} else {
 					Log.d(tag, "onClick(): stop");
+					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0);
 					alarmManager.cancel(alarmIntent);
 					alarmIntent.cancel();
 					Toast.makeText(activity, R.string.service_stopped, Toast.LENGTH_SHORT).show();
