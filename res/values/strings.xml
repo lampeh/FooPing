@@ -20,17 +20,18 @@
     <string name="DataSettings">Data sources</string>
     <string name="IntervalSettings">Update interval</string>
     <string name="UpdateInterval">Update interval</string>
-    <string name="ClientSettings">Client info</string>
+    <string name="ClientSettings">Client settings</string>
+    <string name="ServerSettings">Server settings</string>
     <string name="UseBattery">Battery status</string>
     <string name="UseWIFI">Cached WIFI scan</string>
     <string name="UseGPS">Cached GPS location</string>
     <string name="UseNetwork">Cached Network location</string>
     <string name="UseSensors">Sensor readings</string>
-    <string name="SendGZIP">Compress</string>
-    <string name="SendAES">Encrypt</string>
+    <string name="SendGZIP">Compression</string>
+    <string name="SendAES">Encryption</string>
     <string name="ClientID">Client ID</string>
     <string name="ExchangeHost">Server name</string>
-    <string name="ExchangePort">Port</string>
-    <string name="ExchangeKey">AES Key</string>
+    <string name="ExchangePort">Server port</string>
+    <string name="ExchangeKey">Encryption key</string>
 
 </resources>

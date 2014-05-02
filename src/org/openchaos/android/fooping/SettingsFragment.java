@@ -18,6 +18,8 @@ public class SettingsFragment extends PreferenceFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		MenuItem item = menu.findItem(R.id.Settings);
-		if (item != null) item.setEnabled(false);
+		if (item != null) {
+			item.setVisible(false);
+		}
 	}
 }

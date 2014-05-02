@@ -23,30 +23,19 @@
             android:key="UseSensors"
             android:title="@string/UseSensors" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/IntervalSettings" >
-        <EditTextPreference
-            android:defaultValue="3600"
-            android:inputType="number"
-            android:key="UpdateInterval"
-            android:title="@string/UpdateInterval" />
-
-        <SwitchPreference
-            android:defaultValue="true"
-            android:enabled="false"
-            android:key="SendGZIP"
-            android:title="@string/SendGZIP" />
-        <SwitchPreference
-            android:defaultValue="true"
-            android:enabled="false"
-            android:key="SendAES"
-            android:title="@string/SendAES" />
-    </PreferenceCategory>
     <PreferenceCategory android:title="@string/ClientSettings" >
         <EditTextPreference
             android:defaultValue="client1"
             android:key="ClientID"
             android:singleLine="true"
             android:title="@string/ClientID" />
+        <EditTextPreference
+            android:defaultValue="3600"
+            android:inputType="number"
+            android:key="UpdateInterval"
+            android:title="@string/UpdateInterval" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/ServerSettings" >
         <EditTextPreference
             android:defaultValue="85.10.240.255"
             android:key="ExchangeHost"
@@ -58,8 +47,21 @@
             android:key="ExchangePort"
             android:maxLength="5"
             android:title="@string/ExchangePort" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="SendGZIP"
+            android:title="@string/SendGZIP" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="SendAES"
+            android:title="@string/SendAES" />
+
         <EditTextPreference
             android:defaultValue="m!ToSC]vb=:&lt;b&amp;XL.|Yq#LYE{V+$Mc~y"
+            android:dependency="SendAES"
             android:key="ExchangeKey"
             android:singleLine="true"
             android:title="@string/ExchangeKey" />

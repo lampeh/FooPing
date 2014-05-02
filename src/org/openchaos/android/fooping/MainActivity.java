@@ -1,7 +1,9 @@
 package org.openchaos.android.fooping;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -10,6 +12,8 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		setContentView(R.layout.main_activity);
 		if (savedInstanceState == null && findViewById(R.id.fragment_container) != null) {
@@ -28,6 +32,7 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 			case R.id.Settings:
 				getFragmentManager().beginTransaction()
+					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
 					.replace(R.id.fragment_container, new SettingsFragment())
 					.addToBackStack(null).commit();
 				return true;
