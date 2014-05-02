@@ -214,7 +214,7 @@ public class PingService extends IntentService {
 			int exchangePort = Integer.valueOf(prefs.getString("ExchangePort", "-1"));
 
 			assert !encrypt || (cipher != null && skeySpec != null);
-			assert exchangeHost != null && exchangePort > 0;
+			assert exchangeHost != null && exchangePort > 0 && exchangePort < 65536;
 
 			final int count = logBuf.length;
 			for (int i = 0; i < count; i++) {
