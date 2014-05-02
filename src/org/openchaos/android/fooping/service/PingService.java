@@ -14,7 +14,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.openchaos.android.fooping.R;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -29,6 +28,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 
@@ -52,7 +52,7 @@ public class PingService extends IntentService {
 	public void onCreate() {
 		super.onCreate();
 
-		prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 		wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);

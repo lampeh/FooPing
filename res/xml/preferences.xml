@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/DataSettings" >
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="UseBattery"
+            android:title="@string/UseBattery" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="UseWIFI"
+            android:title="@string/UseWIFI" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="UseGPS"
+            android:title="@string/UseGPS" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="UseNetwork"
+            android:title="@string/UseNetwork" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="UseSensors"
+            android:title="@string/UseSensors" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/IntervalSettings" >
+        <SwitchPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:key="SendGZIP"
+            android:title="@string/SendGZIP" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:key="SendAES"
+            android:title="@string/SendAES" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/ClientSettings" >
+    </PreferenceCategory>
+</PreferenceScreen>

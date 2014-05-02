@@ -15,6 +15,7 @@
 	<string name="interval_1800s">30 minutes</string>
 	<string name="interval_3600s">hour</string>
 	<string name="interval_86400s">day</string>
+	<string name="Settings">Settings</string>
 	<string name="DataSettings">Data sources</string>
 	<string name="IntervalSettings">Update interval</string>
 	<string name="ClientSettings">Client info</string>
