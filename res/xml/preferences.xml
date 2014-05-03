@@ -24,7 +24,7 @@
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/ClientSettings" >
 		<EditTextPreference
-			android:defaultValue="client1"
+			android:defaultValue="unconfigured"
 			android:key="ClientID"
 			android:singleLine="true"
 			android:title="@string/ClientID" />
