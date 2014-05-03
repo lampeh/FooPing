@@ -104,8 +104,9 @@ public class PingService extends IntentService {
 					// bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
 
 					json.put("battery", bat_data);
-					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 				}
+
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -136,8 +137,9 @@ public class PingService extends IntentService {
 					if (last_loc.hasBearing()) loc_data.put("bearing", roundValue(last_loc.getBearing(), 4));
 
 					json.put("loc_gps", loc_data);
-					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 				}
+
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -168,8 +170,9 @@ public class PingService extends IntentService {
 					if (last_loc.hasBearing()) loc_data.put("bearing", roundValue(last_loc.getBearing(), 4));
 
 					json.put("loc_net", loc_data);
-					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 				}
+
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -203,8 +206,9 @@ public class PingService extends IntentService {
 					}
 
 					json.put("wifi", wifi_list);
-					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 				}
+
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -240,8 +244,9 @@ public class PingService extends IntentService {
 					}
 
 					json.put("sensors", sensor_list);
-					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 				}
+
+				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
