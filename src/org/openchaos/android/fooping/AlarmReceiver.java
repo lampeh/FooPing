@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.util.Log;
 
 
+// TODO: this could be more generic with externally supplied class
+// TODO: pass command from received intent to service
 public class AlarmReceiver extends BroadcastReceiver {
 	private static final String tag = "AlarmReceiver";
 

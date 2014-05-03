@@ -72,6 +72,8 @@ public class PingService extends IntentService {
 		Log.d(tag, "onCreate()");
 		super.onCreate();
 
+		// NB: DefaultSharedPreferences only works if the service runs in
+		// the same process as the activity with the PreferenceFragment
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
@@ -291,6 +293,8 @@ public class PingService extends IntentService {
 	}
 	*/
 
+	// Unsupported: AsyncTask is supposed to be created on the UI thread, not the service worker thread
+	// TODO: send packets through another IntentService
 	private class _sendUDP extends AsyncTask <byte[], Void, Void> {
 		private SecretKeySpec skeySpec;
 		private Cipher cipher;
