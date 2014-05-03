@@ -87,7 +87,7 @@ public class PingService extends IntentService {
 				if (batteryStatus != null) {
 					int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 					int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-					if (level > 0 && scale > 0) {
+					if (level >= 0 && scale > 0) {
 						bat_data.put("pct", roundValue(((double)level / (double)scale)*100, 2));
 					} else {
 						Log.w(tag, "Battery level unknown");
@@ -318,7 +318,7 @@ public class PingService extends IntentService {
 					baos.close();
 
 					// path MTU is the actual limit here, not only local MTU
-					// TODO: make packet fragmentable (clear DF flag) or handle ICMP errors and re-send packet
+					// TODO: make packet fragmentable (clear DF flag)
 					if (message.length > 1500) {
 						Log.w(tag, "Message probably too long: " + message.length + " bytes");
 					}
