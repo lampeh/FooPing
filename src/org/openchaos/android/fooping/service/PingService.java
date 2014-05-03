@@ -254,6 +254,24 @@ public class PingService extends IntentService {
 		}
 	}
 
+	/*
+	// Unfinished: cache clientID/ts? send response even if payload is null?
+	private void sendMessage(String msgType, Object payload) {
+		try {
+			new _sendUDP().execute(new JSONArray().put(
+						new JSONObject()
+						.put("client", prefs.getString("ClientID", "unknown"))
+						.put("type", msgType)
+						.put("ts", System.currentTimeMillis())
+						.put(msgType, payload)
+					).toString().getBytes());
+		} catch (Exception e) {
+			Log.e(tag, e.toString());
+			e.printStackTrace();
+		}
+	}
+	*/
+
 	private class _sendUDP extends AsyncTask <byte[], Void, Void> {
 		private SecretKeySpec skeySpec;
 		private Cipher cipher;
