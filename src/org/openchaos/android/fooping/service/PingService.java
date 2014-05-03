@@ -64,23 +64,25 @@ public class PingService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
+		String clientID = prefs.getString("ClientID", "unknown");
+		long ts = System.currentTimeMillis();
 		LocationManager lm = null;
 
 		try {
 			// always send ping
 			if (true) {
 				JSONObject json = new JSONObject();
-				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("client", clientID);
 				json.put("type", "ping");
-				json.put("ts", System.currentTimeMillis());
+				json.put("ts", ts);
 				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			}
 
 			if (prefs.getBoolean("UseBattery", false)) {
 				JSONObject json = new JSONObject();
-				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("client", clientID);
 				json.put("type", "battery");
-				json.put("ts", System.currentTimeMillis());
+				json.put("ts", ts);
 
 				Intent batteryStatus = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 				if (batteryStatus != null) {
@@ -112,9 +114,9 @@ public class PingService extends IntentService {
 				}
 
 				JSONObject json = new JSONObject();
-				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("client", clientID);
 				json.put("type", "loc_gps");
-				json.put("ts", System.currentTimeMillis());
+				json.put("ts", ts);
 
 				Location last_GPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				JSONObject loc_data = new JSONObject();
@@ -136,9 +138,9 @@ public class PingService extends IntentService {
 				}
 
 				JSONObject json = new JSONObject();
-				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("client", clientID);
 				json.put("type", "loc_net");
-				json.put("ts", System.currentTimeMillis());
+				json.put("ts", ts);
 
 				Location last_NETWORK = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 				JSONObject loc_data = new JSONObject();
@@ -157,9 +159,9 @@ public class PingService extends IntentService {
 			if (prefs.getBoolean("UseWIFI", false)) {
 				WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
 				JSONObject json = new JSONObject();
-				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("client", clientID);
 				json.put("type", "wifi");
-				json.put("ts", System.currentTimeMillis());
+				json.put("ts", ts);
 
 				JSONArray wifi_list = new JSONArray();
 				List<ScanResult> wifiScan = wm.getScanResults();
@@ -182,9 +184,9 @@ public class PingService extends IntentService {
 			if (prefs.getBoolean("UseSensors", false)) {
 				SensorManager sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 				JSONObject json = new JSONObject();
-				json.put("client", prefs.getString("ClientID", "unknown"));
+				json.put("client", clientID);
 				json.put("type", "sensors");
-				json.put("ts", System.currentTimeMillis());
+				json.put("ts", ts);
 
 				JSONArray sensor_list = new JSONArray();
 				List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ALL);
