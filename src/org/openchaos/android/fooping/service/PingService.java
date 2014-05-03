@@ -68,6 +68,7 @@ public class PingService extends IntentService {
 				json.put("client", clientID);
 				json.put("type", "ping");
 				json.put("ts", ts);
+
 				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
@@ -82,9 +83,10 @@ public class PingService extends IntentService {
 				json.put("type", "battery");
 				json.put("ts", ts);
 
-				JSONObject bat_data = new JSONObject();
 				Intent batteryStatus = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 				if (batteryStatus != null) {
+					JSONObject bat_data = new JSONObject();
+
 					int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 					int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 					if (level >= 0 && scale > 0) {
@@ -100,10 +102,10 @@ public class PingService extends IntentService {
 					bat_data.put("temp", batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
 					bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
 					// bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
-				}
 
-				json.put("battery", bat_data);
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+					json.put("battery", bat_data);
+					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				}
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -121,9 +123,10 @@ public class PingService extends IntentService {
 					lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 				}
 
-				JSONObject loc_data = new JSONObject();
 				Location last_loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				if (last_loc != null) {
+					JSONObject loc_data = new JSONObject();
+
 					loc_data.put("ts", last_loc.getTime());
 					loc_data.put("lat", last_loc.getLatitude());
 					loc_data.put("lon",  last_loc.getLongitude());
@@ -131,10 +134,10 @@ public class PingService extends IntentService {
 					if (last_loc.hasAccuracy()) loc_data.put("acc", roundValue(last_loc.getAccuracy(), 4));
 					if (last_loc.hasSpeed()) loc_data.put("speed", roundValue(last_loc.getSpeed(), 4));
 					if (last_loc.hasBearing()) loc_data.put("bearing", roundValue(last_loc.getBearing(), 4));
-				}
 
-				json.put("loc_gps", loc_data);
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+					json.put("loc_gps", loc_data);
+					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				}
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -152,9 +155,10 @@ public class PingService extends IntentService {
 					lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 				}
 
-				JSONObject loc_data = new JSONObject();
 				Location last_loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 				if (last_loc != null) {
+					JSONObject loc_data = new JSONObject();
+
 					loc_data.put("ts", last_loc.getTime());
 					loc_data.put("lat", last_loc.getLatitude());
 					loc_data.put("lon",  last_loc.getLongitude());
@@ -162,10 +166,10 @@ public class PingService extends IntentService {
 					if (last_loc.hasAccuracy()) loc_data.put("acc", roundValue(last_loc.getAccuracy(), 4));
 					if (last_loc.hasSpeed()) loc_data.put("speed", roundValue(last_loc.getSpeed(), 4));
 					if (last_loc.hasBearing()) loc_data.put("bearing", roundValue(last_loc.getBearing(), 4));
-				}
 
-				json.put("loc_net", loc_data);
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+					json.put("loc_net", loc_data);
+					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				}
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -183,9 +187,10 @@ public class PingService extends IntentService {
 					wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
 				}
 
-				JSONArray wifi_list = new JSONArray(); 
 				List<ScanResult> wifiScan = wm.getScanResults();
 				if (wifiScan != null) {
+					JSONArray wifi_list = new JSONArray(); 
+
 					for (ScanResult wifi : wifiScan) {
 						JSONObject wifi_data = new JSONObject();
 						wifi_data.put("BSSID", wifi.BSSID);
@@ -196,10 +201,10 @@ public class PingService extends IntentService {
 						// wifi_data.put("ts", wifi.timestamp);
 						wifi_list.put(wifi_data);
 					}
-				}
 
-				json.put("wifi", wifi_list);
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+					json.put("wifi", wifi_list);
+					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				}
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -218,9 +223,10 @@ public class PingService extends IntentService {
 					sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 				}
 
-				JSONArray sensor_list = new JSONArray();
 				List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ALL);
 				if (sensors != null) {
+					JSONArray sensor_list = new JSONArray();
+
 					for (Sensor sensor : sensors) {
 						JSONObject sensor_info = new JSONObject();
 						sensor_info.put("name", sensor.getName());
@@ -232,10 +238,10 @@ public class PingService extends IntentService {
 						sensor_info.put("range", roundValue(sensor.getMaximumRange(), 4));
 						sensor_list.put(sensor_info);
 					}
-				}
 
-				json.put("sensors", sensor_list);
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+					json.put("sensors", sensor_list);
+					new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				}
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
