@@ -50,6 +50,10 @@ public class PingService extends IntentService {
 	@Override
 	public void onCreate()  {
 		super.onCreate();
+	}
+
+	@Override
+	protected void onHandleIntent(Intent intent) {
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean("SendAES", false)) {
 			try {
@@ -60,10 +64,7 @@ public class PingService extends IntentService {
 				e.printStackTrace();
 			}
 		}
-	}
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
 		String clientID = prefs.getString("ClientID", "unknown");
 		long ts = System.currentTimeMillis();
 		LocationManager lm = null;
