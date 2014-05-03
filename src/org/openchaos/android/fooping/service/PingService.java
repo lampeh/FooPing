@@ -59,6 +59,9 @@ public class PingService extends IntentService {
 	private WifiManager wm;
 	private SensorManager sm;
 
+	private SecretKeySpec skeySpec;
+	private Cipher cipher;
+
 	private static final double roundValue(double value, int scale) {
 		return BigDecimal.valueOf(value).setScale(scale, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().doubleValue();
 	}
@@ -90,7 +93,7 @@ public class PingService extends IntentService {
 				json.put("type", "ping");
 				json.put("ts", ts);
 
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				sendMessage(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -127,7 +130,7 @@ public class PingService extends IntentService {
 					json.put("battery", bat_data);
 				}
 
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				sendMessage(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -160,7 +163,7 @@ public class PingService extends IntentService {
 					json.put("loc_gps", loc_data);
 				}
 
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				sendMessage(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -193,7 +196,7 @@ public class PingService extends IntentService {
 					json.put("loc_net", loc_data);
 				}
 
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				sendMessage(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -229,7 +232,7 @@ public class PingService extends IntentService {
 					json.put("wifi", wifi_list);
 				}
 
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				sendMessage(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -267,7 +270,7 @@ public class PingService extends IntentService {
 					json.put("sensors", sensor_list);
 				}
 
-				new _sendUDP().execute(new JSONArray().put(json).toString().getBytes());
+				sendMessage(new JSONArray().put(json).toString().getBytes());
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -275,38 +278,14 @@ public class PingService extends IntentService {
 		}
 	}
 
-	/*
-	// Unfinished: cache clientID/ts? send response even if payload is null?
-	private void sendMessage(String msgType, Object payload) {
-		try {
-			new _sendUDP().execute(new JSONArray().put(
-						new JSONObject()
-						.put("client", prefs.getString("ClientID", "unknown"))
-						.put("type", msgType)
-						.put("ts", System.currentTimeMillis())
-						.put(msgType, payload)
-					).toString().getBytes());
-		} catch (Exception e) {
-			Log.e(tag, e.toString());
-			e.printStackTrace();
-		}
-	}
-	*/
+	private void sendMessage (final byte[] msgBuf) {
+		boolean encrypt = prefs.getBoolean("SendAES", false);
+		boolean compress = prefs.getBoolean("SendGZIP", false);
+		String exchangeHost = prefs.getString("ExchangeHost", null);
+		int exchangePort = Integer.valueOf(prefs.getString("ExchangePort", "-1"));
 
-	// Unsupported: AsyncTask is supposed to be created on the UI thread, not the service worker thread
-	// TODO: send packets through another IntentService
-	private class _sendUDP extends AsyncTask <byte[], Void, Void> {
-		private SecretKeySpec skeySpec;
-		private Cipher cipher;
-
-		@Override
-		protected Void doInBackground(final byte[]... msgBuf) {
-			boolean encrypt = prefs.getBoolean("SendAES", false);
-			boolean compress = prefs.getBoolean("SendGZIP", false);
-			String exchangeHost = prefs.getString("ExchangeHost", null);
-			int exchangePort = Integer.valueOf(prefs.getString("ExchangePort", "-1"));
-
-			if (encrypt) {
+		if (encrypt) {
+			if (skeySpec == null) {
 				try {
 					// TODO: SHA256(ExchangeKey)
 					skeySpec = new SecretKeySpec(prefs.getString("ExchangeKey", null).getBytes("US-ASCII"), "AES");
@@ -314,7 +293,9 @@ public class PingService extends IntentService {
 					Log.e(tag, e.toString());
 					e.printStackTrace();
 				}
+			}
 
+			if (cipher == null) {
 				try {
 					cipher = Cipher.getInstance("AES/CFB8/NoPadding");
 				} catch (Exception e) {
@@ -322,72 +303,67 @@ public class PingService extends IntentService {
 					e.printStackTrace();
 				}
 			}
+		}
 
-			assert !encrypt || (skeySpec != null && cipher != null);
-			assert exchangeHost != null && exchangePort > 0 && exchangePort < 65536;
+		assert !encrypt || (skeySpec != null && cipher != null);
+		assert exchangeHost != null && exchangePort > 0 && exchangePort < 65536;
 
-			final int count = msgBuf.length;
-			for (int i = 0; i < count; i++) {
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					CipherOutputStream cos = null;
-					GZIPOutputStream zos = null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			CipherOutputStream cos = null;
+			GZIPOutputStream zos = null;
 
-					// TODO: send protocol header to signal compression & encryption
+			// TODO: send protocol header to signal compression & encryption
 
-					if (encrypt) {
-						cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-						final byte[] iv = cipher.getIV();
+			if (encrypt) {
+				cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+				final byte[] iv = cipher.getIV();
 
-						// iv.length == cipher block size
-						// first byte in stream: (iv.length/16)-1
-						// TODO: pointless. AES uses fixed 128bit blocks
-						assert iv.length <= 4096 && (iv.length & 0x0f) == 0;
-						baos.write((iv.length >> 4)-1);
+				// iv.length == cipher block size
+				// first byte in stream: (iv.length/16)-1
+				// TODO: pointless. AES uses fixed 128bit blocks
+				assert iv.length <= 4096 && (iv.length & 0x0f) == 0;
+				baos.write((iv.length >> 4)-1);
 
-						// write iv block
-						baos.write(iv);
+				// write iv block
+				baos.write(iv);
 
-						cos = new CipherOutputStream(baos, cipher);
-					}
-
-					if (compress) {
-						zos = new GZIPOutputStream((encrypt)?(cos):(baos));
-						zos.write(msgBuf[i]);
-						zos.finish();
-						zos.close();
-						if (encrypt) {
-							cos.close();
-						}
-					} else if (encrypt) {
-						cos.write(msgBuf[i]);
-						cos.close();
-					} else {
-						baos.write(msgBuf[i]);
-					}
-
-					baos.flush();
-					final byte[] message = baos.toByteArray();
-					baos.close();
-
-					// path MTU is the actual limit here, not only local MTU
-					// TODO: make packet fragmentable (clear DF flag)
-					if (message.length > 1500) {
-						Log.w(tag, "Message probably too long: " + message.length + " bytes");
-					}
-
-					DatagramSocket socket = new DatagramSocket();
-					// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
-					socket.send(new DatagramPacket(message, message.length, InetAddress.getByName(exchangeHost), exchangePort));
-					socket.close();
-					Log.d(tag, "message sent: " + message.length + " bytes (raw: " + msgBuf[i].length + " bytes)");
-				} catch (Exception e) {
-					Log.e(tag, e.toString());
-					e.printStackTrace();
-				}
+				cos = new CipherOutputStream(baos, cipher);
 			}
 
-			return null;
+			if (compress) {
+				zos = new GZIPOutputStream((encrypt)?(cos):(baos));
+				zos.write(msgBuf);
+				zos.finish();
+				zos.close();
+				if (encrypt) {
+					cos.close();
+				}
+			} else if (encrypt) {
+				cos.write(msgBuf);
+				cos.close();
+			} else {
+				baos.write(msgBuf);
+			}
+
+			baos.flush();
+			final byte[] message = baos.toByteArray();
+			baos.close();
+
+			// path MTU is the actual limit here, not only local MTU
+			// TODO: make packet fragmentable (clear DF flag)
+			if (message.length > 1500) {
+				Log.w(tag, "Message probably too long: " + message.length + " bytes");
+			}
+
+			DatagramSocket socket = new DatagramSocket();
+			// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
+			socket.send(new DatagramPacket(message, message.length, InetAddress.getByName(exchangeHost), exchangePort));
+			socket.close();
+			Log.d(tag, "message sent: " + message.length + " bytes (raw: " + msgBuf.length + " bytes)");
+		} catch (Exception e) {
+			Log.e(tag, e.toString());
+			e.printStackTrace();
 		}
 	}
 }
