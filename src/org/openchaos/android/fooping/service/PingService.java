@@ -100,7 +100,6 @@ public class PingService extends IntentService {
 					bat_data.put("temp", batteryStatus.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1));
 					bat_data.put("tech", batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY));
 					// bat_data.put("present", batteryStatus.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false));
-
 				}
 
 				json.put("battery", bat_data);
@@ -249,7 +248,7 @@ public class PingService extends IntentService {
 		private Cipher cipher;
 
 		@Override
-		protected Void doInBackground(final byte[]... logBuf) {
+		protected Void doInBackground(final byte[]... msgBuf) {
 			boolean encrypt = prefs.getBoolean("SendAES", false);
 			boolean compress = prefs.getBoolean("SendGZIP", false);
 			String exchangeHost = prefs.getString("ExchangeHost", null);
@@ -275,7 +274,7 @@ public class PingService extends IntentService {
 			assert !encrypt || (skeySpec != null && cipher != null);
 			assert exchangeHost != null && exchangePort > 0 && exchangePort < 65536;
 
-			final int count = logBuf.length;
+			final int count = msgBuf.length;
 			for (int i = 0; i < count; i++) {
 				try {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -290,7 +289,8 @@ public class PingService extends IntentService {
 
 						// iv.length == cipher block size
 						// first byte in stream: (iv.length/16)-1
-						assert (iv.length & 0x0f) == 0;
+						// TODO: pointless. AES uses fixed 128bit blocks
+						assert iv.length <= 4096 && (iv.length & 0x0f) == 0;
 						baos.write((iv.length >> 4)-1);
 						// write iv block
 						baos.write(iv);
@@ -300,17 +300,17 @@ public class PingService extends IntentService {
 
 					if (compress) {
 						zos = new GZIPOutputStream((encrypt)?(cos):(baos));
-						zos.write(logBuf[i]);
+						zos.write(msgBuf[i]);
 						zos.finish();
 						zos.close();
 						if (encrypt) {
 							cos.close();
 						}
 					} else if (encrypt) {
-						cos.write(logBuf[i]);
+						cos.write(msgBuf[i]);
 						cos.close();
 					} else {
-						baos.write(logBuf[i]);
+						baos.write(msgBuf[i]);
 					}
 
 					baos.flush();
@@ -328,7 +328,7 @@ public class PingService extends IntentService {
 					// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
 					socket.send(packet);
 					socket.close();
-					Log.d(tag, "message sent: " + message.length + " bytes (raw: " + logBuf[i].length + " bytes)");
+					Log.d(tag, "message sent: " + message.length + " bytes (raw: " + msgBuf[i].length + " bytes)");
 				} catch (Exception e) {
 					Log.e(tag, e.toString());
 					e.printStackTrace();
