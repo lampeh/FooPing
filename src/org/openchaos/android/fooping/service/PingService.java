@@ -298,6 +298,7 @@ public class PingService extends IntentService {
 						// TODO: pointless. AES uses fixed 128bit blocks
 						assert iv.length <= 4096 && (iv.length & 0x0f) == 0;
 						baos.write((iv.length >> 4)-1);
+
 						// write iv block
 						baos.write(iv);
 
@@ -329,10 +330,9 @@ public class PingService extends IntentService {
 						Log.w(tag, "Message probably too long: " + message.length + " bytes");
 					}
 
-					DatagramPacket packet = new DatagramPacket(message, message.length, InetAddress.getByName(exchangeHost), exchangePort);
 					DatagramSocket socket = new DatagramSocket();
 					// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
-					socket.send(packet);
+					socket.send(new DatagramPacket(message, message.length, InetAddress.getByName(exchangeHost), exchangePort));
 					socket.close();
 					Log.d(tag, "message sent: " + message.length + " bytes (raw: " + msgBuf[i].length + " bytes)");
 				} catch (Exception e) {
