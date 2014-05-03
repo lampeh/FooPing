@@ -5,9 +5,9 @@
 	<string name="service_name">PingService</string>
 	<string name="start">Start</string>
 	<string name="stop">Stop</string>
-	<string name="service_started">Ping started</string>
-	<string name="service_stopped">Ping cancelled</string>
-	<string name="service_running">Ping running</string>
+	<string name="alarm_started">Ping started</string>
+	<string name="alarm_stopped">Ping cancelled</string>
+	<string name="alarm_running">Ping running</string>
 	<string name="interval_1s">1s</string>
 	<string name="interval_10s">10s</string>
 	<string name="interval_60s">1 minute</string>
@@ -16,7 +16,7 @@
 	<string name="interval_1800s">30 minutes</string>
 	<string name="interval_3600s">hour</string>
 	<string name="interval_86400s">day</string>
-	<string name="Settings">Settings</string>
+	<string name="Settings">Preferences</string>
 	<string name="DataSettings">Data sources</string>
 	<string name="UpdateInterval">Update interval</string>
 	<string name="ClientSettings">Client</string>

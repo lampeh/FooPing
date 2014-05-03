@@ -70,7 +70,7 @@ public class MainFragment extends Fragment {
 
 		if (alarmRunning) {
 			Log.d(tag, "Found pending alarm intent");
-			Toast.makeText(activity, R.string.service_running, Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, R.string.alarm_running, Toast.LENGTH_SHORT).show();
 		}
 
 		ToggleButton button = (ToggleButton)activity.findViewById(R.id.StartStopButton);
@@ -85,14 +85,14 @@ public class MainFragment extends Fragment {
 					if (updateInterval > 0) {
 						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000,
 								PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0)); 
-						Toast.makeText(activity, R.string.service_started, Toast.LENGTH_SHORT).show();
+						Toast.makeText(activity, R.string.alarm_started, Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					Log.d(tag, "onClick(): stop");
 					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0);
 					alarmManager.cancel(alarmIntent);
 					alarmIntent.cancel();
-					Toast.makeText(activity, R.string.service_stopped, Toast.LENGTH_SHORT).show();
+					Toast.makeText(activity, R.string.alarm_stopped, Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
