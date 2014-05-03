@@ -39,7 +39,7 @@ public class PingService extends IntentService {
 	private SecretKeySpec skeySpec;
 	private Cipher cipher;
 
-	private final static double roundValue(double value, int scale) {
+	private static final double roundValue(double value, int scale) {
 		return BigDecimal.valueOf(value).setScale(scale, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().doubleValue();
 	}
 
