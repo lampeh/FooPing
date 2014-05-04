@@ -93,7 +93,7 @@ public class PingService extends IntentService {
 				json.put("type", "ping");
 				json.put("ts", ts);
 
-				sendMessage(new JSONArray().put(json).toString().getBytes());
+				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -130,7 +130,7 @@ public class PingService extends IntentService {
 					json.put("battery", bat_data);
 				}
 
-				sendMessage(new JSONArray().put(json).toString().getBytes());
+				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -163,7 +163,7 @@ public class PingService extends IntentService {
 					json.put("loc_gps", loc_data);
 				}
 
-				sendMessage(new JSONArray().put(json).toString().getBytes());
+				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -196,7 +196,7 @@ public class PingService extends IntentService {
 					json.put("loc_net", loc_data);
 				}
 
-				sendMessage(new JSONArray().put(json).toString().getBytes());
+				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -232,7 +232,7 @@ public class PingService extends IntentService {
 					json.put("wifi", wifi_list);
 				}
 
-				sendMessage(new JSONArray().put(json).toString().getBytes());
+				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -270,7 +270,7 @@ public class PingService extends IntentService {
 					json.put("sensors", sensor_list);
 				}
 
-				sendMessage(new JSONArray().put(json).toString().getBytes());
+				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -278,7 +278,7 @@ public class PingService extends IntentService {
 		}
 	}
 
-	private void sendMessage (final byte[] msgBuf) {
+	private void sendMessage (final JSONObject json) {
 		boolean encrypt = prefs.getBoolean("SendAES", false);
 		boolean compress = prefs.getBoolean("SendGZIP", false);
 		String exchangeHost = prefs.getString("ExchangeHost", null);
@@ -330,6 +330,8 @@ public class PingService extends IntentService {
 
 				cos = new CipherOutputStream(baos, cipher);
 			}
+
+			final byte[] msgBuf = new JSONArray().put(json).toString().getBytes();
 
 			if (compress) {
 				zos = new GZIPOutputStream((encrypt)?(cos):(baos));
