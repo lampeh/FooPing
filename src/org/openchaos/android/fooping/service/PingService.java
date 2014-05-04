@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -45,7 +46,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -287,8 +287,8 @@ public class PingService extends IntentService {
 		if (encrypt) {
 			if (skeySpec == null) {
 				try {
-					// TODO: SHA256(ExchangeKey)
-					skeySpec = new SecretKeySpec(prefs.getString("ExchangeKey", null).getBytes("US-ASCII"), "AES");
+					skeySpec = new SecretKeySpec(MessageDigest.getInstance("SHA-256")
+							.digest(prefs.getString("ExchangeKey", null).getBytes("US-ASCII")), "AES");
 				} catch (Exception e) {
 					Log.e(tag, e.toString());
 					e.printStackTrace();
