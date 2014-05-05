@@ -319,12 +319,6 @@ public class PingService extends IntentService {
 				cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
 				final byte[] iv = cipher.getIV();
 
-				// iv.length == cipher block size
-				// first byte in stream: (iv.length/16)-1
-				// TODO: pointless. AES uses fixed 128bit blocks
-				assert iv.length <= 4096 && (iv.length & 0x0f) == 0;
-				baos.write((iv.length >> 4)-1);
-
 				// write iv block
 				baos.write(iv);
 

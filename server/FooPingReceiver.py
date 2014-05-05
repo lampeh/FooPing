@@ -12,6 +12,7 @@ UDP_IP = "0.0.0.0"
 UDP_PORT = 23042
 
 key = hashlib.sha256(b'm!ToSC]vb=:<b&XL.|Yq#LYE{V+$Mc~y').digest()
+block_size = 16
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -23,9 +24,7 @@ while True:
 	try:
 		data, addr = sock.recvfrom(1500)
 		print "packet from: " + addr[0] + ":" + str(addr[1])
-		block_size = (ord(data[0])+1) << 4
-		assert block_size == 16
-		msg = GzipFile(fileobj = StringIO(AES.new(key, AES.MODE_CFB, data[1:block_size+1]).decrypt(data[block_size+1:]))).read()
+		msg = GzipFile(fileobj = StringIO(AES.new(key, AES.MODE_CFB, data[:block_size]).decrypt(data[block_size:]))).read()
 		print msg
 		packet = json.loads(msg)
 		pingData = {}
