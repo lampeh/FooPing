@@ -28,6 +28,7 @@
 			android:key="ClientID"
 			android:singleLine="true"
 			android:title="@string/ClientID" />
+		<!--  TODO: use custom SeekBarPreference -->
 		<EditTextPreference
 			android:defaultValue="3600"
 			android:inputType="number"
