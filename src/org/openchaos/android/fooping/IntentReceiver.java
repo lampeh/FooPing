@@ -26,7 +26,7 @@ import android.content.Intent;
 import android.util.Log;
 
 
-public class ServiceReceiver extends BroadcastReceiver {
+public class IntentReceiver extends BroadcastReceiver {
 	private static final String tag = "ServiceReceiver";
 
 	@Override

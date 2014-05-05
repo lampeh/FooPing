@@ -26,6 +26,6 @@
 			</intent-filter>
 		</activity>
 		<service android:name=".service.PingService" android:exported="false" />
-		<receiver android:name=".ServiceReceiver" android:exported="false" />
+		<receiver android:name=".IntentReceiver" android:exported="false" />
 	</application>
 </manifest> 
