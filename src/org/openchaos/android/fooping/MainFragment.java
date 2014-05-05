@@ -19,6 +19,8 @@
 
 package org.openchaos.android.fooping;
 
+import org.openchaos.android.fooping.service.PingService;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Fragment;
@@ -65,7 +67,7 @@ public class MainFragment extends Fragment {
 
 		// NB: a pending intent does not reliably indicate a running alarm
 		// always cancel the intent after stopping the alarm
-		alarmRunning = (PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), PendingIntent.FLAG_NO_CREATE)
+		alarmRunning = (PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, ServiceReceiver.class), PendingIntent.FLAG_NO_CREATE)
 				!= null);
 
 		if (alarmRunning) {
@@ -84,12 +86,15 @@ public class MainFragment extends Fragment {
 					long updateInterval = Long.valueOf(prefs.getString("UpdateInterval", "-1"));
 					if (updateInterval > 0) {
 						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000,
-								PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0)); 
+								PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, ServiceReceiver.class)
+										.putExtra(Intent.EXTRA_INTENT,
+												PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0)
+										), PendingIntent.FLAG_CANCEL_CURRENT));
 						Toast.makeText(activity, R.string.alarm_started, Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					Log.d(tag, "onClick(): stop");
-					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, AlarmReceiver.class), 0);
+					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, ServiceReceiver.class), 0);
 					alarmManager.cancel(alarmIntent);
 					alarmIntent.cancel();
 					Toast.makeText(activity, R.string.alarm_stopped, Toast.LENGTH_SHORT).show();

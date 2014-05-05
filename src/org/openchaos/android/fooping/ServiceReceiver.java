@@ -19,23 +19,24 @@
 
 package org.openchaos.android.fooping;
 
-import org.openchaos.android.fooping.service.PingService;
-
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 
-// TODO: this could be more generic with externally supplied class
-// TODO: pass command from received intent to service
-public class AlarmReceiver extends BroadcastReceiver {
-	private static final String tag = "AlarmReceiver";
+public class ServiceReceiver extends BroadcastReceiver {
+	private static final String tag = "ServiceReceiver";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO: verify received intent?
-		Log.d(tag, "Alarm received");
-		context.startService(new Intent(context, PingService.class));
+		Log.d(tag, "Broadcast received. Executing pending intent");
+		try {
+			((PendingIntent)intent.getParcelableExtra(Intent.EXTRA_INTENT)).send();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
