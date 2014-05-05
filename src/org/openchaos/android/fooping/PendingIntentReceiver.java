@@ -31,9 +31,13 @@ public class PendingIntentReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO: verify received intent?
+		if (!(intent.getAction() == Intent.ACTION_RUN && intent.hasExtra(Intent.EXTRA_INTENT))) {
+			return;
+		}
+
 		Log.d(tag, "Broadcast received. Executing pending intent");
 		try {
+			// TODO: think again. is this safe?
 			((PendingIntent)intent.getParcelableExtra(Intent.EXTRA_INTENT)).send();
 		} catch (Exception e) {
 			e.printStackTrace();

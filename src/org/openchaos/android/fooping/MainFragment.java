@@ -86,10 +86,11 @@ public class MainFragment extends Fragment {
 					long updateInterval = Long.valueOf(prefs.getString("UpdateInterval", "-1"));
 					if (updateInterval > 0) {
 						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000,
-								PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, PendingIntentReceiver.class)
+								PendingIntent.getBroadcast(appContext, 0,
+									new Intent(Intent.ACTION_RUN, null, appContext, PendingIntentReceiver.class)
 										.putExtra(Intent.EXTRA_INTENT,
-												PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0)
-										), PendingIntent.FLAG_CANCEL_CURRENT));
+											PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0)
+									), PendingIntent.FLAG_CANCEL_CURRENT));
 						Toast.makeText(activity, R.string.alarm_started, Toast.LENGTH_SHORT).show();
 					}
 				} else {
