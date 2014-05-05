@@ -93,10 +93,12 @@ public class MainFragment extends Fragment {
 					}
 				} else {
 					Log.d(tag, "onClick(): stop");
-					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, serviceIntent, 0);
-					alarmManager.cancel(alarmIntent);
-					alarmIntent.cancel();
-					Toast.makeText(activity, R.string.alarm_stopped, Toast.LENGTH_SHORT).show();
+					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, serviceIntent, PendingIntent.FLAG_NO_CREATE);
+					if (alarmIntent != null) {
+						alarmManager.cancel(alarmIntent);
+						alarmIntent.cancel();
+						Toast.makeText(activity, R.string.alarm_stopped, Toast.LENGTH_SHORT).show();
+					}
 				}
 			}
 		});
