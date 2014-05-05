@@ -28,6 +28,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -48,6 +49,8 @@ public class MainFragment extends Fragment {
 	private AlarmManager alarmManager;
 	private boolean alarmRunning;
 
+	private Intent serviceIntent;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.main_fragment, container, false);
@@ -65,10 +68,14 @@ public class MainFragment extends Fragment {
 		// alarm intent might live longer than this activity
 		appContext = activity.getApplicationContext();
 
+		// serviceUri is set only to identify this call to PendingIntentReceiver
+		Uri serviceUri = Uri.parse("content://" + appContext.getPackageName() + "/PingService");
+		serviceIntent = new Intent(Intent.ACTION_RUN, serviceUri, appContext, PendingIntentReceiver.class)
+			.putExtra(Intent.EXTRA_INTENT, PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0));
+
 		// NB: a pending intent does not reliably indicate a running alarm
 		// always cancel the intent after stopping the alarm
-		alarmRunning = (PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, PendingIntentReceiver.class), PendingIntent.FLAG_NO_CREATE)
-				!= null);
+		alarmRunning = (PendingIntent.getBroadcast(appContext, 0, serviceIntent, PendingIntent.FLAG_NO_CREATE) != null);
 
 		if (alarmRunning) {
 			Log.d(tag, "Found pending alarm intent");
@@ -86,16 +93,12 @@ public class MainFragment extends Fragment {
 					long updateInterval = Long.valueOf(prefs.getString("UpdateInterval", "-1"));
 					if (updateInterval > 0) {
 						alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, updateInterval * 1000,
-								PendingIntent.getBroadcast(appContext, 0,
-									new Intent(Intent.ACTION_RUN, null, appContext, PendingIntentReceiver.class)
-										.putExtra(Intent.EXTRA_INTENT,
-											PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0)
-									), PendingIntent.FLAG_CANCEL_CURRENT));
+								PendingIntent.getBroadcast(appContext, 0, serviceIntent, PendingIntent.FLAG_CANCEL_CURRENT));
 						Toast.makeText(activity, R.string.alarm_started, Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					Log.d(tag, "onClick(): stop");
-					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, PendingIntentReceiver.class), 0);
+					PendingIntent alarmIntent = PendingIntent.getBroadcast(appContext, 0, serviceIntent, 0);
 					alarmManager.cancel(alarmIntent);
 					alarmIntent.cancel();
 					Toast.makeText(activity, R.string.alarm_stopped, Toast.LENGTH_SHORT).show();
