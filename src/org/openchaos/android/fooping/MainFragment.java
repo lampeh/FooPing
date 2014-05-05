@@ -68,7 +68,7 @@ public class MainFragment extends Fragment {
 		// alarm intent might live longer than this activity
 		appContext = activity.getApplicationContext();
 
-		// serviceUri is set only to identify this call to PendingIntentReceiver
+		// serviceUri is set only to identify the resulting PendingIntent
 		Uri serviceUri = Uri.parse("content://" + appContext.getPackageName() + "/PingService");
 		serviceIntent = new Intent(Intent.ACTION_RUN, serviceUri, appContext, PendingIntentReceiver.class)
 			.putExtra(Intent.EXTRA_INTENT, PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0));
