@@ -326,38 +326,38 @@ public class PingService extends IntentService {
 				cos = new CipherOutputStream(baos, cipher);
 			}
 
-			final byte[] msgBuf = new JSONArray().put(json).toString().getBytes();
+			final byte[] message = new JSONArray().put(json).toString().getBytes();
 
 			if (compress) {
 				zos = new GZIPOutputStream((encrypt)?(cos):(baos));
-				zos.write(msgBuf);
+				zos.write(message);
 				zos.finish();
 				zos.close();
 				if (encrypt) {
 					cos.close();
 				}
 			} else if (encrypt) {
-				cos.write(msgBuf);
+				cos.write(message);
 				cos.close();
 			} else {
-				baos.write(msgBuf);
+				baos.write(message);
 			}
 
 			baos.flush();
-			final byte[] message = baos.toByteArray();
+			final byte[] output = baos.toByteArray();
 			baos.close();
 
 			// path MTU is the actual limit here, not only local MTU
 			// TODO: make packet fragmentable (clear DF flag)
-			if (message.length > 1500) {
-				Log.w(tag, "Message probably too long: " + message.length + " bytes");
+			if (output.length > 1500) {
+				Log.w(tag, "Message probably too long: " + output.length + " bytes");
 			}
 
 			DatagramSocket socket = new DatagramSocket();
 			// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
-			socket.send(new DatagramPacket(message, message.length, InetAddress.getByName(exchangeHost), exchangePort));
+			socket.send(new DatagramPacket(output, output.length, InetAddress.getByName(exchangeHost), exchangePort));
 			socket.close();
-			Log.d(tag, "message sent: " + message.length + " bytes (raw: " + msgBuf.length + " bytes)");
+			Log.d(tag, "message sent: " + output.length + " bytes (raw: " + message.length + " bytes)");
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
 			e.printStackTrace();
