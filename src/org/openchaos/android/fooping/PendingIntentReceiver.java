@@ -26,8 +26,8 @@ import android.content.Intent;
 import android.util.Log;
 
 
-public class IntentReceiver extends BroadcastReceiver {
-	private static final String tag = "ServiceReceiver";
+public class PendingIntentReceiver extends BroadcastReceiver {
+	private static final String tag = "PendingIntentReceiver";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
