@@ -19,7 +19,7 @@
 
 package org.openchaos.android.fooping;
 
-import org.openchaos.android.fooping.service.PingService;
+import org.openchaos.android.fooping.service.PingService.PingServiceReceiver;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -28,7 +28,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -67,11 +66,7 @@ public class MainFragment extends Fragment {
 
 		// alarm intent might live longer than this activity
 		appContext = activity.getApplicationContext();
-
-		// serviceUri is set only to identify the resulting PendingIntent
-		Uri serviceUri = Uri.parse("content://" + appContext.getPackageName() + "/PingService");
-		serviceIntent = new Intent(Intent.ACTION_RUN, serviceUri, appContext, PendingIntentReceiver.class)
-			.putExtra(Intent.EXTRA_INTENT, PendingIntent.getService(appContext, 0, new Intent(appContext, PingService.class), 0));
+		serviceIntent = new Intent(appContext, PingServiceReceiver.class);
 
 		// NB: a pending intent does not reliably indicate a running alarm
 		// always cancel the intent after stopping the alarm

@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -360,6 +361,16 @@ public class PingService extends IntentService {
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
 			e.printStackTrace();
+		}
+	}
+	
+	public static class PingServiceReceiver extends BroadcastReceiver {
+		private static final String tag = "PingServiceReceiver";
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d(tag, "Broadcast received. Starting service");
+			context.startService(new Intent(context, PingService.class));
 		}
 	}
 }
