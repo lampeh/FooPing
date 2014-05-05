@@ -12,7 +12,6 @@ UDP_IP = "0.0.0.0"
 UDP_PORT = 23042
 
 key = hashlib.sha256(b'm!ToSC]vb=:<b&XL.|Yq#LYE{V+$Mc~y').digest()
-block_size = 16
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -23,16 +22,14 @@ clientData = {}
 while True:
 	try:
 		data, addr = sock.recvfrom(1500)
-		iv = data[:block_size]
-		cipher = AES.new(key, AES.MODE_CFB, iv)
-		gzh = GzipFile(fileobj = StringIO(cipher.decrypt(data[block_size:])))
-		msg = gzh.read()
 		print "packet from: " + addr[0] + ":" + str(addr[1])
+		block_size = (ord(data[0])+1) << 4
+		assert block_size == 16
+		msg = GzipFile(fileobj = StringIO(AES.new(key, AES.MODE_CFB, data[1:block_size+1]).decrypt(data[block_size+1:]))).read()
 		print msg
 		packet = json.loads(msg)
 		pingData = {}
 		pingData.update(packet[0])
-		pingData.pop("type", None)
 		client = pingData["client"]
 		if client in clientData:
 			clientData[client].update(pingData)
@@ -44,4 +41,5 @@ while True:
 		os.rename('data.json.tmp', 'data.json');
 	except Exception:
 		print "exception in packet from: " + addr[0] + ":" + str(addr[1])
+		print sys.exc_info()
 		pass
