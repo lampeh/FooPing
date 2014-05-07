@@ -36,6 +36,8 @@ public class SettingsFragment extends PreferenceFragment {
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
+		// TODO: is this really the right way to
+		// prevent multiple stacked preference fragments?
 		MenuItem item = menu.findItem(R.id.Settings);
 		if (item != null) {
 			item.setVisible(false);
