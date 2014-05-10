@@ -318,12 +318,10 @@ public class PingService extends IntentService {
 
 			if (encrypt) {
 				cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-				final byte[] iv = cipher.getIV();
+				cos = new CipherOutputStream(baos, cipher);
 
 				// write iv block
-				baos.write(iv);
-
-				cos = new CipherOutputStream(baos, cipher);
+				baos.write(cipher.getIV());
 			}
 
 			final byte[] message = new JSONArray().put(json).toString().getBytes();
