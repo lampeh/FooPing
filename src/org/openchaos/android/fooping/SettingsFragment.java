@@ -22,6 +22,7 @@ package org.openchaos.android.fooping;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
@@ -29,13 +30,16 @@ public class SettingsFragment extends PreferenceFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-		addPreferencesFromResource(R.xml.preferences);
+		if (savedInstanceState == null) {
+			// setMenuVisibility(false); // Call requires API level 14
+			setHasOptionsMenu(true);
+			addPreferencesFromResource(R.xml.preferences);
+		}
 	}
 
 	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
 		// TODO: is this really the right way to
 		// prevent multiple stacked preference fragments?
 		MenuItem item = menu.findItem(R.id.Settings);
