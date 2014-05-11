@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 
 
 public class SettingsFragment extends PreferenceFragment {
@@ -40,11 +39,6 @@ public class SettingsFragment extends PreferenceFragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		// TODO: is this really the right way to
-		// prevent multiple stacked preference fragments?
-		MenuItem item = menu.findItem(R.id.Settings);
-		if (item != null) {
-			item.setVisible(false);
-		}
+		menu.clear();
 	}
 }
