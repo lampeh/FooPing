@@ -248,8 +248,9 @@ public class PingService extends IntentService {
 			}
 		}
 
-		// http://developer.android.com/guide/topics/sensors/sensors_overview.html
 		// TODO: cannot poll sensors. register receiver to cache sensor data
+		// http://developer.android.com/guide/topics/sensors/sensors_overview.html
+		// http://developer.android.com/reference/android/hardware/SensorManager.html
 		if (prefs.getBoolean("UseSensors", false)) {
 			try {
 				JSONObject json = new JSONObject();

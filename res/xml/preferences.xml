@@ -38,6 +38,11 @@
 			android:inputType="number"
 			android:key="UpdateInterval"
 			android:title="@string/UpdateInterval" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:enabled="true"
+			android:key="StartOnBoot"
+			android:title="@string/StartOnBoot" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/ServerSettings" >
 		<EditTextPreference
