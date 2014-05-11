@@ -45,6 +45,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -59,6 +61,7 @@ public class PingService extends IntentService {
 	private LocationManager lm;
 	private WifiManager wm;
 	private SensorManager sm;
+	private ConnectivityManager cm;
 
 	private SecretKeySpec skeySpec;
 	private Cipher cipher;
@@ -101,6 +104,8 @@ public class PingService extends IntentService {
 			}
 		}
 
+		// http://developer.android.com/training/monitoring-device-state/battery-monitoring.html
+		// http://developer.android.com/reference/android/os/BatteryManager.html
 		if (prefs.getBoolean("UseBattery", false)) {
 			try {
 				JSONObject json = new JSONObject();
@@ -138,6 +143,8 @@ public class PingService extends IntentService {
 			}
 		}
 
+		// http://developer.android.com/guide/topics/location/strategies.html
+		// http://developer.android.com/reference/android/location/LocationManager.html
 		if (prefs.getBoolean("UseGPS", false)) {
 			try {
 				JSONObject json = new JSONObject();
@@ -204,6 +211,7 @@ public class PingService extends IntentService {
 			}
 		}
 
+		// http://developer.android.com/reference/android/net/wifi/WifiManager.html
 		if (prefs.getBoolean("UseWIFI", false)) {
 			try {
 				JSONObject json = new JSONObject();
@@ -240,6 +248,7 @@ public class PingService extends IntentService {
 			}
 		}
 
+		// http://developer.android.com/guide/topics/sensors/sensors_overview.html
 		// TODO: cannot poll sensors. register receiver to cache sensor data
 		if (prefs.getBoolean("UseSensors", false)) {
 			try {
@@ -271,6 +280,61 @@ public class PingService extends IntentService {
 					json.put("sensors", sensor_list);
 				}
 
+				sendMessage(json);
+			} catch (Exception e) {
+				Log.e(tag, e.toString());
+				e.printStackTrace();
+			}
+		}
+
+		// http://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
+		// http://developer.android.com/reference/android/net/ConnectivityManager.html
+		if (prefs.getBoolean("UseConn", false)) {
+			try {
+				JSONObject json = new JSONObject();
+				json.put("client", clientID);
+				json.put("type", "conn");
+				json.put("ts", ts);
+
+				if (cm == null) {
+					cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+				}
+
+				{
+					NetworkInfo net = cm.getActiveNetworkInfo();
+					if (net != null) {
+						JSONObject net_data = new JSONObject();
+						net_data.put("type", net.getTypeName());
+						net_data.put("subtype", net.getSubtypeName());
+						net_data.put("connected", net.isConnected());
+						net_data.put("available", net.isAvailable());
+						net_data.put("roaming", net.isRoaming());
+						net_data.put("failover", net.isFailover());
+						if (net.getReason() != null) net_data.put("reason", net.getReason());
+						if (net.getExtraInfo() != null) net_data.put("extra", net.getExtraInfo());
+						json.put("conn_active", net_data);
+					}
+				}
+/*
+				NetworkInfo[] nets = cm.getAllNetworkInfo();
+				if (nets != null) {
+					JSONArray net_list = new JSONArray(); 
+
+					for (NetworkInfo net : nets) {
+						JSONObject net_data = new JSONObject();
+						net_data.put("type", net.getTypeName());
+						net_data.put("subtype", net.getSubtypeName());
+						net_data.put("connected", net.isConnected());
+						net_data.put("available", net.isAvailable());
+						net_data.put("roaming", net.isRoaming());
+						net_data.put("failover", net.isFailover());
+						if (net.getReason() != null) net_data.put("reason", net.getReason());
+						if (net.getExtraInfo() != null) net_data.put("extra", net.getExtraInfo());
+						net_list.put(net_data);
+					}
+					json.put("conn_all", net_list);
+				}
+*/
 				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());

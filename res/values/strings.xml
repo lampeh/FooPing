@@ -25,6 +25,7 @@
 	<string name="UseGPS">Cached GPS location</string>
 	<string name="UseNetwork">Cached Network location</string>
 	<string name="UseSensors">Sensor readings</string>
+	<string name="UseConn">Connection status</string>
 	<string name="SendGZIP">Compression</string>
 	<string name="SendAES">Encryption</string>
 	<string name="ClientID">Client ID</string>

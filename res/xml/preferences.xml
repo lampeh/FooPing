@@ -3,6 +3,10 @@
 	<PreferenceCategory android:title="@string/DataSettings" >
 		<SwitchPreference
 			android:defaultValue="true"
+			android:key="UseConn"
+			android:title="@string/UseConn" />
+		<SwitchPreference
+			android:defaultValue="true"
 			android:key="UseBattery"
 			android:title="@string/UseBattery" />
 		<SwitchPreference
