@@ -28,7 +28,6 @@
 			</intent-filter>
 		</activity>
 		<service android:name=".service.PingService" android:exported="false" />
-		<receiver android:name=".service.PingService$PingServiceReceiver" android:exported="false" />
 		<receiver android:name=".BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
