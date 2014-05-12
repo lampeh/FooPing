@@ -41,7 +41,7 @@ public class BootReceiver extends BroadcastReceiver {
 		// Note: Intent filters should not be considered a security feature
 		// ACTION_BOOT_COMPLETED is a protected intent and should be safe enough
 		if (intent.getAction() != Intent.ACTION_BOOT_COMPLETED) {
-			Log.w(tag, "Invalid Intent!");
+			Log.w(tag, "Invalid intent!");
 			return;
 		}
 
