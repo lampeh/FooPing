@@ -36,7 +36,15 @@ public class BootReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d(tag, "BootReceiver.onReceive()");
+		Log.d(tag, "onReceive()");
+
+		// Note: Intent filters should not be considered a security feature
+		// ACTION_BOOT_COMPLETED is a protected intent and should be safe enough
+		if (intent.getAction() != Intent.ACTION_BOOT_COMPLETED) {
+			Log.w(tag, "Invalid Intent!");
+			return;
+		}
+
 		Context appContext = context.getApplicationContext();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
 		if (prefs.getBoolean("StartOnBoot", false)) {
