@@ -40,7 +40,6 @@
 			android:title="@string/UpdateInterval" />
 		<CheckBoxPreference
 			android:defaultValue="false"
-			android:enabled="true"
 			android:key="StartOnBoot"
 			android:title="@string/StartOnBoot" />
 	</PreferenceCategory>
@@ -58,12 +57,10 @@
 			android:title="@string/ExchangePort" />
 		<CheckBoxPreference
 			android:defaultValue="true"
-			android:enabled="true"
 			android:key="SendGZIP"
 			android:title="@string/SendGZIP" />
 		<CheckBoxPreference
 			android:defaultValue="true"
-			android:enabled="true"
 			android:key="SendAES"
 			android:title="@string/SendAES" />
 		<EditTextPreference
