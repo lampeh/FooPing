@@ -38,7 +38,6 @@ public class SettingsFragment extends PreferenceFragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
 		menu.clear();
 	}
 }
