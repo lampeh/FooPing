@@ -228,12 +228,14 @@ public class PingService extends IntentService {
 
 					for (ScanResult wifi : wifiScan) {
 						JSONObject wifi_data = new JSONObject();
+
 						wifi_data.put("BSSID", wifi.BSSID);
 						wifi_data.put("SSID", wifi.SSID);
 						wifi_data.put("freq", wifi.frequency);
 						wifi_data.put("level", wifi.level);
 						// wifi_data.put("cap", wifi.capabilities);
 						// wifi_data.put("ts", wifi.timestamp);
+
 						wifi_list.put(wifi_data);
 					}
 
@@ -267,6 +269,7 @@ public class PingService extends IntentService {
 
 					for (Sensor sensor : sensors) {
 						JSONObject sensor_info = new JSONObject();
+
 						sensor_info.put("name", sensor.getName());
 						sensor_info.put("type", sensor.getType());
 						sensor_info.put("vendor", sensor.getVendor());
@@ -274,6 +277,7 @@ public class PingService extends IntentService {
 						sensor_info.put("power", roundValue(sensor.getPower(), 4));
 						sensor_info.put("resolution", roundValue(sensor.getResolution(), 4));
 						sensor_info.put("range", roundValue(sensor.getMaximumRange(), 4));
+
 						sensor_list.put(sensor_info);
 					}
 
@@ -300,10 +304,12 @@ public class PingService extends IntentService {
 					cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 				}
 
-				{
+				// TODO: add active/all preferences below UseConn
+				if (prefs.getBoolean("UseConnActive", true)) {
 					NetworkInfo net = cm.getActiveNetworkInfo();
 					if (net != null) {
 						JSONObject net_data = new JSONObject();
+
 						net_data.put("type", net.getTypeName());
 						net_data.put("subtype", net.getSubtypeName());
 						net_data.put("connected", net.isConnected());
@@ -312,29 +318,35 @@ public class PingService extends IntentService {
 						net_data.put("failover", net.isFailover());
 						if (net.getReason() != null) net_data.put("reason", net.getReason());
 						if (net.getExtraInfo() != null) net_data.put("extra", net.getExtraInfo());
+
 						json.put("conn_active", net_data);
 					}
 				}
-/*
-				NetworkInfo[] nets = cm.getAllNetworkInfo();
-				if (nets != null) {
-					JSONArray net_list = new JSONArray(); 
 
-					for (NetworkInfo net : nets) {
-						JSONObject net_data = new JSONObject();
-						net_data.put("type", net.getTypeName());
-						net_data.put("subtype", net.getSubtypeName());
-						net_data.put("connected", net.isConnected());
-						net_data.put("available", net.isAvailable());
-						net_data.put("roaming", net.isRoaming());
-						net_data.put("failover", net.isFailover());
-						if (net.getReason() != null) net_data.put("reason", net.getReason());
-						if (net.getExtraInfo() != null) net_data.put("extra", net.getExtraInfo());
-						net_list.put(net_data);
+				if (prefs.getBoolean("UseConnAll", false)) {
+					NetworkInfo[] nets = cm.getAllNetworkInfo();
+					if (nets != null) {
+						JSONArray net_list = new JSONArray(); 
+
+						for (NetworkInfo net : nets) {
+							JSONObject net_data = new JSONObject();
+
+							net_data.put("type", net.getTypeName());
+							net_data.put("subtype", net.getSubtypeName());
+							net_data.put("connected", net.isConnected());
+							net_data.put("available", net.isAvailable());
+							net_data.put("roaming", net.isRoaming());
+							net_data.put("failover", net.isFailover());
+							if (net.getReason() != null) net_data.put("reason", net.getReason());
+							if (net.getExtraInfo() != null) net_data.put("extra", net.getExtraInfo());
+
+							net_list.put(net_data);
+						}
+
+						json.put("conn_all", net_list);
 					}
-					json.put("conn_all", net_list);
 				}
-*/
+
 				sendMessage(json);
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
