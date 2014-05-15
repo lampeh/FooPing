@@ -299,7 +299,7 @@ var clients = {};
 						level = Math.max(-90, Math.min(-40, parseInt(record.level)));
 						level_scaled = Math.round((level + 40) * -(255/50)); // TODO: log scaling?
 						$("#wifi_table").append($("<tr>").css("background-color", "rgba(" + level_scaled + ", 255, " + level_scaled + ", .6)")
-							.append($("<td>").text((record.SSID === "")?("&lt;hidden&gt;"):(record.SSID)))
+							.append($("<td>").text((record.SSID === "")?("<hidden>"):(record.SSID)))
 							.append($("<td>").text(record.BSSID))
 							.append($("<td>").text(record.level + " dBm").addClass("numeric"))
 							.append($("<td>").text(record.freq/1000 + " GHz").addClass("numeric")));
