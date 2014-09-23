@@ -50,6 +50,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.preference.PreferenceManager;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 
@@ -87,6 +88,8 @@ public class PingService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		String clientID = prefs.getString("ClientID", "unknown");
 		long ts = System.currentTimeMillis();
+
+		Log.d(tag, "onHandleIntent()");
 
 		// always send ping
 		if (true) {
@@ -353,6 +356,10 @@ public class PingService extends IntentService {
 				e.printStackTrace();
 			}
 		}
+
+		if (!PingServiceReceiver.completeWakefulIntent(intent)) {
+			Log.w(tag, "completeWakefulIntent() failed. no active wake lock?");
+		}
 	}
 
 	private void sendMessage (final JSONObject json) {
@@ -435,6 +442,16 @@ public class PingService extends IntentService {
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
 			e.printStackTrace();
+		}
+	}
+
+	public static class PingServiceReceiver extends WakefulBroadcastReceiver {
+		private static final String tag = "PingServiceReceiver";
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d(tag, "Broadcast received. Starting service");
+			startWakefulService(context, new Intent(context, PingService.class));
 		}
 	}
 }
