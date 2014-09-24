@@ -21,13 +21,24 @@ package org.openchaos.android.fooping;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 
 public class MainActivity extends Activity {
+	private static final String tag = "MainActivity";
+
+	private SharedPreferences prefs;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,6 +47,21 @@ public class MainActivity extends Activity {
 
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction().add(android.R.id.content, new MainFragment()).commit();
+		}
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getBoolean("EnableGCM", false)) {
+			initGCM();
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getBoolean("EnableGCM", false)) {
+			initGCM();
 		}
 	}
 
@@ -57,5 +83,50 @@ public class MainActivity extends Activity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	/**
+	 * Check the device to make sure it has the Google Play Services APK. If
+	 * it doesn't, display a dialog that allows users to download the APK from
+	 * the Google Play Store or enable it in the device's system settings.
+	 */
+	private boolean initGCM() {
+		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+		if (resultCode != ConnectionResult.SUCCESS) {
+			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+				GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
+			} else {
+				Log.i(tag, "This device is not supported.");
+				finish();
+			}
+			return false;
+		}
+
+		String regid = prefs.getString("GCM_ID", "");
+		if (regid.isEmpty()) {
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+					String regid = "";
+
+					try {
+						regid = gcm.register(getString(R.string.GCMSenderID));
+					} catch (Exception e) {
+						Log.e(tag, e.toString());
+						e.printStackTrace();
+					}
+
+					if (!regid.isEmpty()) {
+						prefs.edit().putString("GCM_ID", regid).commit();
+					}
+
+					return null;
+				}
+			}.execute();
+		}
+
+		return true;
 	}
 }

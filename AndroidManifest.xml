@@ -44,5 +44,7 @@
 				<category android:name="org.openchaos.android.fooping" />
 			</intent-filter>
 		</receiver>
+		<!-- Required for applications which use Google Play Services. -->
+		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
 	</application>
 </manifest> 

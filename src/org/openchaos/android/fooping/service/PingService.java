@@ -355,6 +355,21 @@ public class PingService extends IntentService {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
 			}
+
+		}
+
+		if (prefs.getBoolean("EnableGCM", false)) {
+			try {
+				JSONObject json = new JSONObject();
+				json.put("client", clientID);
+				json.put("type", "gcm");
+				json.put("ts", ts);
+				json.put("gcm_id", prefs.getString("GCM_ID", ""));
+				sendMessage(json);
+			} catch (Exception e) {
+				Log.e(tag, e.toString());
+				e.printStackTrace();
+			}
 		}
 
 		if (!PingServiceReceiver.completeWakefulIntent(intent)) {

@@ -70,4 +70,16 @@
 			android:singleLine="true"
 			android:title="@string/ExchangeKey" />
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/GCMSettings" >
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="EnableGCM"
+			android:title="@string/EnableGCM" />
+		<EditTextPreference
+			android:defaultValue=""
+			android:dependency="EnableGCM"
+			android:key="GCM_ID"
+			android:singleLine="true"
+			android:title="@string/GCM_ID" />
+	</PreferenceCategory>
 </PreferenceScreen>
