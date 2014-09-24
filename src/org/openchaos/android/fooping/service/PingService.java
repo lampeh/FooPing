@@ -387,10 +387,17 @@ public class PingService extends IntentService {
 					e.printStackTrace();
 				}
 			}
+
+			if (skeySpec == null || cipher == null) {
+				Log.e(tag, "Encryption requested but not available");
+				throw new AssertionError();
+			}
 		}
 
-		assert !encrypt || (skeySpec != null && cipher != null);
-		assert exchangeHost != null && exchangePort > 0 && exchangePort < 65536;
+		if (exchangeHost == null || exchangePort <= 0 || exchangePort >= 65536) {
+			Log.e(tag, "Invalid server name or port");
+			throw new AssertionError();
+		}
 
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
