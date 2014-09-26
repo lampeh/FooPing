@@ -40,7 +40,7 @@ import android.widget.ToggleButton;
 
 
 public class MainFragment extends Fragment {
-	private static final String tag = "MainFragment";
+	private static final String tag = MainFragment.class.getSimpleName();
 
 	private Activity activity;
 	private Context appContext;

@@ -35,7 +35,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 
 public class MainActivity extends Activity {
-	private static final String tag = "MainActivity";
+	private static final String tag = MainActivity.class.getSimpleName();
 
 	private SharedPreferences prefs;
 

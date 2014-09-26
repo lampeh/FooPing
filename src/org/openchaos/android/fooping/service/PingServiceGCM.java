@@ -24,17 +24,17 @@ import java.util.ArrayList;
 
 import org.json.JSONArray;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import android.os.ResultReceiver;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.preference.PreferenceManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.util.Log;
 import android.util.Base64;
+import android.util.Log;
+
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class PingServiceGCM extends WakefulBroadcastReceiver {
 	private static final String tag = PingServiceGCM.class.getSimpleName();

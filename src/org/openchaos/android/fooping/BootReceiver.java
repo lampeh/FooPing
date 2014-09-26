@@ -32,7 +32,7 @@ import android.util.Log;
 
 
 public class BootReceiver extends BroadcastReceiver {
-	private static final String tag = "BootReceiver";
+	private static final String tag = BootReceiver.class.getSimpleName();
 
 	@Override
 	public void onReceive(Context context, Intent intent) {

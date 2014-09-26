@@ -54,7 +54,7 @@ import android.util.Log;
 
 
 public class PingService extends IntentService {
-	private static final String tag = "PingService";
+	private static final String tag = PingService.class.getSimpleName();
 
 	public static final String ACTION_ALL = "org.openchaos.android.fooping.action.all";
 	public static final String ACTION_DEFAULT = "org.openchaos.android.fooping.action.default";

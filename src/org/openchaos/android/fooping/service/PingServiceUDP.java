@@ -24,20 +24,19 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-
-import android.os.ResultReceiver;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.preference.PreferenceManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 
 public class PingServiceUDP extends WakefulBroadcastReceiver {
-	private static final String tag = "UDPTrigger";
-	
+	private static final String tag = PingServiceUDP.class.getSimpleName();
+
 	@Override
 	public void onReceive(final Context context, Intent intent) {
 		Log.d(tag, "Broadcast received. Starting service");
