@@ -21,10 +21,8 @@ package org.openchaos.android.fooping.service;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -49,13 +47,31 @@ import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
-import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 
 public class PingService extends IntentService {
 	private static final String tag = "PingService";
+
+	public static final String ACTION_ALL = "org.openchaos.android.fooping.action.all";
+	public static final String ACTION_DEFAULT = "org.openchaos.android.fooping.action.default";
+	public static final String ACTION_PING = "org.openchaos.android.fooping.action.ping";
+	public static final String ACTION_BATTERY = "org.openchaos.android.fooping.action.battery";
+	public static final String ACTION_GPS = "org.openchaos.android.fooping.action.gps";
+	public static final String ACTION_NETWORK = "org.openchaos.android.fooping.action.network";
+	public static final String ACTION_WIFI = "org.openchaos.android.fooping.action.wifi";
+	public static final String ACTION_SENSORS = "org.openchaos.android.fooping.action.sensors";
+	public static final String ACTION_CONN = "org.openchaos.android.fooping.action.conn";
+	public static final String ACTION_GCM = "org.openchaos.android.fooping.action.gcm";
+
+	public static final String EXTRA_RECEIVER = "org.openchaos.android.fooping.extra.receiver";
+	public static final String EXTRA_MSGLEN = "org.openchaos.android.fooping.extra.msglen";
+	public static final String EXTRA_OUTPUT = "org.openchaos.android.fooping.extra.output";
+	public static final String EXTRA_INTENT = "org.openchaos.android.fooping.extra.intent";
+	public static final String EXTRA_RESULTS = "org.openchaos.android.fooping.extra.results";
 
 	private SharedPreferences prefs;
 	private LocationManager lm;
@@ -63,6 +79,8 @@ public class PingService extends IntentService {
 	private SensorManager sm;
 	private ConnectivityManager cm;
 
+	private boolean compress;
+	private boolean encrypt;
 	private SecretKeySpec skeySpec;
 	private Cipher cipher;
 
@@ -82,24 +100,33 @@ public class PingService extends IntentService {
 		// NB: DefaultSharedPreferences only works if the service runs in
 		// the same process as the activity with the PreferenceFragment
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		encrypt = prefs.getBoolean("SendAES", false);
+		compress = prefs.getBoolean("SendGZIP", false);
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		String clientID = prefs.getString("ClientID", "unknown");
 		long ts = System.currentTimeMillis();
+		String clientID = prefs.getString("ClientID", "unknown");
+		ArrayList<Bundle> results = new ArrayList<Bundle>();
 
-		Log.d(tag, "onHandleIntent()");
+		String action = intent.getAction();
+		if (action == null) {
+			Log.e(tag, "Intent specifies no action, assuming ACTION_DEFAULT");
+			action = ACTION_DEFAULT;
+		}
+
+		Log.d(tag, "onHandleIntent(): " + action);
 
 		// always send ping
-		if (true) {
+		if (action == ACTION_PING || action == ACTION_ALL || (action == ACTION_DEFAULT && true)) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
 				json.put("type", "ping");
 				json.put("ts", ts);
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -108,7 +135,7 @@ public class PingService extends IntentService {
 
 		// http://developer.android.com/training/monitoring-device-state/battery-monitoring.html
 		// http://developer.android.com/reference/android/os/BatteryManager.html
-		if (prefs.getBoolean("UseBattery", false)) {
+		if (action == ACTION_BATTERY || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseBattery", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -138,7 +165,7 @@ public class PingService extends IntentService {
 					json.put("battery", bat_data);
 				}
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -147,7 +174,7 @@ public class PingService extends IntentService {
 
 		// http://developer.android.com/guide/topics/location/strategies.html
 		// http://developer.android.com/reference/android/location/LocationManager.html
-		if (prefs.getBoolean("UseGPS", false)) {
+		if (action == ACTION_GPS || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseGPS", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -173,14 +200,14 @@ public class PingService extends IntentService {
 					json.put("loc_gps", loc_data);
 				}
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
 			}
 		}
 
-		if (prefs.getBoolean("UseNetwork", false)) {
+		if (action == ACTION_NETWORK || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseNetwork", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -206,7 +233,7 @@ public class PingService extends IntentService {
 					json.put("loc_net", loc_data);
 				}
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -214,7 +241,7 @@ public class PingService extends IntentService {
 		}
 
 		// http://developer.android.com/reference/android/net/wifi/WifiManager.html
-		if (prefs.getBoolean("UseWIFI", false)) {
+		if (action == ACTION_WIFI || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseWIFI", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -245,7 +272,7 @@ public class PingService extends IntentService {
 					json.put("wifi", wifi_list);
 				}
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -255,7 +282,7 @@ public class PingService extends IntentService {
 		// TODO: cannot poll sensors. register receiver to cache sensor data
 		// http://developer.android.com/guide/topics/sensors/sensors_overview.html
 		// http://developer.android.com/reference/android/hardware/SensorManager.html
-		if (prefs.getBoolean("UseSensors", false)) {
+		if (action == ACTION_SENSORS || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseSensors", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -287,7 +314,7 @@ public class PingService extends IntentService {
 					json.put("sensors", sensor_list);
 				}
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
@@ -296,7 +323,7 @@ public class PingService extends IntentService {
 
 		// http://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
 		// http://developer.android.com/reference/android/net/ConnectivityManager.html
-		if (prefs.getBoolean("UseConn", false)) {
+		if (action == ACTION_CONN || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseConn", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -350,39 +377,39 @@ public class PingService extends IntentService {
 					}
 				}
 
-				sendMessage(json);
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
 			}
-
 		}
 
-		if (prefs.getBoolean("EnableGCM", false)) {
+		if (action == ACTION_GCM || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("EnableGCM", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
 				json.put("type", "gcm");
 				json.put("ts", ts);
 				json.put("gcm_id", prefs.getString("GCM_ID", ""));
-				sendMessage(json);
+
+				results.add(prepareMessage(json));
 			} catch (Exception e) {
 				Log.e(tag, e.toString());
 				e.printStackTrace();
 			}
 		}
 
-		if (!PingServiceReceiver.completeWakefulIntent(intent)) {
-			Log.w(tag, "completeWakefulIntent() failed. no active wake lock?");
+		if (!results.isEmpty()) {
+			Bundle resultData = new Bundle();
+			resultData.putParcelable(EXTRA_INTENT, intent);
+			resultData.putParcelableArrayList(EXTRA_RESULTS, results);
+
+			ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
+			receiver.send(0, resultData);
 		}
 	}
 
-	private void sendMessage (final JSONObject json) {
-		boolean encrypt = prefs.getBoolean("SendAES", false);
-		boolean compress = prefs.getBoolean("SendGZIP", false);
-		String exchangeHost = prefs.getString("ExchangeHost", null);
-		int exchangePort = Integer.valueOf(prefs.getString("ExchangePort", "-1"));
-
+	private Bundle prepareMessage (final JSONObject json) {
 		if (encrypt) {
 			if (skeySpec == null) {
 				try {
@@ -407,11 +434,6 @@ public class PingService extends IntentService {
 				Log.e(tag, "Encryption requested but not available");
 				throw new AssertionError();
 			}
-		}
-
-		if (exchangeHost == null || exchangePort <= 0 || exchangePort >= 65536) {
-			Log.e(tag, "Invalid server name or port");
-			throw new AssertionError();
 		}
 
 		try {
@@ -450,30 +472,14 @@ public class PingService extends IntentService {
 			final byte[] output = baos.toByteArray();
 			baos.close();
 
-			// path MTU is the actual limit here, not only local MTU
-			// TODO: make packet fragmentable (clear DF flag)
-			if (output.length > 1500) {
-				Log.w(tag, "Message probably too long: " + output.length + " bytes");
-			}
-
-			DatagramSocket socket = new DatagramSocket();
-			// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
-			socket.send(new DatagramPacket(output, output.length, InetAddress.getByName(exchangeHost), exchangePort));
-			socket.close();
-			Log.d(tag, "message sent: " + output.length + " bytes (raw: " + message.length + " bytes)");
+			Bundle resultData = new Bundle();
+			resultData.putByteArray(EXTRA_OUTPUT, output);
+			resultData.putLong(EXTRA_MSGLEN, message.length);
+			return resultData;
 		} catch (Exception e) {
 			Log.e(tag, e.toString());
 			e.printStackTrace();
-		}
-	}
-
-	public static class PingServiceReceiver extends WakefulBroadcastReceiver {
-		private static final String tag = "PingServiceReceiver";
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Log.d(tag, "Broadcast received. Starting service");
-			startWakefulService(context, new Intent(context, PingService.class));
+			return null;
 		}
 	}
 }

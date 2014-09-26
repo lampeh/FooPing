@@ -97,8 +97,7 @@ public class MainActivity extends Activity {
 			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
 				GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
 			} else {
-				Log.i(tag, "This device is not supported.");
-				finish();
+				Log.i(tag, "This device is not supported by Google Play Services");
 			}
 			return false;
 		}
