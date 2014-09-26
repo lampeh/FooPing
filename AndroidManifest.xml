@@ -38,7 +38,7 @@
 		</receiver>
 		<service android:name=".service.PingService" android:exported="false" />
 		<receiver android:name=".udp.UDPTrigger" android:exported="false" />
-		<receiver android:permission="com.google.android.c2dm.permission.SEND" android:name=".udp.UDPTrigger">
+		<receiver android:permission="com.google.android.c2dm.permission.SEND" android:name=".gcm.GCMTrigger">
 			<intent-filter>
 				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
 				<category android:name="org.openchaos.android.fooping" />

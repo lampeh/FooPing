@@ -399,12 +399,11 @@ public class PingService extends IntentService {
 			}
 		}
 
-		if (!results.isEmpty()) {
-			Bundle resultData = new Bundle();
-			resultData.putParcelable(EXTRA_INTENT, intent);
-			resultData.putParcelableArrayList(EXTRA_RESULTS, results);
-
-			ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
+		Bundle resultData = new Bundle();
+		resultData.putParcelable(EXTRA_INTENT, intent);
+		resultData.putParcelableArrayList(EXTRA_RESULTS, results);
+		ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
+		if (receiver != null) {
 			receiver.send(0, resultData);
 		}
 	}
