@@ -19,7 +19,7 @@
 
 package org.openchaos.android.fooping;
 
-import org.openchaos.android.fooping.udp.UDPTrigger;
+import org.openchaos.android.fooping.service.PingServiceUDP;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -53,7 +53,7 @@ public class BootReceiver extends BroadcastReceiver {
 				Log.d(tag, "Starting alarm");
 				((AlarmManager)context.getSystemService(Context.ALARM_SERVICE))
 					.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, updateInterval * 1000, updateInterval * 1000,
-						PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, UDPTrigger.class), PendingIntent.FLAG_CANCEL_CURRENT));
+						PendingIntent.getBroadcast(appContext, 0, new Intent(appContext, PingServiceUDP.class), PendingIntent.FLAG_CANCEL_CURRENT));
 			}
 		}
 	}

@@ -17,14 +17,13 @@
  */
 
 
-package org.openchaos.android.fooping.udp;
+package org.openchaos.android.fooping.service;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-import org.openchaos.android.fooping.service.PingService;
 
 import android.os.ResultReceiver;
 import android.os.Bundle;
@@ -36,7 +35,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 
-public class UDPTrigger extends WakefulBroadcastReceiver {
+public class PingServiceUDP extends WakefulBroadcastReceiver {
 	private static final String tag = "UDPTrigger";
 	
 	@Override

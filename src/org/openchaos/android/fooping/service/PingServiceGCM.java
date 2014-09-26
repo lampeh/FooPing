@@ -17,27 +17,27 @@
  */
 
 
-package org.openchaos.android.fooping.gcm;
+package org.openchaos.android.fooping.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
-import org.openchaos.android.fooping.R;
-import org.openchaos.android.fooping.service.PingService;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.os.ResultReceiver;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.util.Base64;
 
-public class GCMTrigger extends WakefulBroadcastReceiver {
-	private static final String tag = GCMTrigger.class.getSimpleName();
+public class PingServiceGCM extends WakefulBroadcastReceiver {
+	private static final String tag = PingServiceGCM.class.getSimpleName();
 
 	@Override
 	public void onReceive(final Context context, Intent intent) {
@@ -61,6 +61,19 @@ public class GCMTrigger extends WakefulBroadcastReceiver {
 			// If it's a regular GCM message, do some work.
 			} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
 				Log.d(tag, "Received command: " + extras.toString());
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+				if (!prefs.getBoolean("EnableGCM", false)) {
+					Log.w(tag, "GCM trigger is disabled. Request ignored");
+					return;
+				}
+
+				final String gcm_sender = prefs.getString("GCM_SENDER", "");
+				if (gcm_sender == "") {
+					Log.w(tag, "No GCM_SENDER ID");
+					return;
+				}
+
 				final String action = extras.getString("action");
 				final String msgId = extras.getString("message_id");
 
@@ -94,9 +107,9 @@ public class GCMTrigger extends WakefulBroadcastReceiver {
 
 						String output_string = outputs.toString();
 						data.putString("output", output_string);
-Log.d(tag, "data: " + data.toString());
+
 						try {
-							gcm.send(context.getString(R.string.GCMSenderID) + "@gcm.googleapis.com", "result-" + msgId, data);
+							gcm.send(gcm_sender + "@gcm.googleapis.com", "result-" + msgId, data);
 							Log.d(tag, "message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
 						} catch (IOException e) {
 							Log.e(tag, e.toString());

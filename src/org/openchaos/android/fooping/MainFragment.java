@@ -19,7 +19,7 @@
 
 package org.openchaos.android.fooping;
 
-import org.openchaos.android.fooping.udp.UDPTrigger;
+import org.openchaos.android.fooping.service.PingServiceUDP;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -66,7 +66,7 @@ public class MainFragment extends Fragment {
 
 		// alarm intent might live longer than this activity
 		appContext = activity.getApplicationContext();
-		serviceIntent = new Intent(appContext, UDPTrigger.class);
+		serviceIntent = new Intent(appContext, PingServiceUDP.class);
 
 		// NB: a pending intent does not reliably indicate a running alarm
 		// always cancel the intent after stopping the alarm
