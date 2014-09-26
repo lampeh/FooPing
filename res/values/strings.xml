@@ -29,6 +29,7 @@
 	<string name="ExchangePort">Server port</string>
 	<string name="ExchangeKey">Encryption key</string>
 	<string name="EnableGCM">Enable GCM</string>
-	<string name="GCM_ID">GCM ID</string>
+	<string name="GCM_SENDER">GCM Sender ID</string>
+	<string name="GCM_ID">GCM Registration ID</string>
 	<string name="GCMSenderID">504921171975</string>
 </resources>
