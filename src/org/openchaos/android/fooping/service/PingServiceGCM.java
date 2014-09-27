@@ -63,7 +63,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 		final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 		String messageType = gcm.getMessageType(intent);
 		if (messageType == null) {
-			Log.w(tag, "No message type found. Message ignored");
+			Log.w(tag, "No GCM message found. Message ignored");
 			return;
 		}
 
