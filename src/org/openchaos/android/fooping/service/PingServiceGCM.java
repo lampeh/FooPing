@@ -47,54 +47,63 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 		final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 		String messageType = gcm.getMessageType(intent);
 
-		if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
-			/*
-			 * Filter messages based on message type. Since it is likely that GCM
-			 * will be extended in the future with new message types, just ignore
-			 * any message types you're not interested in, or that you don't
-			 * recognize.
-			 */
-			if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-				Log.d(tag, "Send error: " + extras.toString());
-			} else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-				Log.d(tag, "Messages deleted: " + extras.toString());
-			// If it's a regular GCM message, do some work.
-			} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-				Log.d(tag, "Received command: " + extras.toString());
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		if (extras.isEmpty()) {
+			Log.w(tag, "Extra section is empty. Request ignored");
+			return;
+		}
 
-				if (!prefs.getBoolean("EnableGCM", false)) {
-					Log.w(tag, "GCM trigger is disabled. Request ignored");
-					return;
-				}
+		/*
+		 * Filter messages based on message type. Since it is likely that GCM
+		 * will be extended in the future with new message types, just ignore
+		 * any message types you're not interested in, or that you don't
+		 * recognize.
+		 */
+		if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
+			Log.w(tag, "Send error: " + extras.toString());
+		} else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+			Log.d(tag, "Messages deleted: " + extras.toString());
+		// If it's a regular GCM message, do some work.
+		} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+			Log.d(tag, "Received command: " + extras.toString());
 
-				final String gcm_sender = prefs.getString("GCM_SENDER", "");
-				if (gcm_sender == "") {
-					Log.w(tag, "No GCM_SENDER ID");
-					return;
-				}
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			if (!prefs.getBoolean("EnableGCM", false)) {
+				Log.w(tag, "GCM trigger is disabled. Request ignored");
+				return;
+			}
 
-				final String action = extras.getString("action");
-				final String msgId = extras.getString("message_id");
+			final String gcm_sender = prefs.getString("GCM_SENDER", "");
+			if (gcm_sender == "") {
+				Log.w(tag, "No GCM_SENDER ID set. Request ignored");
+				return;
+			}
 
-				startWakefulService(context, new Intent(action, null, context, PingService.class).putExtra(PingService.EXTRA_RECEIVER, new ResultReceiver(null) {
-					@Override
-					 protected void onReceiveResult(int resultCode, Bundle resultData) {
-						ArrayList<Bundle> results = resultData.getParcelableArrayList(PingService.EXTRA_RESULTS);
-						if (results == null) {
-							Log.e(tag, "NULL results received");
-							return;
-						}
+			final String action = extras.getString("action");
+			final String msgId = extras.getString("message_id");
+			if (action == null || msgId == null) {
+				Log.w(tag, "Required request parameters not set. Request ignored");
+				return;
+			}
+
+			startWakefulService(context, new Intent(action, null, context, PingService.class).putExtra(PingService.EXTRA_RECEIVER, new ResultReceiver(null) {
+				@Override
+				 protected void onReceiveResult(int resultCode, Bundle resultData) {
+					String output_string = "";
+					long msglen = 0;
+
+					Bundle data = new Bundle();
+					data.putString("action", action);
+					data.putString("message_id", "result-" + msgId);
+					data.putString("result_code", Integer.toString(resultCode));
+
+					ArrayList<Bundle> results = resultData.getParcelableArrayList(PingService.EXTRA_RESULTS);
+					if (results != null) {
 						Log.d(tag, "Results received: " + results.size());
 
-						Bundle data = new Bundle();
-						data.putString("action", action);
-
 						JSONArray outputs = new JSONArray();
-						long msglen = 0;
 
 						for (Bundle result : results) {
-							final byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
+							byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
 							msglen += result.getLong(PingService.EXTRA_MSGLEN);
 
 							if (output == null) {
@@ -105,23 +114,28 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 							outputs.put(Base64.encodeToString(output, Base64.NO_WRAP));
 						}
 
-						String output_string = outputs.toString();
+						output_string = outputs.toString();
 						data.putString("output", output_string);
+					} else {
+						Log.e(tag, "NULL results received");
+					}
 
-						try {
-							gcm.send(gcm_sender + "@gcm.googleapis.com", "result-" + msgId, data);
-							Log.d(tag, "message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
-						} catch (IOException e) {
-							Log.e(tag, e.toString());
-							e.printStackTrace();
-						}
+					try {
+						gcm.send(gcm_sender + "@gcm.googleapis.com", "result-" + msgId, data);
+						Log.d(tag, "message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
+					} catch (IOException e) {
+						Log.e(tag, e.toString());
+						e.printStackTrace();
+					}
 
-						if (!WakefulBroadcastReceiver.completeWakefulIntent((Intent)resultData.getParcelable(PingService.EXTRA_INTENT))) {
+					Intent serviceIntent = resultData.getParcelable(PingService.EXTRA_INTENT);
+					if (serviceIntent != null) {
+						if (!WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
 							Log.w(tag, "completeWakefulIntent() failed. no active wake lock?");
 						}
 					}
-		 		}));
-			}
+				}
+	 		}));
 		}
 	}
 }
