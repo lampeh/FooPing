@@ -404,6 +404,7 @@ public class PingService extends IntentService {
 		resultData.putParcelableArrayList(EXTRA_RESULTS, results);
 		ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
 		if (receiver != null) {
+			// TODO: set meaningful result code
 			receiver.send(0, resultData);
 		}
 	}
