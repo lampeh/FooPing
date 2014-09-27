@@ -55,13 +55,17 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 		}
 
 		Bundle extras = intent.getExtras();
-		if (extras.isEmpty()) {
+		if (extras == null || extras.isEmpty()) {
 			Log.w(tag, "Extra section is empty. Message ignored");
 			return;
 		}
 
 		final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 		String messageType = gcm.getMessageType(intent);
+		if (messageType == null) {
+			Log.w(tag, "No message type found. Message ignored");
+			return;
+		}
 
 		/*
 		 * Filter messages based on message type. Since it is likely that GCM
