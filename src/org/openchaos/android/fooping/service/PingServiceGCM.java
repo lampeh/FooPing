@@ -43,14 +43,26 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 	public void onReceive(final Context context, Intent intent) {
 		Log.d(tag, "Broadcast received");
 
-		Bundle extras = intent.getExtras();
-		final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
-		String messageType = gcm.getMessageType(intent);
-
-		if (extras.isEmpty()) {
-			Log.w(tag, "Extra section is empty. Request ignored");
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		if (!prefs.getBoolean("EnableGCM", false)) {
+			Log.w(tag, "GCM control is disabled. Message ignored");
 			return;
 		}
+
+		final String gcm_sender = prefs.getString("GCM_SENDER", "");
+		if (gcm_sender == "") {
+			Log.w(tag, "No GCM_SENDER ID configured. Message ignored");
+			return;
+		}
+
+		Bundle extras = intent.getExtras();
+		if (extras.isEmpty()) {
+			Log.w(tag, "Extra section is empty. Message ignored");
+			return;
+		}
+
+		final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
+		String messageType = gcm.getMessageType(intent);
 
 		/*
 		 * Filter messages based on message type. Since it is likely that GCM
@@ -66,22 +78,10 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 		} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
 			Log.d(tag, "Received command: " + extras.toString());
 
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			if (!prefs.getBoolean("EnableGCM", false)) {
-				Log.w(tag, "GCM trigger is disabled. Request ignored");
-				return;
-			}
-
-			final String gcm_sender = prefs.getString("GCM_SENDER", "");
-			if (gcm_sender == "") {
-				Log.w(tag, "No GCM_SENDER ID set. Request ignored");
-				return;
-			}
-
 			final String action = extras.getString("action");
 			final String msgId = extras.getString("message_id");
 			if (action == null || msgId == null) {
-				Log.w(tag, "Required request parameters not set. Request ignored");
+				Log.w(tag, "Required request parameters not set. Message ignored");
 				return;
 			}
 
