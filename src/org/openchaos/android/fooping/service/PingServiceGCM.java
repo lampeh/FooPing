@@ -19,7 +19,6 @@
 
 package org.openchaos.android.fooping.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -41,7 +40,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d(tag, "Broadcast received");
+		Log.d(tag, "Received broadcast: " + intent.toString());
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!prefs.getBoolean("EnableGCM", false)) {
@@ -73,10 +72,10 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 		if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
 			Log.w(tag, "Send error: " + extras.toString());
 		} else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-			Log.d(tag, "Messages deleted: " + extras.toString());
+			Log.i(tag, "Messages deleted: " + extras.toString());
 		// If it's a regular GCM message, do some work.
 		} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-			Log.d(tag, "Received command: " + extras.toString());
+			Log.i(tag, "Received command: " + extras.toString());
 
 			final String action = extras.getString("action");
 			final String msgId = extras.getString("message_id");
@@ -123,9 +122,8 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 					try {
 						gcm.send(gcm_sender + "@gcm.googleapis.com", "result-" + msgId, data);
 						Log.d(tag, "message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
-					} catch (IOException e) {
-						Log.e(tag, e.toString());
-						e.printStackTrace();
+					} catch (Exception e) {
+						Log.e(tag, "GCM send failed", e);
 					}
 
 					Intent serviceIntent = resultData.getParcelable(PingService.EXTRA_INTENT);
