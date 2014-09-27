@@ -107,11 +107,17 @@ public class MainActivity extends Activity {
 			new AsyncTask<Void, Void, Void>() {
 				@Override
 				protected Void doInBackground(Void... params) {
+					String gcm_sender = prefs.getString("GCM_SENDER", "");
+					if (gcm_sender == "") {
+						Log.w(tag, "No GCM Sender ID configured. Cannot register");
+						return null;
+					}
+
 					GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
 					String regid = "";
 
 					try {
-						regid = gcm.register(getString(R.string.GCMSenderID));
+						regid = gcm.register(gcm_sender);
 					} catch (Exception e) {
 						Log.e(tag, e.toString());
 						e.printStackTrace();

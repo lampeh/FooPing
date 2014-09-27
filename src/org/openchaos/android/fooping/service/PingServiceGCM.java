@@ -51,7 +51,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 
 		final String gcm_sender = prefs.getString("GCM_SENDER", "");
 		if (gcm_sender == "") {
-			Log.w(tag, "No GCM_SENDER ID configured. Message ignored");
+			Log.w(tag, "No GCM Sender ID configured. Message ignored");
 			return;
 		}
 

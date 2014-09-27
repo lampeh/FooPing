@@ -76,17 +76,17 @@
 			android:key="EnableGCM"
 			android:title="@string/EnableGCM" />
 		<EditTextPreference
-			android:defaultValue="@string/GCMSenderID"
+			android:defaultValue="@string/GCMSenderIdDefault"
 			android:inputType="number"
 			android:dependency="EnableGCM"
 			android:key="GCM_SENDER"
 			android:singleLine="true"
-			android:title="@string/GCM_SENDER" />
+			android:title="@string/GCMSenderId" />
 		<EditTextPreference
 			android:defaultValue=""
 			android:dependency="EnableGCM"
 			android:key="GCM_ID"
 			android:singleLine="false"
-			android:title="@string/GCM_ID" />
+			android:title="@string/GCMRegId" />
 	</PreferenceCategory>
 </PreferenceScreen>
