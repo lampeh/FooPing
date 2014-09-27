@@ -129,10 +129,8 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 					}
 
 					Intent serviceIntent = resultData.getParcelable(PingService.EXTRA_INTENT);
-					if (serviceIntent != null) {
-						if (!WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
-							Log.w(tag, "completeWakefulIntent() failed. no active wake lock?");
-						}
+					if (serviceIntent == null || !WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
+						Log.w(tag, "Wake lock release failed. no active wake lock?");
 					}
 				}
 	 		}));
