@@ -121,7 +121,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 
 					try {
 						gcm.send(gcm_sender + "@gcm.googleapis.com", "result-" + msgId, data);
-						Log.d(tag, "message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
+						Log.d(tag, "Message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
 					} catch (Exception e) {
 						Log.e(tag, "GCM send failed", e);
 					}
