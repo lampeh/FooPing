@@ -40,7 +40,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 	private static final String tag = PingServiceGCM.class.getSimpleName();
 
 	@Override
-	public void onReceive(final Context context, Intent intent) {
+	public void onReceive(Context context, Intent intent) {
 		Log.d(tag, "Broadcast received");
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -93,7 +93,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 
 					Bundle data = new Bundle();
 					data.putString("action", action);
-					data.putString("message_id", "result-" + msgId);
+					data.putString("message_id", msgId);
 					data.putString("result_code", Integer.toString(resultCode));
 
 					ArrayList<Bundle> results = resultData.getParcelableArrayList(PingService.EXTRA_RESULTS);
