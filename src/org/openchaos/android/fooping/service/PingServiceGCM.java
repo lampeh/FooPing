@@ -106,6 +106,11 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 						JSONArray outputs = new JSONArray();
 
 						for (Bundle result : results) {
+							if (result == null) {
+								Log.e(tag, "NULL result received");
+								continue;
+							}
+
 							byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
 							msglen += result.getLong(PingService.EXTRA_MSGLEN);
 

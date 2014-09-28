@@ -60,6 +60,11 @@ public class PingServiceUDP extends WakefulBroadcastReceiver {
 				}
 
 				for (Bundle result : results) {
+					if (result == null) {
+						Log.e(tag, "NULL result received");
+						continue;
+					}
+
 					final byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
 					long msglen = result.getLong(PingService.EXTRA_MSGLEN);
 

@@ -66,6 +66,7 @@ public class PingService extends IntentService {
 	public static final String ACTION_SENSORS = "org.openchaos.android.fooping.action.sensors";
 	public static final String ACTION_CONN = "org.openchaos.android.fooping.action.conn";
 	public static final String ACTION_GCM = "org.openchaos.android.fooping.action.gcm";
+	public static final String ACTION_GPS_ACTIVE = "org.openchaos.android.fooping.action.gps_active";
 
 	public static final String EXTRA_RECEIVER = "org.openchaos.android.fooping.extra.receiver";
 	public static final String EXTRA_MSGLEN = "org.openchaos.android.fooping.extra.msglen";
@@ -432,7 +433,7 @@ public class PingService extends IntentService {
 
 			if (skeySpec == null || cipher == null) {
 				Log.e(tag, "Encryption requested but not available");
-				throw new AssertionError();
+				return null;
 			}
 		}
 
