@@ -129,8 +129,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_PING failed", e);
 			}
 		}
 
@@ -168,8 +167,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_BATTERY failed", e);
 			}
 		}
 
@@ -203,8 +201,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_GPS failed", e);
 			}
 		}
 
@@ -236,8 +233,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_NETWORK failed", e);
 			}
 		}
 
@@ -275,8 +271,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_WIFI failed", e);
 			}
 		}
 
@@ -317,8 +312,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_SENSORS failed", e);
 			}
 		}
 
@@ -380,8 +374,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_CONN failed", e);
 			}
 		}
 
@@ -395,8 +388,7 @@ public class PingService extends IntentService {
 
 				results.add(prepareMessage(json));
 			} catch (Exception e) {
-				Log.e(tag, e.toString());
-				e.printStackTrace();
+				Log.e(tag, "ACTION_GCM failed", e);
 			}
 		}
 
@@ -417,8 +409,7 @@ public class PingService extends IntentService {
 					skeySpec = new SecretKeySpec(MessageDigest.getInstance("SHA-256")
 							.digest(prefs.getString("ExchangeKey", null).getBytes("US-ASCII")), "AES");
 				} catch (Exception e) {
-					Log.e(tag, e.toString());
-					e.printStackTrace();
+					Log.e(tag, "Failed to set secret key", e);
 				}
 			}
 
@@ -426,8 +417,7 @@ public class PingService extends IntentService {
 				try {
 					cipher = Cipher.getInstance("AES/CFB8/NoPadding");
 				} catch (Exception e) {
-					Log.e(tag, e.toString());
-					e.printStackTrace();
+					Log.e(tag, "Failed to get cipher instance", e);
 				}
 			}
 
@@ -478,8 +468,7 @@ public class PingService extends IntentService {
 			resultData.putLong(EXTRA_MSGLEN, message.length);
 			return resultData;
 		} catch (Exception e) {
-			Log.e(tag, e.toString());
-			e.printStackTrace();
+			Log.e(tag, "Failed to write message", e);
 			return null;
 		}
 	}
