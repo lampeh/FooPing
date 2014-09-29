@@ -65,7 +65,7 @@ public class PingServiceUDP extends WakefulBroadcastReceiver {
 						continue;
 					}
 
-					final byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
+					byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
 					long msglen = result.getLong(PingService.EXTRA_MSGLEN);
 
 					if (output == null) {
@@ -85,15 +85,15 @@ public class PingServiceUDP extends WakefulBroadcastReceiver {
 						// socket.setTrafficClass(0x04 | 0x02); // IPTOS_RELIABILITY | IPTOS_LOWCOST
 						socket.send(new DatagramPacket(output, output.length, InetAddress.getByName(exchangeHost), exchangePort));
 						socket.close();
-						Log.d(tag, "message sent: " + output.length + " bytes (raw: " + msglen + " bytes)");
+						Log.d(tag, "Message sent: " + output.length + " bytes (raw: " + msglen + " bytes)");
 					} catch (Exception e) {
-						Log.e(tag, e.toString());
-						e.printStackTrace();
+						Log.e(tag, "UDP send failed", e);
 					}
 				}
 
-				if (!WakefulBroadcastReceiver.completeWakefulIntent((Intent)resultData.getParcelable(PingService.EXTRA_INTENT))) {
-					Log.w(tag, "completeWakefulIntent() failed. no active wake lock?");
+				Intent serviceIntent = resultData.getParcelable(PingService.EXTRA_INTENT);
+				if (serviceIntent == null || !WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
+					Log.w(tag, "Wake lock release failed. No active wake lock?");
 				}
 			}
  		}));
