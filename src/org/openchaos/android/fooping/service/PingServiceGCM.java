@@ -143,7 +143,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 				}
 	 		}));
 		} else {
-			Log.d(tag, "Unknown GCM message type. Message ignored");
+			Log.d(tag, "Unknown GCM message type: " + messageType + ". Message ignored");
 		}
 	}
 }
