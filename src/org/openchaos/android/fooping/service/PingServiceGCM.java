@@ -20,6 +20,7 @@
 package org.openchaos.android.fooping.service;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.json.JSONArray;
 
@@ -129,7 +130,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 					}
 
 					try {
-						gcm.send(gcm_sender + "@gcm.googleapis.com", "result-" + msgId, data);
+						gcm.send(gcm_sender + "@gcm.googleapis.com", UUID.randomUUID().toString(), data);
 						Log.d(tag, "Message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
 					} catch (Exception e) {
 						Log.e(tag, "GCM send failed", e);
