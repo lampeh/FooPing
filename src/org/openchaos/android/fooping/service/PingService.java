@@ -58,23 +58,24 @@ import android.util.Log;
 public class PingService extends IntentService {
 	private static final String tag = PingService.class.getSimpleName();
 
-	public static final String ACTION_ALL = "org.openchaos.android.fooping.action.all";
-	public static final String ACTION_DEFAULT = "org.openchaos.android.fooping.action.default";
-	public static final String ACTION_PING = "org.openchaos.android.fooping.action.ping";
-	public static final String ACTION_BATTERY = "org.openchaos.android.fooping.action.battery";
-	public static final String ACTION_GPS = "org.openchaos.android.fooping.action.gps";
-	public static final String ACTION_NETWORK = "org.openchaos.android.fooping.action.network";
-	public static final String ACTION_WIFI = "org.openchaos.android.fooping.action.wifi";
-	public static final String ACTION_SENSORS = "org.openchaos.android.fooping.action.sensors";
-	public static final String ACTION_CONN = "org.openchaos.android.fooping.action.conn";
-	public static final String ACTION_GCM = "org.openchaos.android.fooping.action.gcm";
-	public static final String ACTION_GPS_ACTIVE = "org.openchaos.android.fooping.action.gps_active";
+	private static final String prefix = PingService.class.getName();
+	public static final String ACTION_ALL = prefix + ".action.all";
+	public static final String ACTION_DEFAULT = prefix + ".action.default";
+	public static final String ACTION_PING = prefix + ".action.ping";
+	public static final String ACTION_BATTERY = prefix + ".action.battery";
+	public static final String ACTION_GPS = prefix + ".action.gps";
+	public static final String ACTION_NETWORK = prefix + ".action.network";
+	public static final String ACTION_WIFI = prefix + ".action.wifi";
+	public static final String ACTION_SENSORS = prefix + ".action.sensors";
+	public static final String ACTION_CONN = prefix + ".action.conn";
+	public static final String ACTION_GCM = prefix + ".action.gcm";
+	public static final String ACTION_GPS_ACTIVE = prefix + ".action.gps_active";
 
-	public static final String EXTRA_RECEIVER = "org.openchaos.android.fooping.extra.receiver";
-	public static final String EXTRA_MSGLEN = "org.openchaos.android.fooping.extra.msglen";
-	public static final String EXTRA_OUTPUT = "org.openchaos.android.fooping.extra.output";
-	public static final String EXTRA_INTENT = "org.openchaos.android.fooping.extra.intent";
-	public static final String EXTRA_RESULTS = "org.openchaos.android.fooping.extra.results";
+	public static final String EXTRA_RECEIVER = prefix + ".extra.receiver";
+	public static final String EXTRA_MSGLEN = prefix + ".extra.msglen";
+	public static final String EXTRA_OUTPUT = prefix + ".extra.output";
+	public static final String EXTRA_INTENT = prefix + ".extra.intent";
+	public static final String EXTRA_RESULTS = prefix + ".extra.results";
 
 	private SharedPreferences prefs;
 	private LocationManager lm;
@@ -124,7 +125,7 @@ public class PingService extends IntentService {
 		Log.d(tag, "onHandleIntent(): " + action);
 
 		// always send ping
-		if (action == ACTION_PING || action == ACTION_ALL || (action == ACTION_DEFAULT && true)) {
+		if (ACTION_PING.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && true)) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -139,7 +140,7 @@ public class PingService extends IntentService {
 
 		// http://developer.android.com/training/monitoring-device-state/battery-monitoring.html
 		// http://developer.android.com/reference/android/os/BatteryManager.html
-		if (action == ACTION_BATTERY || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseBattery", false))) {
+		if (ACTION_BATTERY.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("UseBattery", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -177,7 +178,7 @@ public class PingService extends IntentService {
 
 		// http://developer.android.com/guide/topics/location/strategies.html
 		// http://developer.android.com/reference/android/location/LocationManager.html
-		if (action == ACTION_GPS || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseGPS", false))) {
+		if (ACTION_GPS.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("UseGPS", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -209,7 +210,7 @@ public class PingService extends IntentService {
 			}
 		}
 
-		if (action == ACTION_NETWORK || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseNetwork", false))) {
+		if (ACTION_NETWORK.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("UseNetwork", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -242,7 +243,7 @@ public class PingService extends IntentService {
 		}
 
 		// http://developer.android.com/reference/android/net/wifi/WifiManager.html
-		if (action == ACTION_WIFI || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseWIFI", false))) {
+		if (ACTION_WIFI.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("UseWIFI", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -282,7 +283,7 @@ public class PingService extends IntentService {
 		// TODO: cannot poll sensors. register receiver to cache sensor data
 		// http://developer.android.com/guide/topics/sensors/sensors_overview.html
 		// http://developer.android.com/reference/android/hardware/SensorManager.html
-		if (action == ACTION_SENSORS || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseSensors", false))) {
+		if (ACTION_SENSORS.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("UseSensors", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -322,7 +323,7 @@ public class PingService extends IntentService {
 
 		// http://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
 		// http://developer.android.com/reference/android/net/ConnectivityManager.html
-		if (action == ACTION_CONN || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("UseConn", false))) {
+		if (ACTION_CONN.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("UseConn", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -382,7 +383,7 @@ public class PingService extends IntentService {
 			}
 		}
 
-		if (action == ACTION_GCM || action == ACTION_ALL || (action == ACTION_DEFAULT && prefs.getBoolean("EnableGCM", false))) {
+		if (ACTION_GCM.equals(action) || ACTION_ALL.equals(action) || (ACTION_DEFAULT.equals(action) && prefs.getBoolean("EnableGCM", false))) {
 			try {
 				JSONObject json = new JSONObject();
 				json.put("client", clientID);
@@ -397,12 +398,17 @@ public class PingService extends IntentService {
 		}
 
 		// XXX work in progress. weird code, much redundant
-		if (action == ACTION_GPS_ACTIVE || action == ACTION_ALL) {
+		if (ACTION_GPS_ACTIVE.equals(action) || ACTION_ALL.equals(action)) {
 			if (receiver != null) {
-				lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+				if (lm == null) {
+					lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+				}
 
+				lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
 					@Override
 					public void onLocationChanged(final Location location) {
+						Log.d(tag, "LocationListener: onLocationChanged()");
+
 						if (location != null) {
 							new AsyncTask<Void, Void, Void>() {
 								@Override
@@ -430,7 +436,7 @@ public class PingService extends IntentService {
 										resultData.putParcelableArrayList(EXTRA_RESULTS, results);
 										receiver.send(0, resultData);
 									} catch (Exception e) {
-										Log.e(tag, "ACTION_GPS failed", e);
+										Log.e(tag, "ACTION_GPS_ACTIVE failed", e);
 									}
 									return null;
 								}
