@@ -41,11 +41,13 @@ import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -108,14 +110,16 @@ public class PingService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		long ts = System.currentTimeMillis();
-		String clientID = prefs.getString("ClientID", "unknown");
-		ArrayList<Bundle> results = new ArrayList<Bundle>();
+		final String clientID = prefs.getString("ClientID", "unknown");
 
 		String action = intent.getAction();
 		if (action == null) {
 			Log.e(tag, "Intent specifies no action, assuming ACTION_DEFAULT");
 			action = ACTION_DEFAULT;
 		}
+
+		final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
+		ArrayList<Bundle> results = new ArrayList<Bundle>();
 
 		Log.d(tag, "onHandleIntent(): " + action);
 
@@ -392,10 +396,65 @@ public class PingService extends IntentService {
 			}
 		}
 
+		// XXX work in progress. weird code, much redundant
+		if (action == ACTION_GPS_ACTIVE || action == ACTION_ALL) {
+			if (receiver != null) {
+				lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+
+					@Override
+					public void onLocationChanged(final Location location) {
+						if (location != null) {
+							new AsyncTask<Void, Void, Void>() {
+								@Override
+								protected Void doInBackground(Void... params) {
+									try {
+										JSONObject json = new JSONObject();
+										json.put("client", clientID);
+										json.put("type", "loc_gps");
+										json.put("ts", System.currentTimeMillis());
+
+										JSONObject loc_data = new JSONObject();
+
+										loc_data.put("ts", location.getTime());
+										loc_data.put("lat", location.getLatitude());
+										loc_data.put("lon",  location.getLongitude());
+										if (location.hasAltitude()) loc_data.put("alt", roundValue(location.getAltitude(), 4));
+										if (location.hasAccuracy()) loc_data.put("acc", roundValue(location.getAccuracy(), 4));
+										if (location.hasSpeed()) loc_data.put("speed", roundValue(location.getSpeed(), 4));
+										if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
+
+										json.put("loc_gps", loc_data);
+										Bundle resultData = new Bundle();
+										ArrayList<Bundle> results = new ArrayList<Bundle>();
+										results.add(prepareMessage(json));
+										resultData.putParcelableArrayList(EXTRA_RESULTS, results);
+										receiver.send(0, resultData);
+									} catch (Exception e) {
+										Log.e(tag, "ACTION_GPS failed", e);
+									}
+									return null;
+								}
+							}.execute();
+						}
+					}
+
+					@Override
+					public void onProviderDisabled(String provider) {
+					}
+
+					@Override
+					public void onProviderEnabled(String provider) {
+					}
+
+					@Override
+					public void onStatusChanged(String provider, int status, Bundle extras) {
+					}}, getMainLooper());
+			}
+		}
+
 		Bundle resultData = new Bundle();
 		resultData.putParcelable(EXTRA_INTENT, intent);
 		resultData.putParcelableArrayList(EXTRA_RESULTS, results);
-		ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
 		if (receiver != null) {
 			// TODO: set meaningful result code
 			receiver.send(0, resultData);
