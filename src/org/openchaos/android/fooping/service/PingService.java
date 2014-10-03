@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
 import javax.crypto.Cipher;
@@ -33,7 +34,10 @@ import javax.crypto.spec.SecretKeySpec;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -76,6 +80,9 @@ public class PingService extends IntentService {
 	public static final String EXTRA_OUTPUT = prefix + ".extra.output";
 	public static final String EXTRA_INTENT = prefix + ".extra.intent";
 	public static final String EXTRA_RESULTS = prefix + ".extra.results";
+
+	public static final String PERMISSION_IPC = "org.openchaos.android.fooping.permission.IPC";
+
 
 	private SharedPreferences prefs;
 	private LocationManager lm;
@@ -400,14 +407,36 @@ public class PingService extends IntentService {
 		// XXX work in progress. weird code, much redundant
 		if (ACTION_GPS_ACTIVE.equals(action) || ACTION_ALL.equals(action)) {
 			if (receiver != null) {
+				final Context appContext = getApplicationContext();
+				final String reqId = prefix + ":cancel-" + UUID.randomUUID().toString(); // TODO: use original message ID or counter
+				final Intent reqIntent = new Intent(reqId);
+				reqIntent.setPackage(getPackageName());
+				reqIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_REPLACE_PENDING);
+
 				if (lm == null) {
 					lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 				}
 
-				lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+				final LocationListener locationUpdate = new LocationListener() {
+					private int numFixes = 0;
+					private PendingIntent cancelIntent;
+
 					@Override
 					public void onLocationChanged(final Location location) {
 						Log.d(tag, "LocationListener: onLocationChanged()");
+
+						if (numFixes++ == 0) {
+							// send location updates for up to XXX seconds after first fix
+							cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+							((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
+						} else if (numFixes >= 15) {
+							// send up to XXX location updates
+							try {
+								cancelIntent.send();
+							} catch (Exception e) {
+								Log.e(tag, "Cancel failed", e);
+							}
+						}
 
 						if (location != null) {
 							new AsyncTask<Void, Void, Void>() {
@@ -455,7 +484,24 @@ public class PingService extends IntentService {
 
 					@Override
 					public void onStatusChanged(String provider, int status, Bundle extras) {
-					}}, getMainLooper());
+					}
+				};
+
+				appContext.registerReceiver(new BroadcastReceiver() {
+						@Override
+						public void onReceive(Context context, Intent intent) {
+							Log.d(tag, "Removing LocationListener (reqId " + reqId + ")");
+							lm.removeUpdates(locationUpdate);
+							context.unregisterReceiver(this);
+						}
+					}, new IntentFilter(reqId), PERMISSION_IPC, null);
+
+				Log.d(tag, "Adding LocationListener (reqId " + reqId + ")");
+				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationUpdate, getMainLooper());
+
+				// wait up to XXX seconds for first fix
+				((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (120 * 1000),
+						PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT));
 			}
 		}
 
