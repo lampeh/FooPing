@@ -420,7 +420,6 @@ public class PingService extends IntentService {
 										json.put("ts", System.currentTimeMillis());
 
 										JSONObject loc_data = new JSONObject();
-
 										loc_data.put("ts", location.getTime());
 										loc_data.put("lat", location.getLatitude());
 										loc_data.put("lon",  location.getLongitude());
@@ -428,12 +427,14 @@ public class PingService extends IntentService {
 										if (location.hasAccuracy()) loc_data.put("acc", roundValue(location.getAccuracy(), 4));
 										if (location.hasSpeed()) loc_data.put("speed", roundValue(location.getSpeed(), 4));
 										if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
-
 										json.put("loc_gps", loc_data);
-										Bundle resultData = new Bundle();
+
 										ArrayList<Bundle> results = new ArrayList<Bundle>();
 										results.add(prepareMessage(json));
+
+										Bundle resultData = new Bundle();
 										resultData.putParcelableArrayList(EXTRA_RESULTS, results);
+
 										receiver.send(0, resultData);
 									} catch (Exception e) {
 										Log.e(tag, "ACTION_GPS_ACTIVE failed", e);
