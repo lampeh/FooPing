@@ -11,7 +11,7 @@ from gzip import GzipFile
 UDP_IP = "0.0.0.0"
 UDP_PORT = 23042
 
-key = hashlib.sha256(b'm!ToSC]vb=:<b&XL.|Yq#LYE{V+$Mc~y').digest()
+key = hashlib.sha256(b'm!ToSC]vb=:<b&XL.|Yq#L%YE{V+$Mc~y').digest()
 block_size = 16
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -26,6 +26,7 @@ while True:
 		print "packet from: " + addr[0] + ":" + str(addr[1])
 		msg = GzipFile(fileobj = StringIO(AES.new(key, AES.MODE_CFB, data[:block_size]).decrypt(data[block_size:]))).read()
 		print msg
+		print
 		packet = json.loads(msg)
 		pingData = {}
 		pingData.update(packet[0])
@@ -39,6 +40,6 @@ while True:
 		f.close()
 		os.rename('data.json.tmp', 'data.json');
 	except Exception:
-		print "exception in packet from: " + addr[0] + ":" + str(addr[1])
+		print "*** exception in packet from: " + addr[0] + ":" + str(addr[1])
 		print sys.exc_info()
 		pass
