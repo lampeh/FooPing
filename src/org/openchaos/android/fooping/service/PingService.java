@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
@@ -60,7 +61,7 @@ import android.util.Log;
 
 
 public class PingService extends IntentService {
-	private static final String tag = PingService.class.getSimpleName();
+	private static final String tag = PingService.class.getSimpleName().toLowerCase(Locale.ENGLISH);
 
 	private static final String prefix = PingService.class.getName();
 	public static final String ACTION_ALL = prefix + ".action.all";
