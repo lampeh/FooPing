@@ -425,20 +425,20 @@ public class PingService extends IntentService {
 					public void onLocationChanged(final Location location) {
 						Log.d(tag, "LocationListener: onLocationChanged()");
 
-						if (numFixes++ == 0) {
-							// send location updates for up to XXX seconds after first fix
-							cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
-							((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
-						} else if (numFixes >= 15) {
-							// send up to XXX location updates
-							try {
-								cancelIntent.send();
-							} catch (Exception e) {
-								Log.e(tag, "Cancel failed", e);
-							}
-						}
-
 						if (location != null) {
+							if (numFixes++ == 0) {
+								// send location updates for up to XXX seconds after first fix
+								cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+								((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
+							} else if (numFixes >= 15) {
+								// send up to XXX location updates
+								try {
+									cancelIntent.send();
+								} catch (Exception e) {
+									Log.e(tag, "Cancel failed", e);
+								}
+							}
+
 							new AsyncTask<Void, Void, Void>() {
 								@Override
 								protected Void doInBackground(Void... params) {
@@ -522,6 +522,7 @@ public class PingService extends IntentService {
 							.digest(prefs.getString("ExchangeKey", null).getBytes("US-ASCII")), "AES");
 				} catch (Exception e) {
 					Log.e(tag, "Failed to set secret key", e);
+					return null;
 				}
 			}
 
@@ -530,12 +531,8 @@ public class PingService extends IntentService {
 					cipher = Cipher.getInstance("AES/CFB8/NoPadding");
 				} catch (Exception e) {
 					Log.e(tag, "Failed to get cipher instance", e);
+					return null;
 				}
-			}
-
-			if (skeySpec == null || cipher == null) {
-				Log.e(tag, "Encryption requested but not available");
-				return null;
 			}
 		}
 
@@ -543,6 +540,8 @@ public class PingService extends IntentService {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			CipherOutputStream cos = null;
 			GZIPOutputStream zos = null;
+
+			final byte[] message = new JSONArray().put(json).toString().getBytes();
 
 			// TODO: send protocol header to signal compression & encryption
 
@@ -553,8 +552,6 @@ public class PingService extends IntentService {
 				// write iv block
 				baos.write(cipher.getIV());
 			}
-
-			final byte[] message = new JSONArray().put(json).toString().getBytes();
 
 			if (compress) {
 				zos = new GZIPOutputStream((encrypt)?(cos):(baos));
@@ -571,7 +568,6 @@ public class PingService extends IntentService {
 				baos.write(message);
 			}
 
-			baos.flush();
 			final byte[] output = baos.toByteArray();
 			baos.close();
 
