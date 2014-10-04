@@ -61,9 +61,9 @@ import android.util.Log;
 
 
 public class PingService extends IntentService {
-	private static final String tag = PingService.class.getSimpleName().toLowerCase(Locale.ENGLISH);
+	private static final String tag = PingService.class.getSimpleName();
 
-	private static final String prefix = PingService.class.getName();
+	private static final String prefix = PingService.class.getName().toLowerCase(Locale.ENGLISH);
 	public static final String ACTION_ALL = prefix + ".action.all";
 	public static final String ACTION_DEFAULT = prefix + ".action.default";
 	public static final String ACTION_PING = prefix + ".action.ping";
