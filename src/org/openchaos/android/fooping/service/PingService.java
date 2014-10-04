@@ -426,53 +426,55 @@ public class PingService extends IntentService {
 					public void onLocationChanged(final Location location) {
 						Log.d(tag, "LocationListener: onLocationChanged()");
 
-						if (location != null) {
-							if (numFixes++ == 0) {
-								// send location updates for up to XXX seconds after first fix
-								cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
-								((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
-							} else if (numFixes >= 15) {
-								// send up to XXX location updates
-								try {
-									cancelIntent.send();
-								} catch (Exception e) {
-									Log.e(tag, "Cancel failed", e);
-								}
-							}
-
-							new AsyncTask<Void, Void, Void>() {
-								@Override
-								protected Void doInBackground(Void... params) {
-									try {
-										JSONObject json = new JSONObject();
-										json.put("client", clientID);
-										json.put("type", "loc_gps");
-										json.put("ts", System.currentTimeMillis());
-
-										JSONObject loc_data = new JSONObject();
-										loc_data.put("ts", location.getTime());
-										loc_data.put("lat", location.getLatitude());
-										loc_data.put("lon",  location.getLongitude());
-										if (location.hasAltitude()) loc_data.put("alt", roundValue(location.getAltitude(), 4));
-										if (location.hasAccuracy()) loc_data.put("acc", roundValue(location.getAccuracy(), 4));
-										if (location.hasSpeed()) loc_data.put("speed", roundValue(location.getSpeed(), 4));
-										if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
-										json.put("loc_gps", loc_data);
-
-										ArrayList<Bundle> results = new ArrayList<Bundle>();
-										results.add(prepareMessage(json));
-
-										Bundle resultData = new Bundle();
-										resultData.putParcelableArrayList(EXTRA_RESULTS, results);
-
-										receiver.send(0, resultData);
-									} catch (Exception e) {
-										Log.e(tag, "ACTION_GPS_ACTIVE failed", e);
-									}
-									return null;
-								}
-							}.execute();
+						if (location == null) {
+							return;
 						}
+
+						if (numFixes++ == 0) {
+							// send location updates for up to XXX seconds after first fix
+							cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+							((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
+						} else if (numFixes >= 15) {
+							// send up to XXX location updates
+							try {
+								cancelIntent.send();
+							} catch (Exception e) {
+								Log.e(tag, "Cancel failed", e);
+							}
+						}
+
+						new AsyncTask<Void, Void, Void>() {
+							@Override
+							protected Void doInBackground(Void... params) {
+								try {
+									JSONObject json = new JSONObject();
+									json.put("client", clientID);
+									json.put("type", "loc_gps");
+									json.put("ts", System.currentTimeMillis());
+
+									JSONObject loc_data = new JSONObject();
+									loc_data.put("ts", location.getTime());
+									loc_data.put("lat", location.getLatitude());
+									loc_data.put("lon",  location.getLongitude());
+									if (location.hasAltitude()) loc_data.put("alt", roundValue(location.getAltitude(), 4));
+									if (location.hasAccuracy()) loc_data.put("acc", roundValue(location.getAccuracy(), 4));
+									if (location.hasSpeed()) loc_data.put("speed", roundValue(location.getSpeed(), 4));
+									if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
+									json.put("loc_gps", loc_data);
+
+									ArrayList<Bundle> results = new ArrayList<Bundle>();
+									results.add(prepareMessage(json));
+
+									Bundle resultData = new Bundle();
+									resultData.putParcelableArrayList(EXTRA_RESULTS, results);
+
+									receiver.send(0, resultData);
+								} catch (Exception e) {
+									Log.e(tag, "ACTION_GPS_ACTIVE failed", e);
+								}
+								return null;
+							}
+						}.execute();
 					}
 
 					@Override
