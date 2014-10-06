@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "org.openchaos.android.fooping"
+        minSdkVersion 15
+        targetSdkVersion 20
+        versionCode 3
+        versionName "2.0"
+    }
+    buildTypes {
+		release {
+			runProguard true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+		}
+    }
+}
+
+dependencies {
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+	compile 'com.google.android.gms:play-services:5.2.08'
+	compile 'com.android.support:support-v4:20.0.0'
+}
