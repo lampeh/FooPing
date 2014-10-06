@@ -50,13 +50,13 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 		}
 
 		final String gcm_sender = prefs.getString("GCM_SENDER", "");
-		if (gcm_sender == "") {
+		if ("".equals(gcm_sender)) {
 			Log.w(tag, "No GCM Sender ID configured. Message ignored");
 			return;
 		}
 
 		Bundle extras = intent.getExtras();
-		if (extras == null || extras.isEmpty()) {
+		if ((extras == null) || extras.isEmpty()) {
 			Log.w(tag, "Extra section is empty. Message ignored");
 			return;
 		}
@@ -84,7 +84,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 
 			final String action = extras.getString("action");
 			final String msgId = extras.getString("message_id");
-			if (action == null || msgId == null) {
+			if ((action == null) || (msgId == null)) {
 				Log.w(tag, "Required request parameters not set. Message ignored");
 				return;
 			}
@@ -137,7 +137,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 					}
 
 					Intent serviceIntent = resultData.getParcelable(PingService.EXTRA_INTENT);
-					if (serviceIntent == null || !WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
+					if ((serviceIntent == null) || !WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
 						Log.w(tag, "Wake lock release failed. No active wake lock?");
 					}
 				}

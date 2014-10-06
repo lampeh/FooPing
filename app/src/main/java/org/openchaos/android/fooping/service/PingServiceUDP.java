@@ -48,7 +48,7 @@ public class PingServiceUDP extends WakefulBroadcastReceiver {
 				String exchangeHost = prefs.getString("ExchangeHost", null);
 				int exchangePort = Integer.valueOf(prefs.getString("ExchangePort", "-1"));
 
-				if (exchangeHost == null || exchangePort <= 0 || exchangePort >= 65536) {
+				if ((exchangeHost == null) || (exchangePort <= 0) || (exchangePort >= 65536)) {
 					Log.e(tag, "Invalid server name or port");
 					return;
 				}
@@ -92,7 +92,7 @@ public class PingServiceUDP extends WakefulBroadcastReceiver {
 				}
 
 				Intent serviceIntent = resultData.getParcelable(PingService.EXTRA_INTENT);
-				if (serviceIntent == null || !WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
+				if ((serviceIntent == null) || !WakefulBroadcastReceiver.completeWakefulIntent(serviceIntent)) {
 					Log.w(tag, "Wake lock release failed. No active wake lock?");
 				}
 			}

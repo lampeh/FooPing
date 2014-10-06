@@ -133,7 +133,7 @@ public class MainFragment extends Fragment {
 		String regid = prefs.getString("GCM_ID", "");
 		if (regid.isEmpty()) {
 			final String gcm_sender = prefs.getString("GCM_SENDER", "");
-			if (gcm_sender == "") {
+			if ("".equals(gcm_sender)) {
 				Log.w(tag, "No GCM Sender ID configured. Cannot register");
 				return false;
 			}

@@ -96,7 +96,7 @@ public class PingService extends IntentService {
 	private SecretKeySpec skeySpec;
 	private Cipher cipher;
 
-	private static final double roundValue(double value, int scale) {
+	private static double roundValue(double value, int scale) {
 		return BigDecimal.valueOf(value).setScale(scale, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().doubleValue();
 	}
 
@@ -161,7 +161,7 @@ public class PingService extends IntentService {
 
 					int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 					int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-					if (level >= 0 && scale > 0) {
+					if ((level >= 0) && (scale > 0)) {
 						bat_data.put("pct", roundValue(((double)level / (double)scale)*100, 2));
 					} else {
 						Log.w(tag, "Battery level unknown");

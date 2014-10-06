@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		package="org.openchaos.android.fooping"
-		android:versionCode="3" android:versionName="2.0"
 		android:installLocation="auto">
-	<uses-sdk android:minSdkVersion="11" android:targetSdkVersion="19" />
 	<permission android:name="org.openchaos.android.fooping.permission.C2D_MESSAGE" android:protectionLevel="signature" />
 	<permission android:name="org.openchaos.android.fooping.permission.IPC" android:protectionLevel="signature" />
 	<uses-permission android:name="android.permission.INTERNET" />
