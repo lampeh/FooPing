@@ -125,8 +125,8 @@ public class PingService extends IntentService {
 
 		String action = intent.getAction();
 		if (action == null) {
-			Log.e(tag, "Intent specifies no action, assuming ACTION_DEFAULT");
-			action = ACTION_DEFAULT;
+			Log.e(tag, "Intent specifies no action. Request ignored");
+			return;
 		}
 
 		final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
