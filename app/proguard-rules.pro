@@ -1,5 +1,5 @@
 # retain original names
--dontobfuscate
+#-dontobfuscate
 
 # protect GCM classes
 ##
