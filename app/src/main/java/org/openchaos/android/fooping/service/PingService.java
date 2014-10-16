@@ -85,6 +85,11 @@ public class PingService extends IntentService {
 	public static final String PERMISSION_IPC = "org.openchaos.android.fooping.permission.IPC";
 
 
+	private static double roundValue(double value, int scale) {
+		return BigDecimal.valueOf(value).setScale(scale, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().doubleValue();
+	}
+
+
 	private SharedPreferences prefs;
 	private LocationManager lm;
 	private WifiManager wm;
@@ -96,9 +101,6 @@ public class PingService extends IntentService {
 	private SecretKeySpec skeySpec;
 	private Cipher cipher;
 
-	private static double roundValue(double value, int scale) {
-		return BigDecimal.valueOf(value).setScale(scale, BigDecimal.ROUND_HALF_UP).stripTrailingZeros().doubleValue();
-	}
 
 	public PingService() {
 		super(tag);
