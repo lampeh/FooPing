@@ -31,6 +31,7 @@ public class SettingsFragment extends PreferenceFragment {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState == null) {
 			setMenuVisibility(false);
+			addPreferencesFromResource(R.xml.preferences);
 		}
 	}
 }
