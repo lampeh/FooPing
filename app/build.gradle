@@ -27,7 +27,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 20
         versionCode 3
-        versionName "2.0"
+        versionName getVersionName()
     }
     buildTypes {
 		release {
@@ -44,7 +44,7 @@ android {
 		def apk = variant.outputFile;
 		def newName;
 
-		newName = apk.name.replace(".apk", "-v" + defaultConfig.versionName + "-" + variant.buildType.name.toUpperCase() + ".apk");
+		newName = apk.name.replace(".apk", "-" + defaultConfig.versionName + "-" + variant.buildType.name.toUpperCase() + ".apk");
 
 		newName = newName
 				.replace("-" + variant.buildType.name, "")
