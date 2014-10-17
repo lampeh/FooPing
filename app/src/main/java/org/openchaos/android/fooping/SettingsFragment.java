@@ -29,11 +29,8 @@ public class SettingsFragment extends PreferenceFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (savedInstanceState == null) {
-			// setMenuVisibility(false); // Call requires API level 14
-			setHasOptionsMenu(true);
-			addPreferencesFromResource(R.xml.preferences);
-		}
+		setHasOptionsMenu(true);
+		addPreferencesFromResource(R.xml.preferences);
 	}
 
 	@Override
