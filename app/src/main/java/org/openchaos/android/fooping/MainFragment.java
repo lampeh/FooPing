@@ -21,6 +21,7 @@ package org.openchaos.android.fooping;
 
 import org.openchaos.android.fooping.service.PingServiceUDP;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Fragment;
@@ -139,6 +140,7 @@ public class MainFragment extends Fragment {
 			}
 
 			new AsyncTask<Void, Void, Void>() {
+				@SuppressLint("CommitPrefEdits")
 				@Override
 				protected Void doInBackground(Void... params) {
 					GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(appContext);
