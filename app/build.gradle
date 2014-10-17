@@ -17,6 +17,28 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
     }
+
+	// https://gist.github.com/stefanhoth/faedeb4c58615992937d
+	// instead of "app-release.apk" this method will rewrite the name to
+	// "MyCoolCompany-MyGreatProduct-v<defaultConfig.versionName>-RELEASE.apk which is much better suited for archiving and overall handling
+	// To restore the default behavior just delete the whole block below
+	applicationVariants.all { variant ->
+		def apk = variant.outputFile;
+		def newName;
+
+		newName = apk.name.replace(".apk", "-v" + defaultConfig.versionName + "-" + variant.buildType.name.toUpperCase() + ".apk");
+
+		newName = newName
+				.replace("-" + variant.buildType.name, "")
+				.replace(project.name, "FooPing");
+
+		variant.outputFile = new File(apk.parentFile, newName);
+		if (variant.zipAlign) {
+			variant.outputFile = new File(apk.parentFile, newName.replace("-unaligned", ""));
+		}
+
+		logger.info('INFO: Set outputFile to ' + variant.outputFile + " for [" + variant.name + "]");
+	}
 }
 
 dependencies {
