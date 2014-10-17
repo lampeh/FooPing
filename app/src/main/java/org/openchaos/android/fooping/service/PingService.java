@@ -130,6 +130,11 @@ public class PingService extends IntentService {
 		}
 
 		final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_RECEIVER);
+		if (receiver == null) {
+			Log.e(tag, "Intent specifies no receiver. Request ignored");
+			return;
+		}
+
 		ArrayList<Bundle> results = new ArrayList<Bundle>();
 
 		Log.d(tag, "onHandleIntent(): " + action);
@@ -407,116 +412,123 @@ public class PingService extends IntentService {
 			}
 		}
 
-		// XXX work in progress. weird code, much redundant
+		// XXX: work in progress. weird code, much redundant
 		if (ACTION_GPS_ACTIVE.equals(action) || ACTION_ALL.equals(action)) {
-			if (receiver != null) {
-				final Context appContext = getApplicationContext();
-				final String reqId = prefix + ":cancel-" + UUID.randomUUID().toString(); // TODO: use original message ID or counter
-				final Intent reqIntent = new Intent(reqId);
-				reqIntent.setPackage(getPackageName());
-				reqIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_REPLACE_PENDING);
+			// TODO: keep a list of active requests, use single LocationListener
+			// XXX: complicated way to remove the LocationListener through AlarmManager
+			// Cannot use handler schedule because it doesn't wake from sleep
+			// Cannot target anonymous BroadcastReceiver instances directly
+			// We also need the final intent in the listener before the receiver exists
+			// Use unique intent action, package restriction and permission instead
+			final String reqId = prefix + ":cancel-" + UUID.randomUUID().toString();
+			final Intent reqIntent = new Intent(reqId);
+			reqIntent.setPackage(getPackageName());
+			reqIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_REPLACE_PENDING);
 
-				if (lm == null) {
-					lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			final Context appContext = getApplicationContext();
+
+			if (lm == null) {
+				lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			}
+
+			// XXX: every request spawns its own LocationListener, BroadcastReceiver and alarms
+			final LocationListener locationUpdate = new LocationListener() {
+				private int numFixes = 0;
+				private PendingIntent cancelIntent;
+
+				@Override
+				public void onLocationChanged(final Location location) {
+					Log.d(tag, "LocationListener: onLocationChanged()");
+
+					if (location == null) {
+						return;
+					}
+
+					if (numFixes++ == 0) {
+						// send location updates for up to XXX seconds after first fix
+						cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+						((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
+					} else if (numFixes >= 15) {
+						// send up to XXX location updates
+						try {
+							cancelIntent.send();
+						} catch (Exception e) {
+							Log.e(tag, "Cancel failed", e);
+						}
+					}
+
+					// listener runs on main thread, return results in background
+					new AsyncTask<Void, Void, Void>() {
+						@Override
+						protected Void doInBackground(Void... params) {
+							try {
+								JSONObject json = new JSONObject();
+								json.put("client", clientID);
+								json.put("type", "loc_gps");
+								json.put("ts", System.currentTimeMillis());
+
+								JSONObject loc_data = new JSONObject();
+								loc_data.put("ts", location.getTime());
+								loc_data.put("lat", location.getLatitude());
+								loc_data.put("lon",  location.getLongitude());
+								if (location.hasAltitude()) loc_data.put("alt", roundValue(location.getAltitude(), 4));
+								if (location.hasAccuracy()) loc_data.put("acc", roundValue(location.getAccuracy(), 4));
+								if (location.hasSpeed()) loc_data.put("speed", roundValue(location.getSpeed(), 4));
+								if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
+								json.put("loc_gps", loc_data);
+
+								ArrayList<Bundle> results = new ArrayList<Bundle>();
+								results.add(prepareMessage(json));
+
+								// return data through ResultReceiver
+								Bundle resultData = new Bundle();
+								resultData.putParcelableArrayList(EXTRA_RESULTS, results);
+								receiver.send(0, resultData);
+							} catch (Exception e) {
+								Log.e(tag, "ACTION_GPS_ACTIVE failed", e);
+							}
+							return null;
+						}
+					}.execute();
 				}
 
-				final LocationListener locationUpdate = new LocationListener() {
-					private int numFixes = 0;
-					private PendingIntent cancelIntent;
+				@Override
+				public void onProviderDisabled(String provider) {
+				}
 
+				@Override
+				public void onProviderEnabled(String provider) {
+				}
+
+				@Override
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+				}
+			};
+
+			// receive broadcast from AlarmManager and remove this LocationListener instance
+			appContext.registerReceiver(new BroadcastReceiver() {
 					@Override
-					public void onLocationChanged(final Location location) {
-						Log.d(tag, "LocationListener: onLocationChanged()");
-
-						if (location == null) {
-							return;
-						}
-
-						if (numFixes++ == 0) {
-							// send location updates for up to XXX seconds after first fix
-							cancelIntent = PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
-							((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), cancelIntent);
-						} else if (numFixes >= 15) {
-							// send up to XXX location updates
-							try {
-								cancelIntent.send();
-							} catch (Exception e) {
-								Log.e(tag, "Cancel failed", e);
-							}
-						}
-
-						new AsyncTask<Void, Void, Void>() {
-							@Override
-							protected Void doInBackground(Void... params) {
-								try {
-									JSONObject json = new JSONObject();
-									json.put("client", clientID);
-									json.put("type", "loc_gps");
-									json.put("ts", System.currentTimeMillis());
-
-									JSONObject loc_data = new JSONObject();
-									loc_data.put("ts", location.getTime());
-									loc_data.put("lat", location.getLatitude());
-									loc_data.put("lon",  location.getLongitude());
-									if (location.hasAltitude()) loc_data.put("alt", roundValue(location.getAltitude(), 4));
-									if (location.hasAccuracy()) loc_data.put("acc", roundValue(location.getAccuracy(), 4));
-									if (location.hasSpeed()) loc_data.put("speed", roundValue(location.getSpeed(), 4));
-									if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
-									json.put("loc_gps", loc_data);
-
-									ArrayList<Bundle> results = new ArrayList<Bundle>();
-									results.add(prepareMessage(json));
-
-									Bundle resultData = new Bundle();
-									resultData.putParcelableArrayList(EXTRA_RESULTS, results);
-
-									receiver.send(0, resultData);
-								} catch (Exception e) {
-									Log.e(tag, "ACTION_GPS_ACTIVE failed", e);
-								}
-								return null;
-							}
-						}.execute();
+					public void onReceive(Context context, Intent intent) {
+						Log.d(tag, "Removing LocationListener (reqId " + reqId + ")");
+						lm.removeUpdates(locationUpdate);
+						context.unregisterReceiver(this);
 					}
+				}, new IntentFilter(reqId), PERMISSION_IPC, null);
 
-					@Override
-					public void onProviderDisabled(String provider) {
-					}
+			// start location updates
+			Log.d(tag, "Adding LocationListener (reqId " + reqId + ")");
+			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationUpdate, getMainLooper());
 
-					@Override
-					public void onProviderEnabled(String provider) {
-					}
-
-					@Override
-					public void onStatusChanged(String provider, int status, Bundle extras) {
-					}
-				};
-
-				appContext.registerReceiver(new BroadcastReceiver() {
-						@Override
-						public void onReceive(Context context, Intent intent) {
-							Log.d(tag, "Removing LocationListener (reqId " + reqId + ")");
-							lm.removeUpdates(locationUpdate);
-							context.unregisterReceiver(this);
-						}
-					}, new IntentFilter(reqId), PERMISSION_IPC, null);
-
-				Log.d(tag, "Adding LocationListener (reqId " + reqId + ")");
-				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationUpdate, getMainLooper());
-
-				// wait up to XXX seconds for first fix
-				((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (120 * 1000),
-						PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT));
-			}
+			// wait up to XXX seconds for first fix
+			((AlarmManager)getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (120 * 1000),
+					PendingIntent.getBroadcast(appContext, 0, reqIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT));
 		}
 
 		Bundle resultData = new Bundle();
 		resultData.putParcelable(EXTRA_INTENT, intent);
 		resultData.putParcelableArrayList(EXTRA_RESULTS, results);
-		if (receiver != null) {
-			// TODO: set meaningful result code
-			receiver.send(0, resultData);
-		}
+		// TODO: set meaningful result code
+		receiver.send(0, resultData);
 	}
 
 	private Bundle prepareMessage (final JSONObject json) {
