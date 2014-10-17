@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 
 // Version name from git-describe
 // http://stackoverflow.com/a/18021756
-
 def getVersionName = { ->
 	try {
 		def stdout = new ByteArrayOutputStream()
