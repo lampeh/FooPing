@@ -21,12 +21,14 @@ android {
     compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
-	signingConfigs {
-		release {
-			storeFile file((project.hasProperty('signingFromEnv'))?(System.getenv("KEYSTORE")):("release.keystore"))
-			storePassword System.getenv("KEYSTORE_PASSWORD")
-			keyAlias System.getenv("KEY_ALIAS")
-			keyPassword System.getenv("KEY_PASSWORD")
+	if (project.hasProperty('signingFromEnv')) {
+		signingConfigs {
+			release {
+				storeFile file(System.getenv("KEYSTORE"))
+				storePassword System.getenv("KEYSTORE_PASSWORD")
+				keyAlias System.getenv("KEY_ALIAS")
+				keyPassword System.getenv("KEY_PASSWORD")
+			}
 		}
 	}
 
