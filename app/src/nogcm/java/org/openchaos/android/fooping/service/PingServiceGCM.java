@@ -20,21 +20,9 @@
 package org.openchaos.android.fooping.service;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 
 
-public class PingServiceGCM extends BroadcastReceiver {
-	private static final String tag = PingServiceGCM.class.getSimpleName();
-
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		Log.d(tag, "Received broadcast: " + intent.toString());
-		Log.w(tag, "GCM control is disabled. Message ignored");
-	}
-
+public class PingServiceGCM {
 	public static boolean initGCM(final Activity activity) {
 		return false;
 	}
