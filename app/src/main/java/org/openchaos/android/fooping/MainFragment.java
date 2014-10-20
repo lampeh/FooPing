@@ -36,7 +36,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import org.openchaos.android.fooping.service.PingServiceGCM;
 import org.openchaos.android.fooping.service.PingServiceUDP;
 
 
