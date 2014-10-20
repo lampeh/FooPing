@@ -62,22 +62,17 @@ android {
 	applicationVariants.all { variant ->
 		def apk = variant.outputFile;
 		def buildVers = System.getenv("BUILD_NUMBER");
-		def newName;
+		def newName = "-" + defaultConfig.versionName + "-";
 
-		newName = "-" + defaultConfig.versionName + "-";
 		if (buildVers) {
 			newName += "build" + buildVers + "-";
 		}
 		newName += variant.buildType.name.toUpperCase() + ".apk"
-		newName = apk.name.replace(".apk", newName);
-		newName = newName
-				.replace("-" + variant.buildType.name, "")
-				.replace(project.name, "FooPing");
+		newName = apk.name.replace("-" + variant.buildType.name, "")
+				.replace(project.name, "FooPing")
+				.replace(".apk", newName);
 
 		variant.outputFile = new File(apk.parentFile, newName);
-		if (variant.zipAlign) {
-			variant.outputFile = new File(apk.parentFile, newName.replace("-unaligned", ""));
-		}
 
 		logger.info('INFO: Set outputFile to ' + variant.outputFile + " for [" + variant.name + "]");
 	}
