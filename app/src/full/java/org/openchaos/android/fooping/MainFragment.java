@@ -19,6 +19,7 @@
 
 package org.openchaos.android.fooping;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,16 +33,17 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import android.annotation.SuppressLint;
 
 
-public class MainActivity extends BaseMainActivity {
-	private static final String tag = MainActivity.class.getSimpleName();
+public class MainFragment extends BaseMainFragment {
+	private static final String tag = MainFragment.class.getSimpleName();
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Activity activity = getActivity();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
 		if (prefs.getBoolean("EnableGCM", false)) {
-			initGCM(prefs);
+			initGCM(prefs, activity);
 		}
 	}
 
@@ -50,12 +52,12 @@ public class MainActivity extends BaseMainActivity {
 	 * it doesn't, display a dialog that allows users to download the APK from
 	 * the Google Play Store or enable it in the device's system settings.
 	 */
-	private boolean initGCM(final SharedPreferences prefs) {
-		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+	private boolean initGCM(final SharedPreferences prefs, Activity activity) {
+		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
 
 		if (resultCode != ConnectionResult.SUCCESS) {
 			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-				GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
+				GooglePlayServicesUtil.getErrorDialog(resultCode, activity, 0).show();
 			} else {
 				Log.w(tag, "This device is not supported by Google Play Services");
 			}
@@ -64,7 +66,7 @@ public class MainActivity extends BaseMainActivity {
 
 		String regid = prefs.getString("GCM_ID", "");
 		if (regid.isEmpty()) {
-			final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+			final GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(activity);
 			final String gcm_sender = prefs.getString("GCM_SENDER", "");
 
 			if (gcm_sender.isEmpty()) {

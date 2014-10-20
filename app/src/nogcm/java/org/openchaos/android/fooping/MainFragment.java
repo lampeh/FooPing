@@ -20,5 +20,5 @@
 package org.openchaos.android.fooping;
 
 
-public class MainActivity extends BaseMainActivity {
+public class MainFragment extends BaseMainFragment {
 }

@@ -39,8 +39,8 @@ import android.widget.ToggleButton;
 import org.openchaos.android.fooping.service.PingServiceUDP;
 
 
-public class MainFragment extends Fragment {
-	private static final String tag = MainFragment.class.getSimpleName();
+public class BaseMainFragment extends Fragment {
+	private static final String tag = BaseMainFragment.class.getSimpleName();
 
 	private Activity activity;
 	private Context appContext;
