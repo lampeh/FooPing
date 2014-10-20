@@ -69,10 +69,6 @@ public class MainFragment extends Fragment {
 		appContext = activity.getApplicationContext();
 		serviceIntent = new Intent(appContext, PingServiceUDP.class);
 
-		if (prefs.getBoolean("EnableGCM", false)) {
-			PingServiceGCM.initGCM(activity);
-		}
-
 		// NB: a pending intent does not reliably indicate a running alarm
 		// always cancel the intent after stopping the alarm
 		alarmRunning = (PendingIntent.getBroadcast(appContext, 0, serviceIntent, PendingIntent.FLAG_NO_CREATE) != null);

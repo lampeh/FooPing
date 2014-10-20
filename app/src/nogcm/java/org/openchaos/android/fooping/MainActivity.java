@@ -17,13 +17,8 @@
  */
 
 
-package org.openchaos.android.fooping.service;
-
-import android.app.Activity;
+package org.openchaos.android.fooping;
 
 
-public class PingServiceGCM {
-	public static boolean initGCM(final Activity activity) {
-		return false;
-	}
+public class MainActivity extends BaseMainActivity {
 }
