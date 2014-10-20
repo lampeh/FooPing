@@ -21,6 +21,15 @@ android {
     compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
+	signingConfigs {
+		release {
+			storeFile file(System.getenv("KEYSTORE"))
+			storePassword System.getenv("KEYSTORE_PASSWORD")
+			keyAlias System.getenv("KEY_ALIAS")
+			keyPassword System.getenv("KEY_PASSWORD")
+		}
+	}
+
     defaultConfig {
         applicationId "org.openchaos.android.fooping"
         minSdkVersion 15
@@ -42,6 +51,7 @@ android {
 		release {
 			runProguard true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+			signingConfig signingConfigs.release
 		}
     }
 
