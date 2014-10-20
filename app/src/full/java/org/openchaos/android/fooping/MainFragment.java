@@ -19,6 +19,7 @@
 
 package org.openchaos.android.fooping;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -29,8 +30,6 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import android.annotation.SuppressLint;
 
 
 public class MainFragment extends BaseMainFragment {

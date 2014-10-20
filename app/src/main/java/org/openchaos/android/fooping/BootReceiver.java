@@ -19,8 +19,6 @@
 
 package org.openchaos.android.fooping;
 
-import org.openchaos.android.fooping.service.PingServiceUDP;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -29,6 +27,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import org.openchaos.android.fooping.service.PingServiceUDP;
 
 
 public class BootReceiver extends BroadcastReceiver {
