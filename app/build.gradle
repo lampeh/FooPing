@@ -28,6 +28,16 @@ android {
         versionCode 3
         versionName getVersionName()
     }
+
+	productFlavors {
+		full {
+		}
+		nogcm {
+			applicationId "org.openchaos.android.fooping.nogcm"
+			versionName getVersionName() + "-NOGCM"
+		}
+	}
+
     buildTypes {
 		release {
 			runProguard true
@@ -61,7 +71,7 @@ android {
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	//noinspection GradleDynamicVersion
-	compile 'com.google.android.gms:play-services:+'
+	fullCompile 'com.google.android.gms:play-services:+'
 	//noinspection GradleDynamicVersion
 	compile 'com.android.support:support-v4:20.+'
 }

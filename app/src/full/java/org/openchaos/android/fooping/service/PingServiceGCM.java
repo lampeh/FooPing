@@ -19,14 +19,12 @@
 
 package org.openchaos.android.fooping.service;
 
-import java.util.ArrayList;
-import java.util.UUID;
-
-import org.json.JSONArray;
-
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
@@ -34,7 +32,15 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Base64;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.UUID;
+
 
 public class PingServiceGCM extends WakefulBroadcastReceiver {
 	private static final String tag = PingServiceGCM.class.getSimpleName();
@@ -78,7 +84,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 			Log.w(tag, "Send error: " + extras.toString());
 		} else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
 			Log.i(tag, "Messages deleted: " + extras.toString());
-		// If it's a regular GCM message, do some work.
+			// If it's a regular GCM message, do some work.
 		} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
 			Log.i(tag, "Received command: " + extras.toString());
 
@@ -91,7 +97,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 
 			startWakefulService(context, new Intent(action, null, context, PingService.class).putExtra(PingService.EXTRA_RECEIVER, new ResultReceiver(null) {
 				@Override
-				 protected void onReceiveResult(int resultCode, Bundle resultData) {
+				protected void onReceiveResult(int resultCode, Bundle resultData) {
 					String output_string = "";
 					long msglen = 0;
 
@@ -141,9 +147,60 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 						Log.w(tag, "Wake lock release failed. No active wake lock?");
 					}
 				}
-	 		}));
+			}));
 		} else {
 			Log.d(tag, "Unknown GCM message type. Message ignored: " + extras.toString());
 		}
+	}
+
+	/**
+	 * Check the device to make sure it has the Google Play Services APK. If
+	 * it doesn't, display a dialog that allows users to download the APK from
+	 * the Google Play Store or enable it in the device's system settings.
+	 */
+	public static boolean initGCM(final Activity activity) {
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
+
+		if (resultCode != ConnectionResult.SUCCESS) {
+			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+				GooglePlayServicesUtil.getErrorDialog(resultCode, activity, 0).show();
+			} else {
+				Log.w(tag, "This device is not supported by Google Play Services");
+			}
+			return false;
+		}
+
+		String regid = prefs.getString("GCM_ID", "");
+		if (regid.isEmpty()) {
+			final String gcm_sender = prefs.getString("GCM_SENDER", "");
+			if (gcm_sender.isEmpty()) {
+				Log.w(tag, "No GCM Sender ID configured. Cannot register");
+				return false;
+			}
+
+			new AsyncTask<Void, Void, Void>() {
+				@SuppressLint("CommitPrefEdits")
+				@Override
+				protected Void doInBackground(Void... params) {
+					GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(activity);
+					String regid = "";
+
+					try {
+						regid = gcm.register(gcm_sender);
+					} catch (Exception e) {
+						Log.e(tag, "Failed to register GCM client", e);
+					}
+
+					if (!regid.isEmpty()) {
+						prefs.edit().putString("GCM_ID", regid).commit();
+					}
+
+					return null;
+				}
+			}.execute();
+		}
+
+		return true;
 	}
 }

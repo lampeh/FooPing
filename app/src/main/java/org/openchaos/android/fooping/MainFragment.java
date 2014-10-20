@@ -19,9 +19,6 @@
 
 package org.openchaos.android.fooping;
 
-import org.openchaos.android.fooping.service.PingServiceUDP;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Fragment;
@@ -29,7 +26,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -40,9 +36,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import org.openchaos.android.fooping.service.PingServiceGCM;
+import org.openchaos.android.fooping.service.PingServiceUDP;
 
 
 public class MainFragment extends Fragment {
@@ -75,7 +70,7 @@ public class MainFragment extends Fragment {
 		serviceIntent = new Intent(appContext, PingServiceUDP.class);
 
 		if (prefs.getBoolean("EnableGCM", false)) {
-			initGCM();
+			PingServiceGCM.initGCM(activity);
 		}
 
 		// NB: a pending intent does not reliably indicate a running alarm
@@ -112,55 +107,5 @@ public class MainFragment extends Fragment {
 				}
 			}
 		});
-	}
-
-	/**
-	 * Check the device to make sure it has the Google Play Services APK. If
-	 * it doesn't, display a dialog that allows users to download the APK from
-	 * the Google Play Store or enable it in the device's system settings.
-	 */
-	private boolean initGCM() {
-		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(appContext);
-
-		if (resultCode != ConnectionResult.SUCCESS) {
-			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-				GooglePlayServicesUtil.getErrorDialog(resultCode, activity, 0).show();
-			} else {
-				Log.w(tag, "This device is not supported by Google Play Services");
-			}
-			return false;
-		}
-
-		String regid = prefs.getString("GCM_ID", "");
-		if (regid.isEmpty()) {
-			final String gcm_sender = prefs.getString("GCM_SENDER", "");
-			if (gcm_sender.isEmpty()) {
-				Log.w(tag, "No GCM Sender ID configured. Cannot register");
-				return false;
-			}
-
-			new AsyncTask<Void, Void, Void>() {
-				@SuppressLint("CommitPrefEdits")
-				@Override
-				protected Void doInBackground(Void... params) {
-					GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(appContext);
-					String regid = "";
-
-					try {
-						regid = gcm.register(gcm_sender);
-					} catch (Exception e) {
-						Log.e(tag, "Failed to register GCM client", e);
-					}
-
-					if (!regid.isEmpty()) {
-						prefs.edit().putString("GCM_ID", regid).commit();
-					}
-
-					return null;
-				}
-			}.execute();
-		}
-
-		return true;
 	}
 }
