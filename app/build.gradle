@@ -61,10 +61,15 @@ android {
 	// To restore the default behavior just delete the whole block below
 	applicationVariants.all { variant ->
 		def apk = variant.outputFile;
+		def buildVers = System.getenv("BUILD_NUMBER");
 		def newName;
 
-		newName = apk.name.replace(".apk", "-" + defaultConfig.versionName + "-" + variant.buildType.name.toUpperCase() + ".apk");
-
+		newName = "-" + defaultConfig.versionName + "-";
+		if (buildVers) {
+			newName += "build" + buildVers + "-";
+		}
+		newName += variant.buildType.name.toUpperCase() + ".apk"
+		newName = apk.name.replace(".apk", newName);
 		newName = newName
 				.replace("-" + variant.buildType.name, "")
 				.replace(project.name, "FooPing");
