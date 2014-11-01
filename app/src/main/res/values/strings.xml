@@ -28,6 +28,7 @@
 	<string name="ExchangeHost">Server name</string>
 	<string name="ExchangePort">Server port</string>
 	<string name="ExchangeKey">Encryption key</string>
+	<string name="MacKey">Authentication key</string>
 	<string name="EnableGCM">Enable GCM</string>
 	<string name="GCMSenderId">GCM Sender ID</string>
 	<string name="GCMRegId">GCM Client ID</string>

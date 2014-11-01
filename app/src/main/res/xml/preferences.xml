@@ -69,6 +69,12 @@
 			android:key="ExchangeKey"
 			android:singleLine="true"
 			android:title="@string/ExchangeKey" />
+		<EditTextPreference
+			android:defaultValue="sM[N9+l8~N7Ox'7^EI&gt;s|vLkiVXo-[T"
+			android:dependency="SendAES"
+			android:key="MacKey"
+			android:singleLine="true"
+			android:title="@string/MacKey" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/GCMSettings" >
 		<SwitchPreference

@@ -57,6 +57,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
+import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 
@@ -98,8 +99,10 @@ public class PingService extends IntentService {
 
 	private boolean compress;
 	private boolean encrypt;
-	private SecretKeySpec skeySpec;
+	private SecretKeySpec cipherKey;
 	private Cipher cipher;
+	private SecretKeySpec macKey;
+	private Mac mac;
 
 
 	public PingService() {
@@ -533,21 +536,43 @@ public class PingService extends IntentService {
 
 	private Bundle prepareMessage (final JSONObject json) {
 		if (encrypt) {
-			if (skeySpec == null) {
+			if (cipherKey == null) {
 				try {
-					skeySpec = new SecretKeySpec(MessageDigest.getInstance("SHA-256")
+					cipherKey = new SecretKeySpec(MessageDigest.getInstance("SHA-256")
 							.digest(prefs.getString("ExchangeKey", null).getBytes("US-ASCII")), "AES");
 				} catch (Exception e) {
-					Log.e(tag, "Failed to set secret key", e);
+					Log.e(tag, "Failed to set cipher key", e);
 					return null;
 				}
 			}
 
+			if (macKey == null) {
+				try {
+					macKey = new SecretKeySpec(MessageDigest.getInstance("SHA-256")
+							.digest(prefs.getString("MacKey", null).getBytes("US-ASCII")), "HmacSHA1");
+				} catch (Exception e) {
+					Log.e(tag, "Failed to set mac key", e);
+					return null;
+				}
+			}
+
+			// TODO: use GCM or other AE(AD) mode (requires PyCrypto 2.7+ on the server)
+			// TODO: use associated data for flags and message counter
 			if (cipher == null) {
 				try {
 					cipher = Cipher.getInstance("AES/CFB8/NoPadding");
 				} catch (Exception e) {
 					Log.e(tag, "Failed to get cipher instance", e);
+					return null;
+				}
+			}
+
+			if (mac == null) {
+				try {
+					mac = Mac.getInstance("HmacSHA1");
+					mac.init(macKey);
+				} catch (Exception e) {
+					Log.e(tag, "Failed to get mac instance", e);
 					return null;
 				}
 			}
@@ -563,7 +588,7 @@ public class PingService extends IntentService {
 			// TODO: send protocol header to signal compression & encryption
 
 			if (encrypt) {
-				cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+				cipher.init(Cipher.ENCRYPT_MODE, cipherKey);
 				cos = new CipherOutputStream(baos, cipher);
 
 				// write iv block
@@ -584,6 +609,9 @@ public class PingService extends IntentService {
 			} else {
 				baos.write(message);
 			}
+
+			// append HMAC tag
+			baos.write(mac.doFinal(baos.toByteArray()));
 
 			final byte[] output = baos.toByteArray();
 			baos.close();
