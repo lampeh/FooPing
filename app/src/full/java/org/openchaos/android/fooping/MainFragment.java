@@ -42,7 +42,9 @@ public class MainFragment extends BaseMainFragment {
 		Activity activity = getActivity();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
 		if (prefs.getBoolean("EnableGCM", false)) {
-			initGCM(prefs, activity);
+			if (!initGCM(prefs, activity)) {
+				Log.w(tag, "initGCM() failed");
+			}
 		}
 	}
 
