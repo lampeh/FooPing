@@ -93,8 +93,8 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 			startWakefulService(context, new Intent(action, null, context, PingService.class).putExtra(PingService.EXTRA_RECEIVER, new ResultReceiver(null) {
 				@Override
 				protected void onReceiveResult(int resultCode, Bundle resultData) {
-					String output_string = "";
-					long msglen = 0;
+					String outputString = "";
+					long rawLength = 0;
 
 					Bundle data = new Bundle();
 					data.putString("action", action);
@@ -114,7 +114,7 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 							}
 
 							byte[] output = result.getByteArray(PingService.EXTRA_OUTPUT);
-							msglen += result.getLong(PingService.EXTRA_MSGLEN);
+							rawLength += result.getLong(PingService.EXTRA_MSGLEN);
 
 							if (output == null) {
 								Log.e(tag, "NULL output received");
@@ -124,15 +124,20 @@ public class PingServiceGCM extends WakefulBroadcastReceiver {
 							outputs.put(Base64.encodeToString(output, Base64.NO_WRAP));
 						}
 
-						output_string = outputs.toString();
-						data.putString("output", output_string);
+						outputString = outputs.toString();
+						data.putString("output", outputString);
 					} else {
 						Log.e(tag, "NULL results received");
 					}
 
+					long outputLength = outputString.getBytes().length;
+					if (outputLength > 4096) {
+						Log.w(tag, "Message probably too long: " + outputLength + " bytes");
+					}
+
 					try {
 						gcm.send(gcm_sender + "@gcm.googleapis.com", UUID.randomUUID().toString(), data);
-						Log.d(tag, "Message sent: " + output_string.getBytes().length + " bytes (raw: " + msglen + " bytes)");
+						Log.d(tag, "Message sent: " + outputLength + " bytes (raw: " + rawLength + " bytes)");
 					} catch (Exception e) {
 						Log.e(tag, "GCM send failed", e);
 					}
