@@ -89,7 +89,7 @@
 			<tr><td>Loc:</td><td><span id="lat_gps"></span> / <span id="lon_gps"></span></td></tr>
 			<tr id="tr_acc_gps"><td>Accuracy:</td><td>±<span id="acc_gps"></span>m</td></tr>
 			<tr id="tr_alt_gps"><td>Altitude:</td><td><span id="alt_gps"></span>m</td></tr>
-			<tr id="tr_speed_gps"><td>Speed:</td><td><span id="speed_gps"></span>m/s</td></tr>
+			<tr id="tr_speed_gps"><td>Speed:</td><td><span id="speed_gps"></span></td></tr>
 			<tr id="tr_bearing_gps"><td>Bearing:</td><td><span id="bearing_gps"></span>°</td></tr>
 		</table><br />
 		</div>
@@ -100,7 +100,7 @@
 			<tr><td>Loc:</td><td><span id="lat_net"></span> / <span id="lon_net"></span></td></tr>
 			<tr id="tr_acc_net"><td>Accuracy:</td><td>±<span id="acc_net"></span>m</td></tr>
 			<tr id="tr_alt_net"><td>Altitude:</td><td><span id="alt_net"></span>m</td></tr>
-			<tr id="tr_speed_net"><td>Speed:</td><td><span id="speed_net"></span>m/s</td></tr>
+			<tr id="tr_speed_net"><td>Speed:</td><td><span id="speed_net"></span></td></tr>
 			<tr id="tr_bearing_net"><td>Bearing:</td><td><span id="bearing_net"></span>°</td></tr>
 		</table><br />
 		</div>
@@ -217,7 +217,7 @@ var clients = {};
 					}
 					if (record.loc_gps.speed) {
 						loc_gps.speed = record.loc_gps.speed;
-						$("#speed_gps").text(loc_gps.speed);
+						$("#speed_gps").text((Math.round(loc_gps.speed*1000)/1000).toFixed(2) + "m/s (" + (Math.round(loc_gps.speed * 3600)/1000).toFixed(2) + "km/h)");
 						$("#tr_speed_gps").show();
 					} else {
 						$("#tr_speed_gps").hide();
@@ -259,7 +259,7 @@ var clients = {};
 					}
 					if (record.loc_net.speed) {
 						loc_net.speed = record.loc_net.speed;
-						$("#speed_net").text(loc_net.speed);
+						$("#speed_net").text((Math.round(loc_net.speed*1000)/1000).toFixed(2) + "m/s (" + (Math.round(loc_net.speed * 3600)/1000).toFixed(2) + "km/h)");
 						$("#tr_speed_net").show();
 					} else {
 						$("#tr_speed_net").hide();
