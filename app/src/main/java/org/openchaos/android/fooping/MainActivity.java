@@ -29,7 +29,7 @@ import android.view.MenuItem;
 
 public class MainActivity extends Activity {
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);

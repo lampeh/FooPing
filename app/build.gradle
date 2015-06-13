@@ -18,8 +18,8 @@ def getGitVersionName = { ->
 }
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
 	if (project.hasProperty('signingFromEnv')) {
 		signingConfigs {
@@ -35,7 +35,7 @@ android {
     defaultConfig {
         applicationId "org.openchaos.android.fooping"
         minSdkVersion 15
-        targetSdkVersion 20
+        targetSdkVersion 22
         versionCode 3
         versionName getGitVersionName()
     }
@@ -51,7 +51,7 @@ android {
 
     buildTypes {
 		release {
-			runProguard true
+			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 			if (project.hasProperty('signingFromEnv')) {
 				signingConfig signingConfigs.release
@@ -63,7 +63,7 @@ android {
 	// instead of "app-release.apk" this method will rewrite the name to
 	// "MyCoolCompany-MyGreatProduct-v<defaultConfig.versionName>-RELEASE.apk which is much better suited for archiving and overall handling
 	// To restore the default behavior just delete the whole block below
-	applicationVariants.all { variant ->
+	applicationVariants.each { variant ->
 		def apk = variant.outputFile;
 		def buildVers = System.getenv("BUILD_NUMBER");
 		def newName = "-" + defaultConfig.versionName + "-";
