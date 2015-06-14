@@ -3,529 +3,293 @@
 <head>
 	<title>TrackTest</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-	<meta http-equiv="Refresh" content="3600" />
-<!-- 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" /> -->
+	<meta http-equiv="Refresh" content="3600" /><!-- anti-bork refresh -->
+	<link rel="stylesheet" href="//cdn.rawgit.com/cgross/angular-busy/f2e3261a0982da1f023881a6e7e3239cb626c9a4/dist/angular-busy.css" />
 	<style type="text/css">
-		html {
-			height: 100%;
-		}
 		body {
-			height: 100%;
 			margin: 0;
 			padding: 0;
 			font-family: sans-serif;
 			font-size: 100%;
+/*			font-size: 0.8vw; */
 		}
-		td {
-			padding-left: 1em;
+		body, html, .fullheight { height: 100%; }
+		.infobox {
+			width: auto;
+			height: auto;
+			max-width: 50%;
+			min-width: 25%;
+			text-align: left;
+			position: absolute;
+			top: 1em;
 		}
-		h2 {
-			font-size: 100%;
+		.infobox .ng-enter,
+		.infobox .ng-leave.ng-leave-active {
+			transition: 0.1s linear all;
+			transform: scaleY(0);
+			line-height: 0em;
 		}
-		.loading {
-			background-image: url(loading.gif);
-			background-repeat: no-repeat;
-			background-position: center;
+		.infobox .ng-leave,
+		.infobox .ng-enter.ng-enter-active {
+			transition: 0.1s linear all;
+			transform: scaleY(1);
+			line-height: inherit;
 		}
-		.lastmod {
-			font-size: 0.5em;
+		.infobox .ng-enter-stagger,
+		.infobox .ng-leave-stagger {
+			transition-delay: 0.05s;
+			transition-duration: 0s;
+		}
+		.infobox th { font-weight: normal; text-align: center; }
+		.infobox td { padding-left: 0.5em; padding-right: 0.5em; }
+		.infobox td.numeric { text-align: right; }
+		.infobox h2 { font-size: 100%; margin-top: 0em; }
+		.infobox > div { margin-bottom: 1em; }
+		#infobox { right: 1em; z-index: 20; }
+		#infobox2 { left: 1em; z-index: 10; }
+		#infobox td { min-width: 7em; }
+		#infobox > div {
+			padding: 0.5em 0.5em;
+			border-radius: 0.5em;
+			background: rgba(255, 255, 255, .75);
 		}
 		#map_canvas {
 			width: 100%;
 			height: 100%;
 			min-height: 100%;
 		}
-		.infobox > div {
-			background: rgba(255, 255, 255, .75);
-			margin: 0.5em;
-			padding: 0em 0.5em;
-		}
-		#infobox {
-			width: auto;
-			height: auto;
-			position: absolute;
-			right: 0.5em;
-			top: 1em;
-			z-index: 2;
-			text-align: left;
-		}
-		#infobox2 {
-			width: auto;
-			height: auto;
-			max-width: 90%;
-			max-height: 20em;
-			position: absolute;
-			left: 0.5em;
-			top: 1em;
-			z-index: 1;
-			text-align: left;
-		}
-		#infobox2 > div {
-			background: rgba(255, 255, 255, 0);
-		}
-		#wifi_scan th {
-			font-weight: normal;
-			text-align: center;
-		}
-		#wifi_scan td.numeric {
-			text-align: right;
-		}
+		#wifi_scan { width: 100%; }
+		#wifi_scan td:first-child { border-radius: 0.5em 0em 0em 0.5em; }
+		#wifi_scan td:last-child { border-radius: 0em 0.5em 0.5em 0em; }
+/*
+		#wifi_scan { border-spacing: 0; }
+		#wifi_scan tr:first-child td:first-child { border-radius: 0.5em 0em 0em 0em; }
+		#wifi_scan tr:first-child td:last-child { border-radius: 0em 0.5em 0em 0em; }
+		#wifi_scan tr:last-child td:first-child { border-radius: 0em 0em 0em 0.5em; }
+		#wifi_scan tr:last-child td:last-child { border-radius: 0em 0em 0.5em 0em; }
+*/
+		[ng-cloak] { display: none !important; }
 	</style>
 </head>
-<body>
-	<div id="map_canvas"></div>
-	<div id="infobox" class="infobox">
-		<div id="ping"><h2>Last Ping:</h2>
-		<table>
-			<tr><td>Sent:</td><td><span id="pingsent"></span></td></tr>
-			<tr><td>Received:</td><td><span id="pingrcvd"></span></td></tr>
-			<tr><td>From:</td><td><span id="pingaddr"></span></td></tr>
-		</table><br />
+<body id="app" ng-controller="patras">
+	<div ng-if="!client">No data.</div>
+	<div class="fullheight" ng-if="client" ng-cloak cg-busy="{promise: loading, delay: 100, minDuration: 250, backdrop: false, message: 'Updating...'}">
+		<map id="map_canvas" center="{{(lastPosition)?([lastPosition.lat, lastPosition.lon]):([53.58, 10])}}" zoom="18" map-type-id="HYBRID" street-view-control="false" disable-default-u-i="true">
+			<marker ng-if="lastPosition" position="{{[lastPosition.lat, lastPosition.lon]}}" icon="{
+				path: {{(lastPosition.bearing !== undefined) ? (google.maps.SymbolPath.FORWARD_CLOSED_ARROW) : (google.maps.SymbolPath.CIRCLE)}},
+				scale: 8,
+				strokeWeight: 1,
+				fillColor: '#FF0000',
+				fillOpacity: 0.6,
+				anchor: {{(lastPosition.bearing !== undefined) ? (pt2) : (pt0)}},
+				rotation: {{(lastPosition.bearing) ? (lastPosition.bearing) : (0)}}
+			}"></marker>
+<!-- TODO: Think again. ng-repeat-ed circles don't update because data reload replaces the client object -->
+<!-- 			<shape name="circle" ng-repeat="(color, loc) in {green: client.loc_gps, blue: client.loc_net}" ng-if="loc && loc.acc" center="{{[loc.lat, loc.lon]}}" radius="{{loc.acc}}" clickable="false" stroke-color="{{color}}" stroke-opacity=".33" fill-color="{{color}}" fill-opacity=".25"></shape> -->
+			<shape name="circle" ng-if="client.loc_gps && client.loc_gps.acc" center="{{[client.loc_gps.lat, client.loc_gps.lon]}}" radius="{{client.loc_gps.acc}}" clickable="false" stroke-color="#00FF00" stroke-opacity=".33" fill-color="#00FF00" fill-opacity=".25"></shape>
+			<shape name="circle" ng-if="client.loc_net && client.loc_net.acc" center="{{[client.loc_net.lat, client.loc_net.lon]}}" radius="{{client.loc_net.acc}}" clickable="false" stroke-color="#0000FF" stroke-opacity=".33" fill-color="#0000FF" fill-opacity=".25"></shape>
+		</map>
+		<div id="infobox" class="infobox">
+			<div>
+				<h2>Last Ping:</h2>
+				<table>
+					<tr><td>Sent:</td><td ng-bind="client.ts | date:'medium'"></td></tr>
+					<tr><td>Received:</td><td ng-bind="client.ts_rcvd | date:'medium'"></tr>
+					<tr><td>From:</td><td ng-bind="client.ipaddr"></td></tr>
+				</table>
+			</div>
+			<div ng-if="client.loc_gps">
+				<h2>Last known GPS location:</h2>
+				<table>
+					<tr><td>At:</td><td ng-bind="client.loc_gps.ts | date:'medium'"></td></tr>
+					<tr><td>Address:</td><td><reverse-geocode ng-model="client.loc_gps"></reverse-geocode></td></tr>
+					<tr><td>Loc:</td><td><span ng-bind="client.loc_gps.lat"></span> / <span ng-bind="client.loc_gps.lon"></span></td></tr>
+					<tr ng-hide="client.loc_gps.alt === undefined"><td>Altitude:</td><td ng-bind="client.loc_gps.alt + 'm'"></td></tr>
+					<tr ng-show="client.loc_gps.speed"><td>Speed:</td><td ng-bind="(client.loc_gps.speed | number:2) + 'm/s (' + (client.loc_gps.speed * 3.6 | number:2) + 'km/h)'"></td></tr>
+					<tr ng-hide="client.loc_gps.bearing === undefined"><td>Bearing:</td><td ng-bind="client.loc_gps.bearing + '°'"></td></tr>
+					<tr ng-hide="client.loc_gps.acc === undefined"><td>Accuracy:</td><td ng-bind="'±' + client.loc_gps.acc + 'm'"></td></tr>
+				</table>
+			</div>
+			<div ng-if="client.loc_net">
+				<h2>Last known Network location:</h2>
+				<table>
+					<tr><td>At:</td><td ng-bind="client.loc_net.ts | date:'medium'"></td></tr>
+					<tr><td>Address:</td><td><reverse-geocode ng-model="client.loc_net"></reverse-geocode></td></tr>
+					<tr><td>Loc:</td><td><span ng-bind="client.loc_net.lat"></span> / <span ng-bind="client.loc_net.lon"></span></td></tr>
+					<tr ng-hide="client.loc_net.alt === undefined"><td>Altitude:</td><td ng-bind="client.loc_net.alt + 'm'"></td></tr>
+					<tr ng-show="client.loc_net.speed"><td>Speed:</td><td ng-bind="(client.loc_net.speed | number:2) + 'm/s (' + (client.loc_net.speed * 3.6 | number:2) + 'km/h)'"></td></tr>
+					<tr ng-hide="client.loc_net.bearing === undefined"><td>Bearing:</td><td ng-bind="client.loc_net.bearing + '°'"></td></tr>
+					<tr ng-hide="client.loc_net.acc === undefined"><td>Accuracy:</td><td ng-bind="'±' + client.loc_net.acc + 'm'"></td></tr>
+				</table>
+			</div>
+			<div ng-if="client.battery">
+				<h2>Battery status:</h2>
+				<table>
+					<tr><td>Level:</td><td ng-bind="(client.battery.pct | number:0) + '%'"></td></tr>
+					<tr><td>Status:</td><td ng-bind="client.battery.status | bat:'status'"></td></tr>
+					<tr><td>Plug:</td><td ng-bind="client.battery.plug | bat:'plug'"></td></tr>
+					<tr><td>Health:</td><td ng-bind="client.battery.health | bat:'health'"></td></tr>
+					<tr><td>Temperature:</td><td ng-bind="(client.battery.temp / 10 | number:1) + '°C'"></td></tr>
+					<tr><td>Voltage:</td><td ng-bind="(client.battery.volt / 1000 | number:3) + 'V'"></td></tr>
+					<!-- <tr><td>Technology:</td><td ng-bind="client.battery.tech"></td></tr> -->
+				</table>
+			</div>
+			<div ng-if="client.conn_active">
+				<h2>Connection status:</h2>
+				<table>
+					<tr><td>Type:</td><td ng-bind="client.conn_active.type"></td></tr>
+					<tr ng-show="client.conn_active.extra"><td>Extra:</td><td ng-bind="client.conn_active.extra"></td></tr>
+					<tr ng-show="client.conn_active.subtype"><td>Sub-Type:</td><td ng-bind="client.conn_active.subtype"></td></tr>
+					<tr><td>Connected:</td><td ng-bind="client.conn_active.connected"></td></tr>
+					<tr ng-show="client.conn_active.failover"><td>Failover:</td><td ng-bind="client.conn_active.failover"></td></tr>
+					<tr ng-show="client.conn_active.roaming"><td>Roaming:</td><td ng-bind="client.conn_active.roaming"></td></tr>
+					<tr ng-show="client.conn_active.reason"><td>Reason:</td><td ng-bind="client.conn_active.reason"></td></tr>
+				</table>
+			</div>
+<!-- 
+<div>
+<input type="text" ng-model="client_id" ng-change="updateClient(client_id)" />
+<div ng-repeat="(client_id, data) in clients">{{client_id}}</div>
+</div>
+-->
 		</div>
-		<div id="loc_gps"><h2>Last known GPS location:</h2>
-		<table>
-			<tr><td>At:</td><td><span id="ts_gps"></span></td></tr>
-			<tr id="tr_addr_gps"><td>Address:</td><td><span id="addr_gps"></span></td></tr>
-			<tr><td>Loc:</td><td><span id="lat_gps"></span> / <span id="lon_gps"></span></td></tr>
-			<tr id="tr_acc_gps"><td>Accuracy:</td><td>±<span id="acc_gps"></span>m</td></tr>
-			<tr id="tr_alt_gps"><td>Altitude:</td><td><span id="alt_gps"></span>m</td></tr>
-			<tr id="tr_speed_gps"><td>Speed:</td><td><span id="speed_gps"></span></td></tr>
-			<tr id="tr_bearing_gps"><td>Bearing:</td><td><span id="bearing_gps"></span>°</td></tr>
-		</table><br />
-		</div>
-		<div id="loc_net"><h2>Last known Network location:</h2>
-		<table>
-			<tr><td>At:</td><td><span id="ts_net"></span></td></tr>
-			<tr id="tr_addr_net"><td>Address:</td><td><span id="addr_net"></span></td></tr>
-			<tr><td>Loc:</td><td><span id="lat_net"></span> / <span id="lon_net"></span></td></tr>
-			<tr id="tr_acc_net"><td>Accuracy:</td><td>±<span id="acc_net"></span>m</td></tr>
-			<tr id="tr_alt_net"><td>Altitude:</td><td><span id="alt_net"></span>m</td></tr>
-			<tr id="tr_speed_net"><td>Speed:</td><td><span id="speed_net"></span></td></tr>
-			<tr id="tr_bearing_net"><td>Bearing:</td><td><span id="bearing_net"></span>°</td></tr>
-		</table><br />
-		</div>
-		<div id="battery"><h2>Battery status:</h2>
-		<table>
-			<tr><td>Level:</td><td><span id="bat_level"></span>%</td></tr>
-			<tr><td>Status:</td><td><span id="bat_status"></span></td></tr>
-			<tr><td>Plug:</td><td><span id="bat_plug"></span></td></tr>
-			<tr><td>Health:</td><td><span id="bat_health"></span></td></tr>
-			<tr><td>Temperature:</td><td><span id="bat_temp"></span>°C</td></tr>
-			<tr><td>Voltage:</td><td><span id="bat_volt"></span>V</td></tr>
-			<tr style="display:none"><td>Technology:</td><td><span id="bat_tech"></span></td></tr>
-		</table><br />
-		</div>
-		<div id="conn"><h2>Connection status:</h2>
-		<table>
-			<tr><td>Type:</td><td><span id="conn_type"></span><span id="tr_conn_extra"> (<span id="conn_extra"></span>)</span></td></tr>
-			<tr id="tr_conn_subtype"><td>Sub-Type:</td><td><span id="conn_subtype"></span></td></tr>
-			<tr style="display:none"><td>Connected:</td><td><span id="conn_connected"></span></td></tr>
-			<tr id="tr_conn_failover"><td>Failover:</td><td><span id="conn_failover"></span></td></tr>
-			<tr id="tr_conn_roaming"><td>Roaming:</td><td><span id="conn_roaming"></span></td></tr>
-			<tr id="tr_conn_reason"><td>Reason:</td><td><span id="conn_reason"></span></td></tr>
-		</table><br />
+		<div id="infobox2" class="infobox">
+			<div ng-if="client.wifi">
+<!-- 				<h2>Wifi scan:</h2> -->
+				<table id="wifi_scan">
+<!-- 					<tr><th>SSID</th><th>BSSID</th><th>Level</th><th>Frequency</th></tr> -->
+					<tr ng-repeat="wifi in client.wifi | orderBy:['-level','BSSID'] track by [wifi.BSSID, wifi.SSID]" style="background-color: {{wifi.level | wifi_level_rgba}}">
+						<td ng-bind="(wifi.SSID === '') ? ('<hidden>') : (wifi.SSID)"></td>
+						<td ng-bind="wifi.BSSID"></td>
+						<td class="numeric" ng-bind="wifi.level + ' dBm'"></td>
+						<td class="numeric" ng-bind="((wifi.freq / 1000) | number:3) + ' GHz'"></td>
+					</tr>
+				</table>
+			</div>
 		</div>
 	</div>
-	<div id="infobox2" class="infobox">
-		<div id="wifi_scan"><!-- <h2>WIFI scan:</h2> -->
-		<table id="wifi_table">
-		</table><!-- <br /> -->
-		</div>
-	</div>
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false&language=de"></script>
-	<script type="text/javascript">
-$(function() {
-var mapTypeId = google.maps.MapTypeId.HYBRID;
-var centerLat = 53.578137;
-var centerLon = 9.997044;
-var zoom = 18;
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
+	<script src="//cdn.rawgit.com/allenhwkim/angularjs-google-maps/6222e29fc97d3353fd29bc0f6196925c315d09ee/build/scripts/ng-map.min.js"></script>
+	<script src="//cdn.rawgit.com/cgross/angular-busy/f2e3261a0982da1f023881a6e7e3239cb626c9a4/dist/angular-busy.min.js"></script>
+	<script>
+"use strict";
+angular.module("patras", ["ngAnimate", "ngMap", "cgBusy"])
+.controller("patras", ["$scope", "$http", "$interval", function($scope, $http, $interval) {
+	// TODO: think again. weird fix for icon anchor
+	$scope.pt0 = new google.maps.Point(0, 0);
+	$scope.pt2 = new google.maps.Point(0, 2.3);
 
-var lastmod = "";
-
-var map = new google.maps.Map(document.getElementById("map_canvas"), {
-	center: new google.maps.LatLng(centerLat, centerLon),
-	zoom: zoom,
-	mapTypeId: mapTypeId,
-	streetViewControl: false,
-	disableDefaultUI: true
-});
-
-var geocoder = new google.maps.Geocoder();
-
-var clients = {};
-
-(function updateVars() {
-	$(".infobox").addClass("loading");
-
-	$.ajax({
-		url: "/data.json",
-		dataType: "json",
-		type: "GET",
-		ifModified: true,
-		success: function(data, status, xhr) {
-			if (status === "notmodified") {
+	($scope.loadData = function() {
+		$scope.loading = $http.get("data.json").success(function(data) {
+			if (!data.length) {
 				return;
 			}
 
-			var lastmod_new = xhr.getResponseHeader("Last-Modified");
-			if (lastmod_new === lastmod) {
-				return;
-			}
-			lastmod = lastmod_new;
+			// TODO: don't break all references to objects within $scope.client
+			$scope.clients = data[0];
 
 			// TODO: support multiple clients
-			$.each(data, function(i, client_record) {
+			$scope.client_id = Object.keys($scope.clients)[0];
+			$scope.updateClient($scope.client_id);
+		});
+	})();
 
-			$.each(client_record, function(i, record) {
-				var client = {};
-				client.ts = record.ts;
-				client.id = record.client;
+	var stopInterval = $interval($scope.loadData, 33333);
 
-				$("#pingsent").text(new Date(record.ts).toLocaleString());
-
-				if (lastmod) {
-					$("#pingrcvd").text(new Date(lastmod).toLocaleString());
-					$("#ping > table").effect("highlight");
-				}
-
-				$("#pingaddr").text((record.ipaddr)?(record.ipaddr):(""));
-
-				var loc_gps = {};
-				if (record.loc_gps) {
-					loc_gps.ts = record.loc_gps.ts;
-					$("#ts_gps").text(new Date(loc_gps.ts).toLocaleString());
-					loc_gps.lat = record.loc_gps.lat;
-					$("#lat_gps").text(loc_gps.lat);
-					loc_gps.lon = record.loc_gps.lon;
-					$("#lon_gps").text(loc_gps.lon);
-
-					if (record.loc_gps.alt) {
-						loc_gps.alt = record.loc_gps.alt;
-						$("#alt_gps").text(loc_gps.alt);
-						$("#tr_alt_gps").show();
-					} else {
-						$("#tr_alt_gps").hide();
-					}
-					if (record.loc_gps.acc) {
-						loc_gps.acc = record.loc_gps.acc;
-						$("#acc_gps").text(loc_gps.acc);
-						$("#tr_acc_gps").show();
-					} else {
-						$("#tr_acc_gps").hide();
-					}
-					if (record.loc_gps.speed) {
-						loc_gps.speed = record.loc_gps.speed;
-						$("#speed_gps").text((Math.round(loc_gps.speed*1000)/1000).toFixed(2) + "m/s (" + (Math.round(loc_gps.speed * 3600)/1000).toFixed(2) + "km/h)");
-						$("#tr_speed_gps").show();
-					} else {
-						$("#tr_speed_gps").hide();
-					}
-					if (record.loc_gps.bearing) {
-						loc_gps.bearing = record.loc_gps.bearing;
-						$("#bearing_gps").text(loc_gps.bearing);
-						$("#tr_bearing_gps").show();
-					} else {
-						$("#tr_bearing_gps").hide();
-					}
-					$("#loc_gps").show();
-				} else {
-					$("#loc_gps").hide();
-				}
-
-				var loc_net = {};
-				if (record.loc_net) {
-					loc_net.ts = record.loc_net.ts;
-					$("#ts_net").text(new Date(loc_net.ts).toLocaleString());
-					loc_net.lat = record.loc_net.lat;
-					$("#lat_net").text(loc_net.lat);
-					loc_net.lon = record.loc_net.lon;
-					$("#lon_net").text(loc_net.lon);
-
-					if (record.loc_net.alt) {
-						loc_net.alt = record.loc_net.alt;
-						$("#alt_net").text(loc_net.alt);
-						$("#tr_alt_net").show();
-					} else {
-						$("#tr_alt_net").hide();
-					}
-					if (record.loc_net.acc) {
-						loc_net.acc = record.loc_net.acc;
-						$("#acc_net").text(loc_net.acc);
-						$("#tr_acc_net").show();
-					} else {
-						$("#tr_acc_net").hide();
-					}
-					if (record.loc_net.speed) {
-						loc_net.speed = record.loc_net.speed;
-						$("#speed_net").text((Math.round(loc_net.speed*1000)/1000).toFixed(2) + "m/s (" + (Math.round(loc_net.speed * 3600)/1000).toFixed(2) + "km/h)");
-						$("#tr_speed_net").show();
-					} else {
-						$("#tr_speed_net").hide();
-					}
-					if (record.loc_net.bearing) {
-						loc_net.bearing = record.loc_net.bearing;
-						$("#bearing_net").text(loc_net.bearing);
-						$("#tr_bearing_net").show();
-					} else {
-						$("#tr_bearing_net").hide();
-					}
-					$("#loc_net").show();
-				} else {
-					$("#loc_net").hide();
-				}
-
-				var bat = {};
-				if (record.battery) {
-					bat.level = record.battery.pct;
-					$("#bat_level").text(bat.level);
-					bat.status = record.battery.status;
-					switch (bat.status) {
-						case 1: $("#bat_status").text("unknown"); break;
-						case 2: $("#bat_status").text("charging"); break;
-						case 3: $("#bat_status").text("discharging"); break;
-						case 4: $("#bat_status").text("not charging"); break;
-						case 5: $("#bat_status").text("full"); break;
-						default: $("#bat_status").text(bat.status);
-					}
-					bat.plug = record.battery.plug;
-					switch (bat.plug) {
-						case 0: $("#bat_plug").text("unplugged"); break;
-						case 1: $("#bat_plug").text("AC charger"); break;
-						case 2: $("#bat_plug").text("USB"); break;
-						case 4: $("#bat_plug").text("wireless"); break;
-						default: $("#bat_plug").text(bat.plug);
-					}
-					bat.health = record.battery.health;
-					switch (bat.health) {
-						case 1: $("#bat_health").text("unknown"); break;
-						case 2: $("#bat_health").text("good"); break;
-						case 3: $("#bat_health").text("overheat"); break;
-						case 4: $("#bat_health").text("dead"); break;
-						case 5: $("#bat_health").text("overvoltage"); break;
-						case 6: $("#bat_health").text("failed"); break;
-						case 7: $("#bat_health").text("cold"); break;
-						default: $("#bat_health").text(bat.health);
-					}
-					bat.temp = record.battery.temp;
-					$("#bat_temp").text(bat.temp/10);
-/*
-					bat.present = record.battery.present;
-					$("#bat_present").text(bat.present);
-*/
-					bat.tech = record.battery.tech;
-					$("#bat_tech").text(bat.tech);
-					bat.volt = record.battery.volt;
-					$("#bat_volt").text(bat.volt / 1000);
-//					$("#battery").show();
-				} else {
-					$("#battery").hide();
-				}
-
-				if (record.wifi && record.wifi.length) {
-					record.wifi.sort(function(a, b){ return (b.level - a.level); });
-//					$("#wifi_table").html("<tr><th>SSID</th><th>BSSID</th><th>Level</th><th>Frequency</th></tr>");
-					$("#wifi_table").empty();
-					$.each(record.wifi, function(i, record) {
-						level = Math.max(-90, Math.min(-40, parseInt(record.level)));
-						level_scaled = Math.round((level + 40) * -(255/50)); // TODO: log scaling?
-						$("#wifi_table").append($("<tr>").css("background-color", "rgba(" + level_scaled + ", 255, " + level_scaled + ", .8)")
-							.append($("<td>").text((record.SSID === "")?("<hidden>"):(record.SSID)))
-							.append($("<td>").text(record.BSSID))
-							.append($("<td>").text(record.level + " dBm").addClass("numeric"))
-							.append($("<td>").text(record.freq/1000 + " GHz").addClass("numeric")));
-					});
-					$("#wifi_scan").show();
-//					$("#wifi_table").show();
-				} else {
-					$("#wifi_scan").hide();
-//					$("#wifi_table").hide();
-				}
-
-				if (record.conn_active) {
-					$("#conn_type").text(record.conn_active.type);
-					$("#conn_connected").text(record.conn_active.connected);
-					if (record.conn_active.subtype) {
-						$("#conn_subtype").text(record.conn_active.subtype);
-						$("#tr_conn_subtype").show();
-					} else {
-						$("#tr_conn_subtype").hide();
-					}
-					if (record.conn_active.extra) {
-						$("#conn_extra").text(record.conn_active.extra);
-						$("#tr_conn_extra").show();
-					} else {
-						$("#tr_conn_extra").hide();
-					}
-					if (record.conn_active.failover) {
-						$("#conn_failover").text(record.conn_active.failover);
-						$("#tr_conn_failover").show();
-					} else {
-						$("#tr_conn_failover").hide();
-					}
-					if (record.conn_active.roaming) {
-						$("#conn_roaming").text(record.conn_active.roaming);
-						$("#tr_conn_roaming").show();
-					} else {
-						$("#tr_conn_roaming").hide();
-					}
-					if (record.conn_active.reason) {
-						$("#conn_reason").text(record.conn_active.reason);
-						$("#tr_conn_reason").show();
-					} else {
-						$("#tr_conn_reason").hide();
-					}
-				}
-
-				client.loc_gps = loc_gps;
-				client.loc_net = loc_net;
-				client.bat = bat;
-
-				var thisclient = null;
-
-				var marker_gps = null;
-				var circle_gps = null;
-
-				var marker_net = null;
-				var circle_net = null;
-
-				if (clients[client.id]) {
-					thisclient = clients[client.id];
-
-					marker_gps = thisclient.marker_gps;
-					circle_gps = thisclient.circle_gps;
-
-					marker_net = thisclient.marker_net;
-					circle_net = thisclient.circle_net;
-				}
-				
-				if (!$.isEmptyObject(loc_gps)) {
-					if (!marker_gps) {
-						marker_gps = new google.maps.Marker({
-//							icon: new google.maps.MarkerImage("//maps.google.com/mapfiles/ms/icons/red-dot.png")
-						});
-					}
-
-					marker_gps.setOptions({
-						position: new google.maps.LatLng(loc_gps.lat, loc_gps.lon),
-						map: map,
-						icon: {
-							path: (loc_gps.bearing) ? (google.maps.SymbolPath.FORWARD_CLOSED_ARROW) : (google.maps.SymbolPath.CIRCLE),
-							scale: 8,
-							strokeWeight: 1,
-							fillColor: '#FF0000',
-							fillOpacity: 0.6,
-							anchor: (loc_gps.bearing) ? (new google.maps.Point(0, 2)) : (new google.maps.Point(0, 0)),
-							rotation: (loc_gps.bearing) ? (loc_gps.bearing) : (0)
-						}
-					});
-
-					if (loc_gps.acc) {
-						if (!circle_gps) {
-							circle_gps = new google.maps.Circle({
-								clickable: false,
-								strokeOpacity: .33,
-								strokeColor: "#00FF00",
-								fillColor: "#00FF00",
-								fillOpacity: .25
-							});
-						}
-
-						circle_gps.setOptions({
-							center: new google.maps.LatLng(loc_gps.lat, loc_gps.lon),
-							radius: (loc_gps.acc > 0)?(loc_gps.acc):(0.01),
-							map: map
-						});
-					} else if (circle_gps) {
-						circle_gps.setMap(null);
-					}
-
-					map.panTo(new google.maps.LatLng(loc_gps.lat, loc_gps.lon));
-
-					// TODO: improve ugly if clause
-					if (!thisclient || $.isEmptyObject(thisclient.loc_gps) ||
-							(thisclient.loc_gps.lat != loc_gps.lat || thisclient.loc_gps.lon != loc_gps.lon)) {
-						geocoder.geocode({"latLng": new google.maps.LatLng(loc_gps.lat, loc_gps.lon)}, function(results, status) {
-							if (status === google.maps.GeocoderStatus.OK && results[0]) {
-								$("#addr_gps").text(results[0].formatted_address);
-								$("#tr_addr_gps").show();
-							} else {
-								$("#tr_addr_gps").hide();
-							}
-						});
-						$("#loc_gps > table").effect("highlight");
-					}
-				}
-
-				if (!$.isEmptyObject(loc_net)) {
-/*
-					if (marker_net) {
-						marker_net.setPosition(new google.maps.LatLng(loc_net.lat, loc_net.lon));
-					} else {
-						marker_net = new google.maps.Marker({
-							position: new google.maps.LatLng(loc_net.lat, loc_net.lon),
-							map: map,
-							icon: new google.maps.MarkerImage("//maps.google.com/mapfiles/ms/icons/red.png")
-						});
-					}
-*/
-
-					if (loc_net.acc) {
-						if (!circle_net) {
-							circle_net = new google.maps.Circle({
-								clickable: false,
-								strokeOpacity: .33,
-								strokeColor: "#0000FF",
-								fillColor: "#0000FF",
-								fillOpacity: .25
-							});
-						}
-
-						circle_net.setOptions({
-							center: new google.maps.LatLng(loc_net.lat, loc_net.lon),
-							radius: (loc_net.acc > 0)?(loc_net.acc):(0.01),
-							map: map
-						});
-					} else if (circle_net) {
-						circle_net.setMap(null);
-					}
-
-					if (!thisclient || $.isEmptyObject(thisclient.loc_net) ||
-							(thisclient.loc_net.lat != loc_net.lat || thisclient.loc_net.lon != loc_net.lon)) {
-						geocoder.geocode({"latLng": new google.maps.LatLng(loc_net.lat, loc_net.lon)}, function(results, status) {
-							if (status === google.maps.GeocoderStatus.OK && results[0]) {
-								$("#addr_net").text(results[0].formatted_address);
-								$("#tr_addr_net").show();
-							} else {
-								$("#tr_addr_net").hide();
-							}
-						});
-						$("#loc_net > table").effect("highlight");
-					}
-				}
-
-				if (!thisclient) {
-					thisclient = client;
-				}
-
-				thisclient.marker_gps = marker_gps;
-				thisclient.circle_gps = circle_gps;
-
-				thisclient.marker_net = marker_net;
-				thisclient.circle_net = circle_net;
-
-				clients[client.id] = thisclient;
-			});
-			});
-		},
-		complete: function() {
-			$(".infobox").removeClass("loading");
-			setTimeout(updateVars, 22222);
-		}
+	$scope.$on("$destroy", function() {
+		$interval.cancel(stopInterval);
 	});
-})();
+
+	$scope.updateClient = function(client_id) {
+		$scope.clients[client_id] && ($scope.client = $scope.clients[client_id]);
+		// TODO: use recent best location
+		$scope.lastPosition = ($scope.client.loc_gps && $scope.client.loc_net)?(($scope.client.loc_net.ts > $scope.client.loc_gps.ts + 62000)?($scope.client.loc_net):($scope.client.loc_gps)):(($scope.client.loc_gps)?($scope.client.loc_gps):(($scope.client.loc_net)?($scope.client.loc_net):(undefined)));
+	}
+
+}])
+.filter("bat", function() {
+	return function(input, filterType) {
+		const bat_maps = {
+			"status": ["invalid", "unknown", "charging", "discharging", "not charging", "full"],
+			"plug": ["unplugged", "AC charger", "USB", "wireless"],
+			"health": ["invalid", "unknown", "good", "overheat", "dead", "overvoltage", "failed", "cold"]
+		};
+
+		if (input < 0 || !filterType || !bat_maps[filterType] || input >= bat_maps[filterType].length) {
+			return "invalid";
+		}
+
+		return bat_maps[filterType][input];
+	}
+})
+.filter("wifi_level_rgba", function() {
+	return function(input) {
+		var level = Math.max(-90, Math.min(-40, parseInt(input)));
+		var level_scaled = Math.round((level + 40) * -(255/50)); // TODO: log scaling?
+		return "rgba(" + level_scaled + ", 255, " + level_scaled + ", .8)";
+	}
+})
+.directive("reverseGeocode", function() {
+	return {
+		restrict: "E",
+//		scope: { ngModel: "@" },
+		link: function(scope, element, attrs) {
+			// TODO: proper use of ngModel
+			scope.$watch(attrs.ngModel, function(newValues, oldValues) {
+				if (newValues === undefined || newValues.lat === undefined || newValues.lon === undefined) {
+					return;
+				}
+
+				oldValues = oldValues || {};
+
+				// watch triggers on every data reload because the watched object is replaced.
+				// actual contents might be the same. initial function call receives identical references
+				var unchanged = angular.equals([newValues.lat, newValues.lon], [oldValues.lat, oldValues.lon]) && newValues !== oldValues;
+
+				if (unchanged) {
+					return;
+				}
+
+				(scope.geocoder || (scope.geocoder = new google.maps.Geocoder())).geocode({ latLng: new google.maps.LatLng(newValues.lat, newValues.lon) }, function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
+							element.text(results[0].formatted_address);
+						} else {
+							element.text("Unknown location");
+						}
+					} else {
+						element.text("Geocoder failed: " + status);
+					}
+				});
+			});
+		}
+	}
 });
+
+window.onMapsReady = function() {
+	angular.bootstrap(document.getElementById("app"), ["patras"]);
+}
 	</script>
+	<script src="//maps.googleapis.com/maps/api/js?sensor=false&amp;callback=onMapsReady"></script>
 </body>
+<!-- 
+/*!
+ * FooPing - https://github.com/lampeh/FooPing
+ * Copyright 2015 Hauke Lampe
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
 </html>
