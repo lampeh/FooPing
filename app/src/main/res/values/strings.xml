@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">FooPing</string>
+	<string name="app_desc">The Foo Pinger</string>
+	<string name="start">Start</string>
+	<string name="stop">Stop</string>
+	<string name="alarm_started">Ping started</string>
+	<string name="alarm_stopped">Ping cancelled</string>
+	<string name="alarm_running">Ping running</string>
+	<string name="Settings">Preferences</string>
+	<string name="DataSettings">Data sources</string>
+	<string name="UpdateInterval">Update interval</string>
+	<string name="ClientSettings">Client</string>
+	<string name="ServerSettings">Server</string>
+	<string name="GCMSettings">Remote control</string>
+	<string name="UseBattery">Battery status</string>
+	<string name="UseWIFI">Cached WIFI scan</string>
+	<string name="UseGPS">Cached GPS location</string>
+	<string name="UseNetwork">Cached Network location</string>
+	<string name="UseSensors">Sensor readings</string>
+	<string name="UseConn">Connection status</string>
+	<string name="UseConnActive">Active connection</string>
+	<string name="UseConnAll">All connections</string>
+	<string name="SendGZIP">Compression</string>
+	<string name="SendAES">Encryption</string>
+	<string name="StartOnBoot">Start service on boot</string>
+	<string name="ClientID">Client ID</string>
+	<string name="ExchangeHost">Server name</string>
+	<string name="ExchangePort">Server port</string>
+	<string name="ExchangeKey">Encryption key</string>
+	<string name="MacKey">Authentication key</string>
+	<string name="EnableGCM">Enable GCM</string>
+	<string name="GCMSenderId">GCM Sender ID</string>
+	<string name="GCMRegId">GCM Client ID</string>
+	<string name="GCMSenderIdDefault">504921171975</string>
+</resources>

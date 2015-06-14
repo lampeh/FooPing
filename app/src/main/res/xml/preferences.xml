@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<PreferenceCategory android:title="@string/DataSettings" >
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseConn"
+			android:title="@string/UseConn" />
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseBattery"
+			android:title="@string/UseBattery" />
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseWIFI"
+			android:title="@string/UseWIFI" />
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="UseGPS"
+			android:title="@string/UseGPS" />
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="UseNetwork"
+			android:title="@string/UseNetwork" />
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="UseSensors"
+			android:title="@string/UseSensors" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/ClientSettings" >
+		<EditTextPreference
+			android:defaultValue="unconfigured"
+			android:key="ClientID"
+			android:singleLine="true"
+			android:title="@string/ClientID" />
+		<!--  TODO: use custom SeekBarPreference -->
+		<EditTextPreference
+			android:defaultValue="3600"
+			android:inputType="number"
+			android:key="UpdateInterval"
+			android:title="@string/UpdateInterval" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="StartOnBoot"
+			android:title="@string/StartOnBoot" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/ServerSettings" >
+		<EditTextPreference
+			android:defaultValue="patras.openchaos.org"
+			android:key="ExchangeHost"
+			android:singleLine="true"
+			android:title="@string/ExchangeHost" />
+		<EditTextPreference
+			android:defaultValue="23042"
+			android:inputType="number"
+			android:key="ExchangePort"
+			android:maxLength="5"
+			android:title="@string/ExchangePort" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="SendGZIP"
+			android:title="@string/SendGZIP" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="SendAES"
+			android:title="@string/SendAES" />
+		<EditTextPreference
+			android:defaultValue="m!ToSC]vb=:&lt;b&amp;XL.|Yq#LYE{V+$Mc~y"
+			android:dependency="SendAES"
+			android:key="ExchangeKey"
+			android:singleLine="true"
+			android:title="@string/ExchangeKey" />
+		<EditTextPreference
+			android:defaultValue="sM[N9+l8~N7Ox'7^EI&gt;s|vLkiVXo-[T"
+			android:dependency="SendAES"
+			android:key="MacKey"
+			android:singleLine="true"
+			android:title="@string/MacKey" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/GCMSettings" >
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="EnableGCM"
+			android:title="@string/EnableGCM" />
+		<EditTextPreference
+			android:defaultValue="@string/GCMSenderIdDefault"
+			android:inputType="number"
+			android:dependency="EnableGCM"
+			android:key="GCM_SENDER"
+			android:singleLine="true"
+			android:title="@string/GCMSenderId" />
+		<EditTextPreference
+			android:defaultValue=""
+			android:dependency="EnableGCM"
+			android:key="GCM_ID"
+			android:singleLine="false"
+			android:title="@string/GCMRegId" />
+	</PreferenceCategory>
+</PreferenceScreen>

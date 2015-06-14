@@ -1,0 +1,95 @@
+apply plugin: 'com.android.application'
+
+
+// Version name from git-describe
+// http://stackoverflow.com/a/18021756
+def getGitVersionName = { ->
+	try {
+		def stdout = new ByteArrayOutputStream()
+		exec {
+			commandLine 'git', 'describe', '--tags', '--dirty'
+			standardOutput = stdout
+		}
+		return stdout.toString().trim()
+	}
+	catch (ignored) {
+		return null;
+	}
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
+
+	lintOptions {
+		abortOnError false
+	}
+
+	if (project.hasProperty('signingFromEnv')) {
+		signingConfigs {
+			release {
+				storeFile file(System.getenv("KEYSTORE"))
+				storePassword System.getenv("KEYSTORE_PASSWORD")
+				keyAlias System.getenv("KEY_ALIAS")
+				keyPassword System.getenv("KEY_PASSWORD")
+			}
+		}
+	}
+
+    defaultConfig {
+        applicationId "org.openchaos.android.fooping"
+        minSdkVersion 15
+        targetSdkVersion 22
+        versionCode 3
+        versionName getGitVersionName()
+    }
+
+	productFlavors {
+		full {
+		}
+		nogcm {
+			applicationId "org.openchaos.android.fooping.nogcm"
+			versionName getGitVersionName() + "-NOGCM"
+		}
+	}
+
+    buildTypes {
+		release {
+			minifyEnabled true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+			if (project.hasProperty('signingFromEnv')) {
+				signingConfig signingConfigs.release
+			}
+		}
+    }
+
+	// https://gist.github.com/stefanhoth/faedeb4c58615992937d
+	// instead of "app-release.apk" this method will rewrite the name to
+	// "MyCoolCompany-MyGreatProduct-v<defaultConfig.versionName>-RELEASE.apk which is much better suited for archiving and overall handling
+	// To restore the default behavior just delete the whole block below
+	applicationVariants.each { variant ->
+		def apk = variant.outputFile;
+		def buildVers = System.getenv("BUILD_NUMBER");
+		def newName = "-" + defaultConfig.versionName + "-";
+
+		if (buildVers) {
+			newName += "build" + buildVers + "-";
+		}
+		newName += variant.buildType.name.toUpperCase() + ".apk"
+		newName = apk.name.replace("-" + variant.buildType.name, "")
+				.replace(project.name, "FooPing")
+				.replace(".apk", newName);
+
+		variant.outputFile = new File(apk.parentFile, newName);
+
+		logger.info('INFO: Set outputFile to ' + variant.outputFile + " for [" + variant.name + "]");
+	}
+}
+
+dependencies {
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+	//noinspection GradleDynamicVersion
+	fullCompile 'com.google.android.gms:play-services:+'
+	//noinspection GradleDynamicVersion
+	compile 'com.android.support:support-v4:22.+'
+}

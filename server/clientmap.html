@@ -19,14 +19,13 @@
 		td {
 			padding-left: 1em;
 		}
-		.infobox {
-			background: rgba(255, 255, 255, .6);
-			padding: 0.5em;
+		h2 {
+			font-size: 100%;
 		}
 		.loading {
 			background-image: url(loading.gif);
 			background-repeat: no-repeat;
-			background-position: left top;
+			background-position: center;
 		}
 		.lastmod {
 			font-size: 0.5em;
@@ -36,14 +35,33 @@
 			height: 100%;
 			min-height: 100%;
 		}
+		.infobox > div {
+			background: rgba(255, 255, 255, .75);
+			margin: 0.5em;
+			padding: 0em 0.5em;
+		}
 		#infobox {
 			width: auto;
 			height: auto;
 			position: absolute;
-			right: 10em;
-			top: 0.5em;
+			right: 0.5em;
+			top: 1em;
+			z-index: 2;
+			text-align: left;
+		}
+		#infobox2 {
+			width: auto;
+			height: auto;
+			max-width: 90%;
+			max-height: 20em;
+			position: absolute;
+			left: 0.5em;
+			top: 1em;
 			z-index: 1;
 			text-align: left;
+		}
+		#infobox2 > div {
+			background: rgba(255, 255, 255, 0);
 		}
 		#wifi_scan th {
 			font-weight: normal;
@@ -57,35 +75,36 @@
 <body>
 	<div id="map_canvas"></div>
 	<div id="infobox" class="infobox">
-		<div>Last Ping:
+		<div id="ping"><h2>Last Ping:</h2>
 		<table>
 			<tr><td>Sent:</td><td><span id="pingsent"></span></td></tr>
 			<tr><td>Received:</td><td><span id="pingrcvd"></span></td></tr>
+			<tr><td>From:</td><td><span id="pingaddr"></span></td></tr>
 		</table><br />
 		</div>
-		<div id="loc_gps">Last known GPS location:
+		<div id="loc_gps"><h2>Last known GPS location:</h2>
 		<table>
 			<tr><td>At:</td><td><span id="ts_gps"></span></td></tr>
 			<tr id="tr_addr_gps"><td>Address:</td><td><span id="addr_gps"></span></td></tr>
 			<tr><td>Loc:</td><td><span id="lat_gps"></span> / <span id="lon_gps"></span></td></tr>
 			<tr id="tr_acc_gps"><td>Accuracy:</td><td>±<span id="acc_gps"></span>m</td></tr>
 			<tr id="tr_alt_gps"><td>Altitude:</td><td><span id="alt_gps"></span>m</td></tr>
-			<tr id="tr_speed_gps"><td>Speed:</td><td><span id="speed_gps"></span>m/s</td></tr>
+			<tr id="tr_speed_gps"><td>Speed:</td><td><span id="speed_gps"></span></td></tr>
 			<tr id="tr_bearing_gps"><td>Bearing:</td><td><span id="bearing_gps"></span>°</td></tr>
 		</table><br />
 		</div>
-		<div id="loc_net">Last known Network location:
+		<div id="loc_net"><h2>Last known Network location:</h2>
 		<table>
 			<tr><td>At:</td><td><span id="ts_net"></span></td></tr>
 			<tr id="tr_addr_net"><td>Address:</td><td><span id="addr_net"></span></td></tr>
 			<tr><td>Loc:</td><td><span id="lat_net"></span> / <span id="lon_net"></span></td></tr>
 			<tr id="tr_acc_net"><td>Accuracy:</td><td>±<span id="acc_net"></span>m</td></tr>
 			<tr id="tr_alt_net"><td>Altitude:</td><td><span id="alt_net"></span>m</td></tr>
-			<tr id="tr_speed_net"><td>Speed:</td><td><span id="speed_net"></span>m/s</td></tr>
+			<tr id="tr_speed_net"><td>Speed:</td><td><span id="speed_net"></span></td></tr>
 			<tr id="tr_bearing_net"><td>Bearing:</td><td><span id="bearing_net"></span>°</td></tr>
 		</table><br />
 		</div>
-		<div id="battery">Battery status:
+		<div id="battery"><h2>Battery status:</h2>
 		<table>
 			<tr><td>Level:</td><td><span id="bat_level"></span>%</td></tr>
 			<tr><td>Status:</td><td><span id="bat_status"></span></td></tr>
@@ -93,10 +112,10 @@
 			<tr><td>Health:</td><td><span id="bat_health"></span></td></tr>
 			<tr><td>Temperature:</td><td><span id="bat_temp"></span>°C</td></tr>
 			<tr><td>Voltage:</td><td><span id="bat_volt"></span>V</td></tr>
-			<tr><td>Technology:</td><td><span id="bat_tech"></span></td></tr>
+			<tr style="display:none"><td>Technology:</td><td><span id="bat_tech"></span></td></tr>
 		</table><br />
 		</div>
-		<div id="conn">Connection status:
+		<div id="conn"><h2>Connection status:</h2>
 		<table>
 			<tr><td>Type:</td><td><span id="conn_type"></span><span id="tr_conn_extra"> (<span id="conn_extra"></span>)</span></td></tr>
 			<tr id="tr_conn_subtype"><td>Sub-Type:</td><td><span id="conn_subtype"></span></td></tr>
@@ -106,25 +125,31 @@
 			<tr id="tr_conn_reason"><td>Reason:</td><td><span id="conn_reason"></span></td></tr>
 		</table><br />
 		</div>
-		<div id="wifi_scan">WIFI scan:
+	</div>
+	<div id="infobox2" class="infobox">
+		<div id="wifi_scan"><!-- <h2>WIFI scan:</h2> -->
 		<table id="wifi_table">
-		</table><br />
+		</table><!-- <br /> -->
 		</div>
 	</div>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false&language=de"></script>
 	<script type="text/javascript">
 $(function() {
+var mapTypeId = google.maps.MapTypeId.HYBRID;
 var centerLat = 53.578137;
 var centerLon = 9.997044;
+var zoom = 18;
+
 var lastmod = "";
 
 var map = new google.maps.Map(document.getElementById("map_canvas"), {
 	center: new google.maps.LatLng(centerLat, centerLon),
-	zoom: 14,
-	mapTypeId: google.maps.MapTypeId.ROADMAP,
-	streetViewControl: true
+	zoom: zoom,
+	mapTypeId: mapTypeId,
+	streetViewControl: false,
+	disableDefaultUI: true
 });
 
 var geocoder = new google.maps.Geocoder();
@@ -157,10 +182,15 @@ var clients = {};
 				var client = {};
 				client.ts = record.ts;
 				client.id = record.client;
+
 				$("#pingsent").text(new Date(record.ts).toLocaleString());
+
 				if (lastmod) {
 					$("#pingrcvd").text(new Date(lastmod).toLocaleString());
+					$("#ping > table").effect("highlight");
 				}
+
+				$("#pingaddr").text((record.ipaddr)?(record.ipaddr):(""));
 
 				var loc_gps = {};
 				if (record.loc_gps) {
@@ -187,7 +217,7 @@ var clients = {};
 					}
 					if (record.loc_gps.speed) {
 						loc_gps.speed = record.loc_gps.speed;
-						$("#speed_gps").text(loc_gps.speed);
+						$("#speed_gps").text((Math.round(loc_gps.speed*1000)/1000).toFixed(2) + "m/s (" + (Math.round(loc_gps.speed * 3600)/1000).toFixed(2) + "km/h)");
 						$("#tr_speed_gps").show();
 					} else {
 						$("#tr_speed_gps").hide();
@@ -229,7 +259,7 @@ var clients = {};
 					}
 					if (record.loc_net.speed) {
 						loc_net.speed = record.loc_net.speed;
-						$("#speed_net").text(loc_net.speed);
+						$("#speed_net").text((Math.round(loc_net.speed*1000)/1000).toFixed(2) + "m/s (" + (Math.round(loc_net.speed * 3600)/1000).toFixed(2) + "km/h)");
 						$("#tr_speed_net").show();
 					} else {
 						$("#tr_speed_net").hide();
@@ -288,25 +318,29 @@ var clients = {};
 					$("#bat_tech").text(bat.tech);
 					bat.volt = record.battery.volt;
 					$("#bat_volt").text(bat.volt / 1000);
-					$("#battery").show();
+//					$("#battery").show();
 				} else {
 					$("#battery").hide();
 				}
 
 				if (record.wifi && record.wifi.length) {
-					$("#wifi_table").html("<tr><th>SSID</th><th>BSSID</th><th>Level</th><th>Frequency</th></tr>");
+					record.wifi.sort(function(a, b){ return (b.level - a.level); });
+//					$("#wifi_table").html("<tr><th>SSID</th><th>BSSID</th><th>Level</th><th>Frequency</th></tr>");
+					$("#wifi_table").empty();
 					$.each(record.wifi, function(i, record) {
 						level = Math.max(-90, Math.min(-40, parseInt(record.level)));
 						level_scaled = Math.round((level + 40) * -(255/50)); // TODO: log scaling?
-						$("#wifi_table").append($("<tr>").css("background-color", "rgba(" + level_scaled + ", 255, " + level_scaled + ", .6)")
+						$("#wifi_table").append($("<tr>").css("background-color", "rgba(" + level_scaled + ", 255, " + level_scaled + ", .8)")
 							.append($("<td>").text((record.SSID === "")?("<hidden>"):(record.SSID)))
 							.append($("<td>").text(record.BSSID))
 							.append($("<td>").text(record.level + " dBm").addClass("numeric"))
 							.append($("<td>").text(record.freq/1000 + " GHz").addClass("numeric")));
 					});
 					$("#wifi_scan").show();
+//					$("#wifi_table").show();
 				} else {
 					$("#wifi_scan").hide();
+//					$("#wifi_table").hide();
 				}
 
 				if (record.conn_active) {
@@ -349,35 +383,62 @@ var clients = {};
 				client.bat = bat;
 
 				var thisclient = null;
-				var marker = null;
-				var circle = null;
+
+				var marker_gps = null;
+				var circle_gps = null;
+
+				var marker_net = null;
+				var circle_net = null;
 
 				if (clients[client.id]) {
 					thisclient = clients[client.id];
-					marker = thisclient.marker;
+
+					marker_gps = thisclient.marker_gps;
+					circle_gps = thisclient.circle_gps;
+
+					marker_net = thisclient.marker_net;
+					circle_net = thisclient.circle_net;
 				}
 				
 				if (!$.isEmptyObject(loc_gps)) {
-					if (marker) {
-						marker.setPosition(new google.maps.LatLng(loc_gps.lat, loc_gps.lon));
-					} else {
-						marker = new google.maps.Marker({
-							position: new google.maps.LatLng(loc_gps.lat, loc_gps.lon),
-							map: map,
+					if (!marker_gps) {
+						marker_gps = new google.maps.Marker({
+//							icon: new google.maps.MarkerImage("//maps.google.com/mapfiles/ms/icons/red-dot.png")
 						});
 					}
 
+					marker_gps.setOptions({
+						position: new google.maps.LatLng(loc_gps.lat, loc_gps.lon),
+						map: map,
+						icon: {
+							path: (loc_gps.bearing) ? (google.maps.SymbolPath.FORWARD_CLOSED_ARROW) : (google.maps.SymbolPath.CIRCLE),
+							scale: 8,
+							strokeWeight: 1,
+							fillColor: '#FF0000',
+							fillOpacity: 0.6,
+							anchor: (loc_gps.bearing) ? (new google.maps.Point(0, 2)) : (new google.maps.Point(0, 0)),
+							rotation: (loc_gps.bearing) ? (loc_gps.bearing) : (0)
+						}
+					});
+
 					if (loc_gps.acc) {
-						circle = new google.maps.Circle({
+						if (!circle_gps) {
+							circle_gps = new google.maps.Circle({
+								clickable: false,
+								strokeOpacity: .33,
+								strokeColor: "#00FF00",
+								fillColor: "#00FF00",
+								fillOpacity: .25
+							});
+						}
+
+						circle_gps.setOptions({
 							center: new google.maps.LatLng(loc_gps.lat, loc_gps.lon),
 							radius: (loc_gps.acc > 0)?(loc_gps.acc):(0.01),
-							map: map,
-							clickable: false,
-							strokeOpacity: .33,
-							strokeColor: "#00FF00",
-							fillColor: "#00FF00",
-							fillOpacity: .25
+							map: map
 						});
+					} else if (circle_gps) {
+						circle_gps.setMap(null);
 					}
 
 					map.panTo(new google.maps.LatLng(loc_gps.lat, loc_gps.lon));
@@ -393,10 +454,43 @@ var clients = {};
 								$("#tr_addr_gps").hide();
 							}
 						});
+						$("#loc_gps > table").effect("highlight");
 					}
 				}
 
 				if (!$.isEmptyObject(loc_net)) {
+/*
+					if (marker_net) {
+						marker_net.setPosition(new google.maps.LatLng(loc_net.lat, loc_net.lon));
+					} else {
+						marker_net = new google.maps.Marker({
+							position: new google.maps.LatLng(loc_net.lat, loc_net.lon),
+							map: map,
+							icon: new google.maps.MarkerImage("//maps.google.com/mapfiles/ms/icons/red.png")
+						});
+					}
+*/
+
+					if (loc_net.acc) {
+						if (!circle_net) {
+							circle_net = new google.maps.Circle({
+								clickable: false,
+								strokeOpacity: .33,
+								strokeColor: "#0000FF",
+								fillColor: "#0000FF",
+								fillOpacity: .25
+							});
+						}
+
+						circle_net.setOptions({
+							center: new google.maps.LatLng(loc_net.lat, loc_net.lon),
+							radius: (loc_net.acc > 0)?(loc_net.acc):(0.01),
+							map: map
+						});
+					} else if (circle_net) {
+						circle_net.setMap(null);
+					}
+
 					if (!thisclient || $.isEmptyObject(thisclient.loc_net) ||
 							(thisclient.loc_net.lat != loc_net.lat || thisclient.loc_net.lon != loc_net.lon)) {
 						geocoder.geocode({"latLng": new google.maps.LatLng(loc_net.lat, loc_net.lon)}, function(results, status) {
@@ -407,17 +501,19 @@ var clients = {};
 								$("#tr_addr_net").hide();
 							}
 						});
+						$("#loc_net > table").effect("highlight");
 					}
 				}
 
 				if (!thisclient) {
 					thisclient = client;
-				} else if (thisclient.circle) {
-					thisclient.circle.setMap(null);
 				}
 
-				thisclient.marker = marker;
-				thisclient.circle = circle;
+				thisclient.marker_gps = marker_gps;
+				thisclient.circle_gps = circle_gps;
+
+				thisclient.marker_net = marker_net;
+				thisclient.circle_net = circle_net;
 
 				clients[client.id] = thisclient;
 			});
@@ -426,7 +522,6 @@ var clients = {};
 		complete: function() {
 			$(".infobox").removeClass("loading");
 			setTimeout(updateVars, 22222);
-//			setTimeout(updateVars, 1111);
 		}
 	});
 })();
