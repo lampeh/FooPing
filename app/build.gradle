@@ -21,6 +21,10 @@ android {
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
 
+	lintOptions {
+		abortOnError false
+	}
+
 	if (project.hasProperty('signingFromEnv')) {
 		signingConfigs {
 			release {
@@ -87,5 +91,5 @@ dependencies {
 	//noinspection GradleDynamicVersion
 	fullCompile 'com.google.android.gms:play-services:+'
 	//noinspection GradleDynamicVersion
-	compile 'com.android.support:support-v4:20.+'
+	compile 'com.android.support:support-v4:22.+'
 }

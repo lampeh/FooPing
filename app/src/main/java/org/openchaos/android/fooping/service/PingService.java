@@ -138,7 +138,7 @@ public class PingService extends IntentService {
 			return;
 		}
 
-		ArrayList<Bundle> results = new ArrayList<Bundle>();
+		ArrayList<Bundle> results = new ArrayList<>();
 
 		Log.d(tag, "onHandleIntent(): " + action);
 
@@ -480,7 +480,7 @@ public class PingService extends IntentService {
 								if (location.hasBearing()) loc_data.put("bearing", roundValue(location.getBearing(), 4));
 								json.put("loc_gps", loc_data);
 
-								ArrayList<Bundle> results = new ArrayList<Bundle>();
+								ArrayList<Bundle> results = new ArrayList<>();
 								results.add(prepareMessage(json));
 
 								// return data through ResultReceiver
