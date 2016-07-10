@@ -1,40 +1,39 @@
 apply plugin: 'com.android.application'
 
-
 // Version name from git-describe
 // http://stackoverflow.com/a/18021756
 def getGitVersionName = { ->
-	try {
-		def stdout = new ByteArrayOutputStream()
-		exec {
-			commandLine 'git', 'describe', '--tags', '--dirty'
-			standardOutput = stdout
-		}
-		return stdout.toString().trim()
-	}
-	catch (ignored) {
-		return null;
-	}
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--dirty'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        return null;
+    }
 }
 
 android {
     compileSdkVersion 23
     buildToolsVersion '24.0.0'
 
-	lintOptions {
-		abortOnError false
-	}
+    lintOptions {
+        abortOnError false
+    }
 
-	if (project.hasProperty('signingFromEnv')) {
-		signingConfigs {
-			release {
-				storeFile file(System.getenv("KEYSTORE"))
-				storePassword System.getenv("KEYSTORE_PASSWORD")
-				keyAlias System.getenv("KEY_ALIAS")
-				keyPassword System.getenv("KEY_PASSWORD")
-			}
-		}
-	}
+    if (project.hasProperty('signingFromEnv')) {
+        signingConfigs {
+            release {
+                storeFile file(System.getenv("KEYSTORE"))
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId "org.openchaos.android.fooping"
@@ -44,16 +43,16 @@ android {
         versionName getGitVersionName()
     }
 
-	productFlavors {
-		full {
-		}
-		nogcm {
-			applicationId "org.openchaos.android.fooping.nogcm"
-			versionName getGitVersionName() + "-NOGCM"
-		}
-	}
+    productFlavors {
+        full {
+        }
+        nogcm {
+            applicationId "org.openchaos.android.fooping.nogcm"
+            versionName getGitVersionName() + "-NOGCM"
+        }
+    }
 
-    buildTypes {
+	buildTypes {
 		release {
 			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -61,29 +60,32 @@ android {
 				signingConfig signingConfigs.release
 			}
 		}
-    }
-
-	// https://gist.github.com/stefanhoth/faedeb4c58615992937d
-	// instead of "app-release.apk" this method will rewrite the name to
-	// "MyCoolCompany-MyGreatProduct-v<defaultConfig.versionName>-RELEASE.apk which is much better suited for archiving and overall handling
-	// To restore the default behavior just delete the whole block below
-	applicationVariants.each { variant ->
-		def apk = variant.outputFile;
-		def buildVers = System.getenv("BUILD_NUMBER");
-		def newName = "-" + defaultConfig.versionName + "-";
-
-		if (buildVers) {
-			newName += "build" + buildVers + "-";
+		debug {
+			minifyEnabled true
 		}
-		newName += variant.buildType.name.toUpperCase() + ".apk"
-		newName = apk.name.replace("-" + variant.buildType.name, "")
-				.replace(project.name, "FooPing")
-				.replace(".apk", newName);
-
-		variant.outputFile = new File(apk.parentFile, newName);
-
-		logger.info('INFO: Set outputFile to ' + variant.outputFile + " for [" + variant.name + "]");
 	}
+
+    // https://gist.github.com/stefanhoth/faedeb4c58615992937d
+    // instead of "app-release.apk" this method will rewrite the name to
+    // "MyCoolCompany-MyGreatProduct-v<defaultConfig.versionName>-RELEASE.apk which is much better suited for archiving and overall handling
+    // To restore the default behavior just delete the whole block below
+    applicationVariants.each { variant ->
+        def apk = variant.outputFile;
+        def buildVers = System.getenv("BUILD_NUMBER");
+        def newName = "-" + defaultConfig.versionName + "-";
+
+        if (buildVers) {
+            newName += "build" + buildVers + "-";
+        }
+        newName += variant.buildType.name.toUpperCase() + ".apk"
+        newName = apk.name.replace("-" + variant.buildType.name, "")
+                .replace(project.name, "FooPing")
+                .replace(".apk", newName);
+
+        variant.outputFile = new File(apk.parentFile, newName);
+
+        logger.info('INFO: Set outputFile to ' + variant.outputFile + " for [" + variant.name + "]");
+    }
 }
 
 dependencies {
