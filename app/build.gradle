@@ -19,7 +19,7 @@ def getGitVersionName = { ->
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '+'
 
 	lintOptions {
 		abortOnError false
