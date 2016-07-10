@@ -1,4 +1,4 @@
-yapply plugin: 'com.android.application'
+apply plugin: 'com.android.application'
 
 
 // Version name from git-describe
