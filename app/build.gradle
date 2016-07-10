@@ -18,7 +18,7 @@ def getGitVersionName = { ->
 }
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 23
     buildToolsVersion '24.0.0'
 
 	lintOptions {
@@ -39,7 +39,7 @@ android {
     defaultConfig {
         applicationId "org.openchaos.android.fooping"
         minSdkVersion 15
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode 3
         versionName getGitVersionName()
     }
@@ -91,5 +91,5 @@ dependencies {
 	//noinspection GradleDynamicVersion
 	fullCompile 'com.google.android.gms:play-services:+'
 	//noinspection GradleDynamicVersion
-	compile 'com.android.support:support-v4:24.+'
+	compile 'com.android.support:support-v4:23.+'
 }
